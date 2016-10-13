@@ -234,6 +234,8 @@ namespace PrismaDB.QueryParser
 
         private Boolean CheckCNF(Expression expr)
         {
+            if (expr == null)
+                return true;
             if (expr.GetType() == typeof(OrClause))
             {
                 OrClause or = (OrClause)expr;
