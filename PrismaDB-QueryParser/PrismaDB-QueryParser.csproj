@@ -30,6 +30,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Irony, Version=1.0.0.0, Culture=neutral, PublicKeyToken=ca48ace7223ead47, processorArchitecture=MSIL">
+      <HintPath>..\packages\Irony.0.9.1\lib\net40\Irony.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="PrismaDB-QueryAST, Version=0.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\PrismaDB-QueryAST.0.1.2\lib\net40\PrismaDB-QueryAST.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -40,9 +48,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Clauses.cs" />
+    <Compile Include="SqlParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SqlGrammar.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
