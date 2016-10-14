@@ -2,7 +2,7 @@
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryAST.Misc;
+using PrismaDB.Commons;
 using System;
 using System.Collections.Generic;
 
