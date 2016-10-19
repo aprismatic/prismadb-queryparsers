@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PrismaDB.QueryParser")]
+[assembly: AssemblyTitle("PrismaDB-QueryParser")]
 [assembly: AssemblyDescription("SQL query parser for PrismaDB project.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Vasily Sidorov (bazzilic) / Nanyang Technological University")]
