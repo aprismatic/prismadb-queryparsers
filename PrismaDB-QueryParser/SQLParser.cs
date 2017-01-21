@@ -58,9 +58,7 @@ namespace PrismaDB.QueryParser
                         else if (stmtNode.Term.Name.Equals("createTableStmt"))
                         {
                             CreateTableQuery createQuery = new CreateTableQuery();
-
                             BuildCreateTableQuery(createQuery, stmtNode);
-
                             queries.Add(createQuery);
                         }
                     }
@@ -131,6 +129,8 @@ namespace PrismaDB.QueryParser
                         if (paraNode != null) colDef.Length = Convert.ToInt32(paraNode.Token.ValueString);
 
                         colDef.Nullable = CheckNull(FindChildNode(fieldDefNode, "nullSpecOpt"));
+
+                        colDef.EncryptionFlags = CheckEncryption(FindChildNode(fieldDefNode, "encryptionOpt"));
 
                         ParseTreeNode newidNode = FindChildNode(FindChildNode(fieldDefNode, "newidOpt"), "DEFAULT NEWID()");
                         if (newidNode != null) colDef.isRowId = true;
@@ -530,6 +530,47 @@ namespace PrismaDB.QueryParser
             }
             return true;
         }
+
+
+
+        public ColumnEncryptionFlags CheckEncryption(ParseTreeNode node)
+        {
+            ColumnEncryptionFlags flags = ColumnEncryptionFlags.None;
+            if (node != null)
+            {
+                if (node.ChildNodes.Count > 1)
+                {
+                    if (node.ChildNodes[0].Token.ValueString.Equals("encrypted") && node.ChildNodes[1].Token.ValueString.Equals("for"))
+                    {
+                        ParseTreeNode encryptTypeNodes = FindChildNode(node, "encryptTypeList");
+                        if(encryptTypeNodes != null)
+                        {
+                            foreach (ParseTreeNode childNode in encryptTypeNodes.ChildNodes)
+                            {
+                                if (FindChildNode(childNode, "TEXT") != null)
+                                {
+                                    flags |= ColumnEncryptionFlags.Text;
+                                }
+                                if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
+                                {
+                                    flags |= ColumnEncryptionFlags.IntegerAddition;
+                                }
+                                if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
+                                {
+                                    flags |= ColumnEncryptionFlags.IntegerMultiplication;
+                                }
+                                if (FindChildNode(childNode, "SEARCH") != null)
+                                {
+                                    flags |= ColumnEncryptionFlags.Search;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return flags;
+        }
+
 
         private ColumnRef BuildColumnRef(ParseTreeNode node)
         {
