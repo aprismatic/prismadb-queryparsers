@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaDB-QueryParser", "PrismaDB-QueryParser\PrismaDB-QueryParser.csproj", "{E91D7C81-69CF-4BF2-9763-12C9B140B133}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test Project", "Test Project\Test Project.csproj", "{3393A898-F04B-4BED-8039-4B5A8209BBF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrismaDB-QueryParser-Test", "PrismaDB-QueryParser-Test\PrismaDB-QueryParser-Test.csproj", "{FAC861AD-58E9-4BE4-9385-599611450DA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{E91D7C81-69CF-4BF2-9763-12C9B140B133}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E91D7C81-69CF-4BF2-9763-12C9B140B133}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E91D7C81-69CF-4BF2-9763-12C9B140B133}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3393A898-F04B-4BED-8039-4B5A8209BBF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3393A898-F04B-4BED-8039-4B5A8209BBF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3393A898-F04B-4BED-8039-4B5A8209BBF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3393A898-F04B-4BED-8039-4B5A8209BBF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAC861AD-58E9-4BE4-9385-599611450DA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAC861AD-58E9-4BE4-9385-599611450DA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAC861AD-58E9-4BE4-9385-599611450DA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAC861AD-58E9-4BE4-9385-599611450DA2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Test Project")]
+[assembly: AssemblyTitle("PrismaDB-QueryParser-Test")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Test Project")]
+[assembly: AssemblyProduct("PrismaDB-QueryParser-Test")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3393a898-f04b-4bed-8039-4b5a8209bbf3")]
+[assembly: Guid("fac861ad-58e9-4be4-9385-599611450da2")]
 
 // Version information for an assembly consists of the following four values:
 //
