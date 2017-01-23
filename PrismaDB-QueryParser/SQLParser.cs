@@ -543,7 +543,7 @@ namespace PrismaDB.QueryParser
                     if (node.ChildNodes[0].Token.ValueString.Equals("encrypted") && node.ChildNodes[1].Token.ValueString.Equals("for"))
                     {
                         ParseTreeNode encryptTypeNodes = FindChildNode(node, "encryptTypeList");
-                        if(encryptTypeNodes != null)
+                        if (encryptTypeNodes != null)
                         {
                             foreach (ParseTreeNode childNode in encryptTypeNodes.ChildNodes)
                             {
@@ -551,15 +551,15 @@ namespace PrismaDB.QueryParser
                                 {
                                     flags |= ColumnEncryptionFlags.Text;
                                 }
-                                if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
+                                else if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
                                 {
                                     flags |= ColumnEncryptionFlags.IntegerAddition;
                                 }
-                                if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
+                                else if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
                                 {
                                     flags |= ColumnEncryptionFlags.IntegerMultiplication;
                                 }
-                                if (FindChildNode(childNode, "SEARCH") != null)
+                                else if (FindChildNode(childNode, "SEARCH") != null)
                                 {
                                     flags |= ColumnEncryptionFlags.Search;
                                 }
