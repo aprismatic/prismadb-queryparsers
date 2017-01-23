@@ -17,11 +17,11 @@ namespace PrismaDB_QueryParser_Test
             // Setup
             SqlParser parser;
             parser = new SqlParser();
-            string test = "CREATE TABLE ttt "+
-                "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, integer_multiplication) NOT NULL, "+
-                "bbb INT NULL, "+
+            string test = "CREATE TABLE ttt " +
+                "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
+                "bbb INT NULL, " +
                 "ccc VARCHAR(80) NOT NULL, " +
-                "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, search))";
+                "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH))";
 
             // Act
             List<Query> result = parser.ParseToAST(test);
@@ -51,6 +51,6 @@ namespace PrismaDB_QueryParser_Test
         }
 
 
-       
+
     }
 }
