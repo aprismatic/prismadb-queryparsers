@@ -5,6 +5,10 @@ using System.Data;
 
 namespace PrismaDB.QueryParser
 {
+    /// <summary>
+    /// Additional AndClause to assist with conversion to CNF form.
+    /// Not available in QueryAST.
+    /// </summary>
     class AndClause : Expression
     {
         public Expression left, right;
@@ -44,6 +48,10 @@ namespace PrismaDB.QueryParser
         }
     }
 
+    /// <summary>
+    /// Additional OrClause to assist with conversion to CNF form.
+    /// Not available in QueryAST.
+    /// </summary>
     class OrClause : Expression
     {
         public Expression left, right;

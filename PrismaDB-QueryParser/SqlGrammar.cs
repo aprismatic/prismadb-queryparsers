@@ -47,6 +47,8 @@ namespace PrismaDB.QueryParser
             //var COUNT = ToTerm("COUNT");
             //var JOIN = ToTerm("JOIN");
             //var BY = ToTerm("BY");
+            var ENCRYPTED = ToTerm("ENCRYPTED");
+            var FOR = ToTerm("FOR");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -121,6 +123,10 @@ namespace PrismaDB.QueryParser
             var insertDataList = new NonTerminal("insertDataList"); // new
             var newidOpt = new NonTerminal("newidOpt"); // new
 
+            var encryptionOpt = new NonTerminal("encryptionOpt");
+            var encryptTypeList = new NonTerminal("encryptTypeList");
+            var encryptType = new NonTerminal("encryptType");
+
             //BNF Rules
             this.Root = stmtList;
             stmtLine.Rule = stmt + semiOpt;
@@ -137,7 +143,12 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + nullSpecOpt + newidOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + newidOpt;
+
+            encryptionOpt.Rule = ENCRYPTED + FOR + "(" + encryptTypeList + ")" | Empty;
+            encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
+            encryptType.Rule = ToTerm("TEXT") | ToTerm("INTEGER_ADDITION") | ToTerm("INTEGER_MULTIPLICATION") | ToTerm("SEARCH");
+
             nullSpecOpt.Rule = NULL | NOT + NULL | Empty;
             typeName.Rule = ToTerm("BIT") | "int" | "char" | "varchar" | "nchar" | "nvarchar" | "binary" | "varbinary" | "uniqueidentifier";
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
