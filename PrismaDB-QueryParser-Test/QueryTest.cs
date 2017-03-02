@@ -1,33 +1,30 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PrismaDB.QueryParser;
-using System.Collections.Generic;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
+using PrismaDB.QueryAST.DML;
 
 namespace PrismaDB_QueryParser_Test
 {
     [TestClass]
     public class QueryTest
     {
-
         [TestMethod]
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
-            SqlParser parser;
-            parser = new SqlParser();
-            string test = "CREATE TABLE ttt " +
-                "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
-                "bbb INT NULL, " +
-                "ccc VARCHAR(80) NOT NULL, " +
-                "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH))";
+            var parser = new SqlParser();
+            var test = "CREATE TABLE ttt " +
+                          "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
+                          "[bbb] INT NULL, " +
+                          "ccc VARCHAR(80) NOT NULL, " +
+                          "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH))";
 
             // Act
-            List<Query> result = parser.ParseToAST(test);
+            var result = parser.ParseToAST(test);
 
-            // Assert  
-            CreateTableQuery actual = (CreateTableQuery)result[0];
+            // Assert
+            var actual = (CreateTableQuery)result[0];
 
             Assert.AreEqual(actual.TableName.TableName, new TableRef("ttt").TableName);
             Assert.AreEqual(actual.ColumnDefinitions[0].ColumnName, "aaa");
@@ -50,7 +47,32 @@ namespace PrismaDB_QueryParser_Test
             Assert.AreEqual(actual.ColumnDefinitions[3].Nullable, true);
         }
 
+        [TestMethod]
+        public void Parse_InsertInto()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) VALUES ( 1, 2 , 'hey', 'hi' ), (0,050,'  ', '&')";
 
+            // Act
+            var result = parser.ParseToAST(test);
 
+            // Assert
+            var actual = (InsertQuery)result[0];
+
+            Assert.AreEqual(actual.Into.TableName, new TableRef("tt1").TableName);
+            Assert.AreEqual(actual.Columns[0].ColumnName, "col1");
+            Assert.AreEqual(actual.Columns[0].Table.TableName, new TableRef("tt1").TableName);
+            Assert.AreEqual(actual.Columns[1].ColumnName, "col2");
+            Assert.AreEqual(actual.Columns[1].Table.TableName, new TableRef("tt1").TableName);
+            Assert.AreEqual(actual.Columns[2].ColumnName, "col3");
+            Assert.AreEqual(actual.Columns[2].Table.TableName, new TableRef("tt1").TableName);
+            Assert.AreEqual(actual.Columns[3].ColumnName, "col4");
+            Assert.AreEqual(actual.Columns[3].Table.TableName, new TableRef("tt1").TableName);
+            Assert.AreEqual(actual.Values.Count, 2);
+            Assert.AreEqual((actual.Values[1][1] as IntConstant)?.intvalue, 50);
+            Assert.AreEqual((actual.Values[1][2] as StringConstant)?.strvalue, "  ");
+            Assert.AreEqual((actual.Values[1][3] as StringConstant)?.strvalue, "&");
+        }
     }
 }
