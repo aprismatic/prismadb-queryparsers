@@ -12,6 +12,7 @@ namespace PrismaDB.QueryParser
     class AndClause : Expression
     {
         public Expression left, right;
+
         public AndClause(Expression left, Expression right)
         {
             this.left = left;
@@ -43,6 +44,16 @@ namespace PrismaDB.QueryParser
         }
 
         public override string ToString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
         {
             throw new NotImplementedException();
         }
@@ -86,6 +97,16 @@ namespace PrismaDB.QueryParser
         }
 
         public override string ToString()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override bool Equals(object other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override int GetHashCode()
         {
             throw new NotImplementedException();
         }

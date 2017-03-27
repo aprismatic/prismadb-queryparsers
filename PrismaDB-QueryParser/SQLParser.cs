@@ -132,8 +132,7 @@ namespace PrismaDB.QueryParser
                     foreach (ParseTreeNode fieldDefNode in mainNode.ChildNodes)
                     {
                         // Create and set name of column definition
-                        ColumnDefinition colDef = new ColumnDefinition();
-                        colDef.ColumnName = BuildColumnRef(FindChildNode(fieldDefNode, "Id")).ColumnName;
+                        var colDef = new ColumnDefinition(BuildColumnRef(FindChildNode(fieldDefNode, "Id")).ColumnName);
 
                         // Check for datatype
                         ParseTreeNode dataTypeNode = FindChildNode(fieldDefNode, "typeName");
