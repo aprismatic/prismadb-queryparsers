@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PrismaDB.QueryParser;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
@@ -73,6 +74,19 @@ namespace PrismaDB_QueryParser_Test
             Assert.AreEqual((actual.Values[1][1] as IntConstant)?.intvalue, 50);
             Assert.AreEqual((actual.Values[1][2] as StringConstant)?.strvalue, "  ");
             Assert.AreEqual((actual.Values[1][3] as StringConstant)?.strvalue, "&");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(NotSupportedException),
+            "Database switching not supported.")]
+        public void Parse_Use()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "USE ThisDB";
+
+            // Act
+            parser.ParseToAST(test);
         }
     }
 }
