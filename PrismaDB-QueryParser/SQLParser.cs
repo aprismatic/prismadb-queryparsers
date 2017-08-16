@@ -4,6 +4,7 @@ using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.Commons;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 
 
@@ -73,6 +74,11 @@ namespace PrismaDB.QueryParser
                             CreateTableQuery createQuery = new CreateTableQuery();
                             BuildCreateTableQuery(createQuery, stmtNode);
                             queries.Add(createQuery);
+                        }
+
+                        else if (stmtNode.Term.Name.Equals("useStmt"))
+                        {
+                            throw new NotSupportedException("Database switching not supported.");
                         }
                     }
                 }

@@ -49,6 +49,7 @@ namespace PrismaDB.QueryParser
             //var BY = ToTerm("BY");
             var ENCRYPTED = ToTerm("ENCRYPTED");
             var FOR = ToTerm("FOR");
+            var USE = ToTerm("USE");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -62,6 +63,7 @@ namespace PrismaDB.QueryParser
             var insertStmt = new NonTerminal("insertStmt");
             var updateStmt = new NonTerminal("updateStmt");
             var deleteStmt = new NonTerminal("deleteStmt");
+            var useStmt = new NonTerminal("useStmt");
             var fieldDef = new NonTerminal("fieldDef");
             var fieldDefList = new NonTerminal("fieldDefList");
             var nullSpecOpt = new NonTerminal("nullSpecOpt");
@@ -138,7 +140,7 @@ namespace PrismaDB.QueryParser
 
             stmt.Rule = createTableStmt //| alterStmt | createIndexStmt
                                         //| dropTableStmt | dropIndexStmt
-                      | selectStmt | insertStmt | updateStmt | deleteStmt
+                      | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
                       | "GO";
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
@@ -178,6 +180,9 @@ namespace PrismaDB.QueryParser
             //Drop stmts
             //dropTableStmt.Rule = DROP + TABLE + Id;
             //dropIndexStmt.Rule = DROP + INDEX + Id + ON + Id;
+
+            //Use stmt
+            useStmt.Rule = USE + Id;
 
             //Insert stmt
             insertStmt.Rule = INSERT + intoOpt + Id + idlistPar + VALUES + insertDataList;
