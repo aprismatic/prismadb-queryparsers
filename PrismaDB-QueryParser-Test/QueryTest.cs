@@ -1,5 +1,5 @@
 ﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 using PrismaDB.QueryParser;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
@@ -7,10 +7,9 @@ using PrismaDB.QueryAST.DML;
 
 namespace PrismaDB_QueryParser_Test
 {
-    [TestClass]
     public class QueryTest
     {
-        [TestMethod]
+        [Fact]
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
@@ -27,28 +26,28 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             var actual = (CreateTableQuery)result[0];
 
-            Assert.AreEqual(actual.TableName, new TableRef("ttt"));
-            Assert.AreEqual(actual.ColumnDefinitions[0].ColumnName, new Identifier("aaa"));
-            Assert.AreEqual(actual.ColumnDefinitions[0].DataType, SQLDataType.INT);
-            Assert.AreEqual(actual.ColumnDefinitions[0].EncryptionFlags, ColumnEncryptionFlags.IntegerAddition | ColumnEncryptionFlags.IntegerMultiplication);
-            Assert.AreEqual(actual.ColumnDefinitions[0].Nullable, false);
-            Assert.AreEqual(actual.ColumnDefinitions[1].ColumnName, new Identifier("bbb"));
-            Assert.AreEqual(actual.ColumnDefinitions[1].DataType, SQLDataType.INT);
-            Assert.AreEqual(actual.ColumnDefinitions[1].EncryptionFlags, ColumnEncryptionFlags.None);
-            Assert.AreEqual(actual.ColumnDefinitions[1].Nullable, true);
-            Assert.AreEqual(actual.ColumnDefinitions[2].ColumnName, new Identifier("ccc"));
-            Assert.AreEqual(actual.ColumnDefinitions[2].DataType, SQLDataType.VARCHAR);
-            Assert.AreEqual(actual.ColumnDefinitions[2].Length, 80);
-            Assert.AreEqual(actual.ColumnDefinitions[2].EncryptionFlags, ColumnEncryptionFlags.None);
-            Assert.AreEqual(actual.ColumnDefinitions[2].Nullable, false);
-            Assert.AreEqual(actual.ColumnDefinitions[3].ColumnName, new Identifier("ddd"));
-            Assert.AreEqual(actual.ColumnDefinitions[3].DataType, SQLDataType.VARCHAR);
-            Assert.AreEqual(actual.ColumnDefinitions[3].Length, 20);
-            Assert.AreEqual(actual.ColumnDefinitions[3].EncryptionFlags, ColumnEncryptionFlags.Text | ColumnEncryptionFlags.Search);
-            Assert.AreEqual(actual.ColumnDefinitions[3].Nullable, true);
+            Assert.Equal(new TableRef("ttt"), actual.TableName);
+            Assert.Equal(new Identifier("aaa"), actual.ColumnDefinitions[0].ColumnName);
+            Assert.Equal(SQLDataType.INT, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(ColumnEncryptionFlags.IntegerAddition | ColumnEncryptionFlags.IntegerMultiplication, actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.False(actual.ColumnDefinitions[0].Nullable);
+            Assert.Equal(new Identifier("bbb"), actual.ColumnDefinitions[1].ColumnName);
+            Assert.Equal(SQLDataType.INT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[1].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[1].Nullable);
+            Assert.Equal(new Identifier("ccc"), actual.ColumnDefinitions[2].ColumnName);
+            Assert.Equal(SQLDataType.VARCHAR, actual.ColumnDefinitions[2].DataType);
+            Assert.Equal(80, actual.ColumnDefinitions[2].Length);
+            Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[2].EncryptionFlags);
+            Assert.False(actual.ColumnDefinitions[2].Nullable);
+            Assert.Equal(new Identifier("ddd"), actual.ColumnDefinitions[3].ColumnName);
+            Assert.Equal(SQLDataType.VARCHAR, actual.ColumnDefinitions[3].DataType);
+            Assert.Equal(20, actual.ColumnDefinitions[3].Length);
+            Assert.Equal(ColumnEncryptionFlags.Text | ColumnEncryptionFlags.Search, actual.ColumnDefinitions[3].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[3].Nullable);
         }
 
-        [TestMethod]
+        [Fact]
         public void Parse_InsertInto()
         {
             // Setup
@@ -61,24 +60,22 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             var actual = (InsertQuery)result[0];
 
-            Assert.AreEqual(actual.Into, new TableRef("tt1"));
-            Assert.AreEqual(actual.Columns[0].ColumnName, new Identifier("col1"));
-            Assert.AreEqual(actual.Columns[0].Table, new TableRef("tt1"));
-            Assert.AreEqual(actual.Columns[1].ColumnName, new Identifier("col2"));
-            Assert.AreEqual(actual.Columns[1].Table, new TableRef("tt1"));
-            Assert.AreEqual(actual.Columns[2].ColumnName, new Identifier("col3"));
-            Assert.AreEqual(actual.Columns[2].Table, new TableRef("tt1"));
-            Assert.AreEqual(actual.Columns[3].ColumnName, new Identifier("col4"));
-            Assert.AreEqual(actual.Columns[3].Table, new TableRef("tt1"));
-            Assert.AreEqual(actual.Values.Count, 2);
-            Assert.AreEqual((actual.Values[1][1] as IntConstant)?.intvalue, 50);
-            Assert.AreEqual((actual.Values[1][2] as StringConstant)?.strvalue, "  ");
-            Assert.AreEqual((actual.Values[1][3] as StringConstant)?.strvalue, "&");
+            Assert.Equal(new TableRef("tt1"), actual.Into);
+            Assert.Equal(new Identifier("col1"), actual.Columns[0].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[0].Table);
+            Assert.Equal(new Identifier("col2"), actual.Columns[1].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[1].Table);
+            Assert.Equal(new Identifier("col3"), actual.Columns[2].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[2].Table);
+            Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
+            Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
+            Assert.Equal(2, actual.Values.Count);
+            Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
+            Assert.Equal("  ", (actual.Values[1][2] as StringConstant)?.strvalue);
+            Assert.Equal("&", (actual.Values[1][3] as StringConstant)?.strvalue);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(NotSupportedException),
-            "Database switching not supported.")]
+        [Fact]
         public void Parse_Use()
         {
             // Setup
@@ -86,7 +83,8 @@ namespace PrismaDB_QueryParser_Test
             var test = "USE ThisDB";
 
             // Act
-            parser.ParseToAST(test);
+            var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAST(test));
+            Assert.Equal("Database switching not supported.", ex.Message);
         }
     }
 }
