@@ -12,6 +12,7 @@ build:
   publish_nuget_symbols: true
   verbosity: minimal
 before_build:
+  - nuget update -self
   - nuget restore
 test_script:
   - dotnet test .\PrismaDB-QueryParser-Test\PrismaDB-QueryParser-Test.csproj --no-build
