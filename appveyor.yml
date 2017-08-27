@@ -21,16 +21,6 @@ nuget:
   disable_publish_on_pr: true
 cache:
   - packages
-deploy:
-  provider: NuGet
-  server: https://www.nuget.org/api/v2/package
-  api_key:
-    secure: U630adFlFmWqwvorvfwA+YvFtAkfL+vw1EX0vCXbyk+R6qiLkIeqKek9yK+poBjV
-  skip_symbols: false
-  on:
-    APPVEYOR_REPO_TAG_NAME: /^v\d+\.\d+\.\d+$/
-    APPVEYOR_REPO_BRANCH: 'master'
-    APPVEYOR_PULL_REQUEST_NUMBER: ''
 environment:
   AppVeyorAPIToken:
     secure: GvygCCndEp8eiXvItooIyglWYnyfUvg4YNyaufw3N3A=
