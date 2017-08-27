@@ -8,7 +8,7 @@
     <Authors>Vasily Sidorov (bazzilic)</Authors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Irony" Version="0.9.1" />
+    <PackageReference Include="Irony.Core" Version="1.0.7" />
     <PackageReference Include="PrismaDB-QueryAST" Version="0.1.31" />
   </ItemGroup>
 </Project>
