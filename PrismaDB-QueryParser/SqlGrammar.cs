@@ -2,7 +2,6 @@
 
 namespace PrismaDB.QueryParser
 {
-
     // Loosely based on SQL89 grammar from Gold parser. Supports some extra TSQL constructs.
 
     [Language("SQL", "89", "SQL 89 grammar")]

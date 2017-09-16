@@ -152,7 +152,7 @@ namespace PrismaDB.QueryParser
                         }
                         else if (FindChildNode(dataTypeNode, "uniqueidentifier") != null)
                         {
-                            colDef.DataType = SQLDataType.UNIQUEIDENTIFIER;
+                            colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
                         }
                         else if (FindChildNode(dataTypeNode, "varbinary") != null)
                         {
