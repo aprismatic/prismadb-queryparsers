@@ -148,10 +148,28 @@ namespace PrismaDB.QueryParser
 
             encryptionOpt.Rule = ENCRYPTED + FOR + "(" + encryptTypeList + ")" | Empty;
             encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
-            encryptType.Rule = ToTerm("TEXT") | ToTerm("INTEGER_ADDITION") | ToTerm("INTEGER_MULTIPLICATION") | ToTerm("SEARCH");
+
+            var et_TEXT = ToTerm("TEXT");
+            var et_INTEGER_ADDITION = ToTerm("INTEGER_ADDITION");
+            var et_INTEGER_MULTIPLICATION = ToTerm("INTEGER_MULTIPLICATION");
+            var et_SEARCH = ToTerm("SEARCH");
+
+            encryptType.Rule = et_TEXT | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
 
             nullSpecOpt.Rule = NULL | NOT + NULL | Empty;
-            typeName.Rule = ToTerm("BIT") | "int" | "char" | "varchar" | "nchar" | "nvarchar" | "binary" | "varbinary" | "uniqueidentifier";
+
+            var t_INT = ToTerm("INT");
+            var t_CHAR = ToTerm("CHAR");
+            var t_VARCHAR = ToTerm("VARCHAR");
+            var t_NCHAR = ToTerm("NCHAR");
+            var t_NVARCHAR = ToTerm("NVARCHAR");
+            //var t_TEXT = ToTerm("TEXT");  // Already defined et_TEXT
+            var t_BINARY = ToTerm("BINARY");
+            var t_VARBINARY = ToTerm("VARBINARY");
+            var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
+
+            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | et_TEXT | t_BINARY | t_VARBINARY |
+                            t_UNIQUEIDENTIFIER;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
             newidOpt.Rule = "DEFAULT NEWID()" | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;

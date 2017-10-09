@@ -18,7 +18,8 @@ namespace PrismaDB_QueryParser_Test
                        "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
                        "[bbb] INT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
-                       "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH))";
+                       "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH), " +
+                       "eee TEXT NULL)";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -45,6 +46,9 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(20, actual.ColumnDefinitions[3].Length);
             Assert.Equal(ColumnEncryptionFlags.Text | ColumnEncryptionFlags.Search, actual.ColumnDefinitions[3].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[3].Nullable);
+            Assert.Equal(new Identifier("eee"), actual.ColumnDefinitions[4].ColumnName);
+            Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[4].DataType);
+            Assert.True(actual.ColumnDefinitions[4].Nullable);
         }
 
         [Fact]

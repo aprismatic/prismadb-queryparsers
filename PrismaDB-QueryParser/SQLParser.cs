@@ -142,21 +142,25 @@ namespace PrismaDB.QueryParser
 
                         // Check for datatype
                         ParseTreeNode dataTypeNode = FindChildNode(fieldDefNode, "typeName");
-                        if (FindChildNode(dataTypeNode, "int") != null)
+                        if (FindChildNode(dataTypeNode, "INT") != null)
                         {
                             colDef.DataType = SQLDataType.INT;
                         }
-                        else if (FindChildNode(dataTypeNode, "varchar") != null)
+                        else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
                         {
                             colDef.DataType = SQLDataType.VARCHAR;
                         }
-                        else if (FindChildNode(dataTypeNode, "uniqueidentifier") != null)
+                        else if (FindChildNode(dataTypeNode, "UNIQUEIDENTIFIER") != null)
                         {
                             colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
                         }
-                        else if (FindChildNode(dataTypeNode, "varbinary") != null)
+                        else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
                         {
                             colDef.DataType = SQLDataType.VARBINARY;
+                        }
+                        else if (FindChildNode(dataTypeNode, "TEXT") != null)
+                        {
+                            colDef.DataType = SQLDataType.TEXT;
                         }
 
                         // Check for datatype length
