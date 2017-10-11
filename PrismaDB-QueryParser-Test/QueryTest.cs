@@ -123,5 +123,21 @@ namespace PrismaDB_QueryParser_Test
             var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAST(test));
             Assert.Equal("Database switching not supported.", ex.Message);
         }
+
+        [Fact]
+        public void Parse_Function()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "SELECT CONNECTION_ID()";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+
+            Assert.Equal(new Function("CONNECTION_ID"), (Function)actual.SelectExpressions[0]);
+        }
     }
 }
