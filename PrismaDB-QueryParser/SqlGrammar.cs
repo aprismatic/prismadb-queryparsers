@@ -254,9 +254,10 @@ namespace PrismaDB.QueryParser
             betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
             notOpt.Rule = Empty | NOT;
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
-            funCall.Rule = Id + "()";
+            //funCall.Rule = Id + "()";
             //funCall.Rule = Id + "(" + Empty | exprList + ")";
-            //funCall.Rule = Id + "(" + funArgs + ")";
+            funCall.Rule = Id + "(" + funArgs + ")";
+            funArgs.Rule = Empty | exprList;
             //funArgs.Rule = selectStmt | exprList;
             //inStmt.Rule = expression + "IN" + "(" + exprList + ")";
 

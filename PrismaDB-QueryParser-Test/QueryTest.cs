@@ -137,7 +137,27 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             var actual = (SelectQuery)result[0];
 
-            Assert.Equal(new Function("CONNECTION_ID"), (Function)actual.SelectExpressions[0]);
+            Assert.Equal(new ScalarFunction("CONNECTION_ID"), (ScalarFunction)actual.SelectExpressions[0]);
+        }
+
+        [Fact]
+        public void Parse_FunctionWithParams()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "SELECT COUNT(tt.col1), TEST('string',12)";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+
+            Assert.Equal(new TableRef("tt"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).Table);
+            Assert.Equal(new Identifier("col1"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).ColumnName);
+
+            Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
+            Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
     }
 }

@@ -592,7 +592,7 @@ namespace PrismaDB.QueryParser
                 }
                 else if (node.Term.Name.Equals("funCall"))
                 {
-                    expr = BuildFunction(node);
+                    expr = BuildScalarFunction(node);
                 }
                 else if (node.Term.Name.Equals("string"))
                 {
@@ -738,11 +738,11 @@ namespace PrismaDB.QueryParser
         }
 
         /// <summary>
-        /// Build function with parameters.
+        /// Build ScalarFunction with parameters.
         /// </summary>
-        /// <param name="node">Parent node of column</param>
+        /// <param name="node">Parent node of ScalarFunction</param>
         /// <returns>Function call</returns>
-        private Expression BuildFunction(ParseTreeNode node)
+        private Expression BuildScalarFunction(ParseTreeNode node)
         {
             Expression exp = null;
 
@@ -750,12 +750,15 @@ namespace PrismaDB.QueryParser
             {
                 exp = BuildExpression(node.ChildNodes[0]);
             }
-            // Without parameters
-            else if (node.ChildNodes.Count == 2 && node.ChildNodes[0].Term.Name.Equals("Id") && node.ChildNodes[1].Term.Name.Equals("()"))
+            else if (node.ChildNodes.Count == 2 && node.ChildNodes[0].Term.Name.Equals("Id") && node.ChildNodes[1].Term.Name.Equals("funArgs"))
             {
                 if (node.ChildNodes[0].ChildNodes.Count == 1 && node.ChildNodes[0].ChildNodes[0].Term.Name.Equals("id_simple"))
                 {
-                    exp = new Function(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
+                    exp = new ScalarFunction(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
+                }
+                if (node.ChildNodes[1].ChildNodes.Count == 1 && node.ChildNodes[1].ChildNodes[0].Term.Name.Equals("exprList"))
+                {
+                    ((ScalarFunction)exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
                 }
             }
             return exp;
