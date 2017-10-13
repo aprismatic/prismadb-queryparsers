@@ -737,6 +737,7 @@ namespace PrismaDB.QueryParser
             return exp;
         }
 
+
         /// <summary>
         /// Build ScalarFunction with parameters.
         /// </summary>
