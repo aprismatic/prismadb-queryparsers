@@ -123,5 +123,48 @@ namespace PrismaDB_QueryParser_Test
             var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAST(test));
             Assert.Equal("Database switching not supported.", ex.Message);
         }
+
+        [Fact]
+        public void Parse_Function()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "SELECT CONNECTION_ID()";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+
+            Assert.Equal(new ScalarFunction("CONNECTION_ID"), (ScalarFunction)actual.SelectExpressions[0]);
+            Assert.Equal((new ScalarFunction("CONNECTION_ID")).FunctionName, ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+        }
+
+        [Fact]
+        public void Parse_FunctionWithParams()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "SELECT COUNT(tt.col1), TEST('string',12)";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (SelectQuery)result[0];
+
+            var expected = new ScalarFunction("COUNT");
+            expected.Parameters.Add(new ColumnRef("tt", "col1"));
+            Assert.Equal(expected, (ScalarFunction)actual.SelectExpressions[0]);
+            Assert.Equal(new TableRef("tt"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).Table);
+            Assert.Equal(new Identifier("col1"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).ColumnName);
+
+            expected = new ScalarFunction("TEST");
+            expected.Parameters.Add(new StringConstant("string"));
+            expected.Parameters.Add(new IntConstant(12));
+            Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
+            Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
+        }
     }
 }
