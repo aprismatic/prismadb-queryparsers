@@ -137,8 +137,8 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             var actual = (SelectQuery)result[0];
 
-            Assert.Equal(new ScalarFunction("CONNECTION_ID"), (ScalarFunction)actual.SelectExpressions[0]);
-            Assert.Equal((new ScalarFunction("CONNECTION_ID")).FunctionName, ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
         }
 
         [Fact]
@@ -154,15 +154,11 @@ namespace PrismaDB_QueryParser_Test
             // Assert
             var actual = (SelectQuery)result[0];
 
-            var expected = new ScalarFunction("COUNT");
-            expected.Parameters.Add(new ColumnRef("tt", "col1"));
-            Assert.Equal(expected, (ScalarFunction)actual.SelectExpressions[0]);
+            Assert.Equal(new Identifier("COUNT"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
             Assert.Equal(new TableRef("tt"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).Table);
             Assert.Equal(new Identifier("col1"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).ColumnName);
 
-            expected = new ScalarFunction("TEST");
-            expected.Parameters.Add(new StringConstant("string"));
-            expected.Parameters.Add(new IntConstant(12));
+            Assert.Equal(new Identifier("TEST"), ((ScalarFunction)actual.SelectExpressions[1]).FunctionName);
             Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
