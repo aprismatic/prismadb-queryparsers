@@ -234,14 +234,11 @@ namespace PrismaDB.QueryParser
                                 // Build expression
                                 Expression expr = BuildExpression(exprNode);
                                 if (idNode != null)
-                                {
-                                    // Set column name
+                                    // Set alias
                                     expr.ColumnName = BuildColumnRef(idNode).ColumnName;
-                                }
-                                else
-                                {
+                                else if (expr.GetType() != typeof(ColumnRef))
+                                    // Set original expression
                                     expr.ColumnName = new Identifier(source.Substring(exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
-                                }
 
                                 selQuery.SelectExpressions.Add(expr);
                             }
