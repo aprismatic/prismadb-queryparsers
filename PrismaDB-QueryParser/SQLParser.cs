@@ -44,7 +44,7 @@ namespace PrismaDB.QueryParser
                         if (stmtNode.Term.Name.Equals("selectStmt"))
                         {
                             SelectQuery selQuery = new SelectQuery();
-                            BuildSelectQuery(selQuery, stmtNode);
+                            BuildSelectQuery(selQuery, stmtNode, source);
                             queries.Add(selQuery);
                         }
 
@@ -212,7 +212,7 @@ namespace PrismaDB.QueryParser
         /// </summary>
         /// <param name="selQuery">Resulting SelectQuery object</param>
         /// <param name="node">Parent node of query</param>
-        private void BuildSelectQuery(SelectQuery selQuery, ParseTreeNode node)
+        private void BuildSelectQuery(SelectQuery selQuery, ParseTreeNode node, string source)
         {
             foreach (ParseTreeNode mainNode in node.ChildNodes)
             {
@@ -238,6 +238,11 @@ namespace PrismaDB.QueryParser
                                     // Set column name
                                     expr.ColumnName = BuildColumnRef(idNode).ColumnName;
                                 }
+                                else
+                                {
+                                    expr.ColumnName = new Identifier(source.Substring(exprNode.Span.EndPosition - exprNode.Span.Length, exprNode.Span.Length));
+                                }
+
                                 selQuery.SelectExpressions.Add(expr);
                             }
                         }
