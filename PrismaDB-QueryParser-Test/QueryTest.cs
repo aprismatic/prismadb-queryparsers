@@ -138,6 +138,7 @@ namespace PrismaDB_QueryParser_Test
             var actual = (SelectQuery)result[0];
 
             Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction)actual.SelectExpressions[0]).ColumnName);
             Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
         }
 
@@ -146,7 +147,7 @@ namespace PrismaDB_QueryParser_Test
         {
             // Setup
             var parser = new SqlParser();
-            var test = "SELECT COUNT(tt.col1), TEST('string',12)";
+            var test = "SELECT COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -155,10 +156,12 @@ namespace PrismaDB_QueryParser_Test
             var actual = (SelectQuery)result[0];
 
             Assert.Equal(new Identifier("COUNT"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Equal(new Identifier("Num"), ((ScalarFunction)actual.SelectExpressions[0]).ColumnName);
             Assert.Equal(new TableRef("tt"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).Table);
             Assert.Equal(new Identifier("col1"), ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).ColumnName);
 
             Assert.Equal(new Identifier("TEST"), ((ScalarFunction)actual.SelectExpressions[1]).FunctionName);
+            Assert.Equal(new Identifier("TEST('string',12)"), ((ScalarFunction)actual.SelectExpressions[1]).ColumnName);
             Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
         }
