@@ -162,6 +162,10 @@ namespace PrismaDB.QueryParser
                         {
                             colDef.DataType = SQLDataType.TEXT;
                         }
+                        else if (FindChildNode(dataTypeNode, "DATETIME") != null)
+                        {
+                            colDef.DataType = SQLDataType.DATETIME;
+                        }
 
                         // Check for datatype length
                         ParseTreeNode paraNode = FindChildNode(FindChildNode(fieldDefNode, "typeParams"), "number");

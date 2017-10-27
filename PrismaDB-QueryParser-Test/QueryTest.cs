@@ -85,6 +85,29 @@ namespace PrismaDB_QueryParser_Test
         }
 
         [Fact]
+        public void Parse_CreateTable_DATETIME()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "CREATE TABLE table1 " +
+                       "(col1 DATETIME NOT NULL)";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (CreateTableQuery)result[0];
+
+            Assert.Equal(new TableRef("table1"), actual.TableName);
+
+            Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
+            Assert.Equal(SQLDataType.DATETIME, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[0].EncryptionFlags);
+            Assert.False(actual.ColumnDefinitions[0].Nullable);
+            Assert.Null(actual.ColumnDefinitions[0].Length);
+        }
+
+        [Fact]
         public void Parse_InsertInto()
         {
             // Setup
