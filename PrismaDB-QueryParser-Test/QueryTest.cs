@@ -18,8 +18,9 @@ namespace PrismaDB_QueryParser_Test
                        "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
                        "[bbb] INT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
-                       "ddd VARCHAR(20) ENCRYPTED FOR (TEXT, SEARCH), " +
-                       "eee TEXT NULL)";
+                       "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
+                       "eee TEXT NULL, " +
+                       "fff TEXT ENCRYPTED NULL" + ")";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -44,11 +45,15 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("ddd"), actual.ColumnDefinitions[3].ColumnName);
             Assert.Equal(SQLDataType.VARCHAR, actual.ColumnDefinitions[3].DataType);
             Assert.Equal(20, actual.ColumnDefinitions[3].Length);
-            Assert.Equal(ColumnEncryptionFlags.Text | ColumnEncryptionFlags.Search, actual.ColumnDefinitions[3].EncryptionFlags);
+            Assert.Equal(ColumnEncryptionFlags.Store | ColumnEncryptionFlags.Search, actual.ColumnDefinitions[3].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[3].Nullable);
             Assert.Equal(new Identifier("eee"), actual.ColumnDefinitions[4].ColumnName);
             Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[4].DataType);
             Assert.True(actual.ColumnDefinitions[4].Nullable);
+            Assert.Equal(new Identifier("fff"), actual.ColumnDefinitions[5].ColumnName);
+            Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[5].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[5].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[5].Nullable);
         }
 
         [Fact]
@@ -58,7 +63,7 @@ namespace PrismaDB_QueryParser_Test
             var parser = new SqlParser();
             var test = "CREATE TABLE table1 " +
                        "(col1 TEXT, " +
-                       "col2 TEXT ENCRYPTED FOR (TEXT, SEARCH) NULL)";
+                       "col2 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL)";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -76,7 +81,7 @@ namespace PrismaDB_QueryParser_Test
 
             Assert.Equal(new Identifier("col2"), actual.ColumnDefinitions[1].ColumnName);
             Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[1].DataType);
-            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Text & actual.ColumnDefinitions[1].EncryptionFlags);
+            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Store & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Search & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerAddition & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerMultiplication & actual.ColumnDefinitions[1].EncryptionFlags);
