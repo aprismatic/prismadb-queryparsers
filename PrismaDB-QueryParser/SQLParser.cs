@@ -106,7 +106,7 @@ namespace PrismaDB.QueryParser
             {
                 parser.Parse(source);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -684,37 +684,35 @@ namespace PrismaDB.QueryParser
         /// <returns>Column encryption enum flags</returns>
         public ColumnEncryptionFlags CheckEncryption(ParseTreeNode node)
         {
+            if (node == null)
+                return ColumnEncryptionFlags.None;
+
+            ParseTreeNode encryptTypeParNode = FindChildNode(node, "encryptTypePar");
+            if (encryptTypeParNode == null || FindChildNode(node, "ENCRYPTED") == null)
+                return ColumnEncryptionFlags.None;
+
+            ParseTreeNode encryptTypeNodes = FindChildNode(encryptTypeParNode, "encryptTypeList");
+            if (encryptTypeNodes == null)
+                return ColumnEncryptionFlags.Store;
+
             ColumnEncryptionFlags flags = ColumnEncryptionFlags.None;
-            if (node != null)
+            foreach (ParseTreeNode childNode in encryptTypeNodes.ChildNodes)
             {
-                if (node.ChildNodes.Count > 1)
+                if (FindChildNode(childNode, "STORE") != null)
                 {
-                    if (node.ChildNodes[0].Token.ValueString.Equals("encrypted") && node.ChildNodes[1].Token.ValueString.Equals("for"))
-                    {
-                        ParseTreeNode encryptTypeNodes = FindChildNode(node, "encryptTypeList");
-                        if (encryptTypeNodes != null)
-                        {
-                            foreach (ParseTreeNode childNode in encryptTypeNodes.ChildNodes)
-                            {
-                                if (FindChildNode(childNode, "TEXT") != null)
-                                {
-                                    flags |= ColumnEncryptionFlags.Text;
-                                }
-                                else if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
-                                {
-                                    flags |= ColumnEncryptionFlags.IntegerAddition;
-                                }
-                                else if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
-                                {
-                                    flags |= ColumnEncryptionFlags.IntegerMultiplication;
-                                }
-                                else if (FindChildNode(childNode, "SEARCH") != null)
-                                {
-                                    flags |= ColumnEncryptionFlags.Search;
-                                }
-                            }
-                        }
-                    }
+                    flags |= ColumnEncryptionFlags.Store;
+                }
+                else if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
+                {
+                    flags |= ColumnEncryptionFlags.IntegerAddition;
+                }
+                else if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
+                {
+                    flags |= ColumnEncryptionFlags.IntegerMultiplication;
+                }
+                else if (FindChildNode(childNode, "SEARCH") != null)
+                {
+                    flags |= ColumnEncryptionFlags.Search;
                 }
             }
             return flags;

@@ -125,6 +125,7 @@ namespace PrismaDB.QueryParser
             var newidOpt = new NonTerminal("newidOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
+            var encryptTypePar = new NonTerminal("encryptTypePar");
             var encryptTypeList = new NonTerminal("encryptTypeList");
             var encryptType = new NonTerminal("encryptType");
 
@@ -146,15 +147,16 @@ namespace PrismaDB.QueryParser
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + newidOpt;
 
-            encryptionOpt.Rule = ENCRYPTED + FOR + "(" + encryptTypeList + ")" | Empty;
+            encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
+            encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
             encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
 
-            var et_TEXT = ToTerm("TEXT");
+            var et_STORE = ToTerm("STORE");
             var et_INTEGER_ADDITION = ToTerm("INTEGER_ADDITION");
             var et_INTEGER_MULTIPLICATION = ToTerm("INTEGER_MULTIPLICATION");
             var et_SEARCH = ToTerm("SEARCH");
 
-            encryptType.Rule = et_TEXT | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
+            encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
 
             nullSpecOpt.Rule = NULL | NOT + NULL | Empty;
 
@@ -163,13 +165,13 @@ namespace PrismaDB.QueryParser
             var t_VARCHAR = ToTerm("VARCHAR");
             var t_NCHAR = ToTerm("NCHAR");
             var t_NVARCHAR = ToTerm("NVARCHAR");
-            //var t_TEXT = ToTerm("TEXT");  // Already defined et_TEXT
+            var t_TEXT = ToTerm("TEXT");
             var t_BINARY = ToTerm("BINARY");
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
 
-            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | et_TEXT | t_BINARY | t_VARBINARY |
+            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
             newidOpt.Rule = "DEFAULT NEWID()" | Empty;
