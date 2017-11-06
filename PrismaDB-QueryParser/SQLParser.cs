@@ -267,6 +267,12 @@ namespace PrismaDB.QueryParser
                 {
                     selQuery.Where = BuildWhereClause(mainNode);
                 }
+                // Check for LIMIT
+                else if (mainNode.Term.Name.Equals("selRestrOpt"))
+                {
+                    if (FindChildNode(mainNode, "LIMIT") != null)
+                        selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
+                }
             }
         }
 
@@ -606,7 +612,7 @@ namespace PrismaDB.QueryParser
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    expr = new IntConstant(Convert.ToInt32(node.Token.ValueString));
+                    expr = new IntConstant(Convert.ToInt32(node.Token.Value));
                 }
                 else if (node.Term.Name.Equals("binExpr"))
                 {

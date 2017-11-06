@@ -219,8 +219,9 @@ namespace PrismaDB.QueryParser
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             //Select stmt
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt;
-            //+ selRestrOpt + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt + selRestrOpt;
+            // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selRestrOpt.Rule = Empty | "LIMIT" + number;
             //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
