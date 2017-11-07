@@ -4,7 +4,6 @@ using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.Commons;
 using System;
-using System.CodeDom;
 using System.Collections.Generic;
 
 
@@ -266,6 +265,12 @@ namespace PrismaDB.QueryParser
                 else if (mainNode.Term.Name.Equals("whereClauseOpt"))
                 {
                     selQuery.Where = BuildWhereClause(mainNode);
+                }
+                // Check for TOP
+                else if (mainNode.Term.Name.Equals("selRestrOpt"))
+                {
+                    if (FindChildNode(mainNode, "TOP") != null)
+                        selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
                 }
             }
         }

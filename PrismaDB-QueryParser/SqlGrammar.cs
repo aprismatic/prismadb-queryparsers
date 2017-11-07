@@ -49,6 +49,7 @@ namespace PrismaDB.QueryParser
             var ENCRYPTED = ToTerm("ENCRYPTED");
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
+            var TOP = ToTerm("TOP");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -219,8 +220,9 @@ namespace PrismaDB.QueryParser
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             //Select stmt
-            selectStmt.Rule = SELECT + selList + fromClauseOpt + whereClauseOpt;
-            //+ selRestrOpt + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selectStmt.Rule = SELECT + selRestrOpt + selList + fromClauseOpt + whereClauseOpt;
+            // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
+            selRestrOpt.Rule = Empty | TOP + number | TOP + "(" + number + ")";
             //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
