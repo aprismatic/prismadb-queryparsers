@@ -168,6 +168,8 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
             Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction)actual.SelectExpressions[0]).ColumnName);
             Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
+
+            Assert.Null(actual.Limit);
         }
 
         [Fact]
@@ -175,7 +177,7 @@ namespace PrismaDB_QueryParser_Test
         {
             // Setup
             var parser = new SqlParser();
-            var test = "SELECT COUNT(tt.col1) AS Num, TEST('string',12)";
+            var test = "SELECT TOP(1) COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -192,6 +194,8 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("TEST('string',12)"), ((ScalarFunction)actual.SelectExpressions[1]).ColumnName);
             Assert.Equal("string", (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
+
+            Assert.Equal((uint)1, actual.Limit);
         }
     }
 }

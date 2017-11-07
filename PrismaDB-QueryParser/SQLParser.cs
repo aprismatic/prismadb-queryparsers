@@ -267,6 +267,12 @@ namespace PrismaDB.QueryParser
                 {
                     selQuery.Where = BuildWhereClause(mainNode);
                 }
+                // Check for TOP
+                else if (mainNode.Term.Name.Equals("selRestrOpt"))
+                {
+                    if (FindChildNode(mainNode, "TOP") != null)
+                        selQuery.Limit = Convert.ToUInt32(FindChildNode(mainNode, "number").Token.Value);
+                }
             }
         }
 
