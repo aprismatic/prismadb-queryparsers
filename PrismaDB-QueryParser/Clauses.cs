@@ -18,10 +18,10 @@ namespace PrismaDB.QueryParser
             this.left = left;
             this.right = right;
         }
-        public override Expression Clone()
+        public override object Clone()
         {
-            var left_clone = left.Clone();
-            var right_clone = right.Clone();
+            var left_clone = left.Clone() as Expression;
+            var right_clone = right.Clone() as Expression;
 
             var clone = new AndClause(left_clone, right_clone);
 
@@ -71,10 +71,10 @@ namespace PrismaDB.QueryParser
             this.left = left;
             this.right = right;
         }
-        public override Expression Clone()
+        public override object Clone()
         {
-            var left_clone = left.Clone();
-            var right_clone = right.Clone();
+            var left_clone = left.Clone() as Expression;
+            var right_clone = right.Clone() as Expression;
 
             var clone = new OrClause(left_clone, right_clone);
 
