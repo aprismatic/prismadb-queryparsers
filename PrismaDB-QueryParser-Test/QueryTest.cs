@@ -9,7 +9,7 @@ namespace PrismaDB_QueryParser_Test
 {
     public class QueryTest
     {
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\partial encryption")]
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
@@ -56,7 +56,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.True(actual.ColumnDefinitions[5].Nullable);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\TEXT")]
         public void Parse_CreateTable_TEXT()
         {
             // Setup
@@ -89,7 +89,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Null(actual.ColumnDefinitions[1].Length);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse CREATE TABLE w\\DATETIME")]
         public void Parse_CreateTable_DATETIME()
         {
             // Setup
@@ -112,7 +112,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Null(actual.ColumnDefinitions[0].Length);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse INSERT INTO")]
         public void Parse_InsertInto()
         {
             // Setup
@@ -140,7 +140,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("&", (actual.Values[1][3] as StringConstant)?.strvalue);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse USE")]
         public void Parse_Use()
         {
             // Setup
@@ -152,7 +152,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal("Database switching not supported.", ex.Message);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse functions in SELECT")]
         public void Parse_Function()
         {
             // Setup
@@ -172,7 +172,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Null(actual.Limit);
         }
 
-        [Fact]
+        [Fact(DisplayName = "Parse functions w\\params in SELECT")]
         public void Parse_FunctionWithParams()
         {
             // Setup
