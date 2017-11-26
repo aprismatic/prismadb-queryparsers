@@ -213,6 +213,7 @@ namespace PrismaDB_QueryParser_Test
             var actual = (AlterTableQuery)result[0];
 
             Assert.Equal(new TableRef("table1"), actual.TableName);
+            Assert.Equal(AlterType.MODIFY, actual.AlterType);
 
             Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
             Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[0].DataType);
