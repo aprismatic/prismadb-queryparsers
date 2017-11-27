@@ -25,9 +25,9 @@ namespace PrismaDB.QueryParser
             //var UNIQUE = ToTerm("UNIQUE"); 
             //var WITH = ToTerm("WITH");
             var TABLE = ToTerm("TABLE");
-            //var ALTER = ToTerm("ALTER"); 
+            var ALTER = ToTerm("ALTER"); 
             //var ADD = ToTerm("ADD"); 
-            //var COLUMN = ToTerm("COLUMN"); 
+            var COLUMN = ToTerm("COLUMN"); 
             //var DROP = ToTerm("DROP"); 
             //var CONSTRAINT = ToTerm("CONSTRAINT");
             //var INDEX = ToTerm("INDEX"); 
@@ -56,7 +56,7 @@ namespace PrismaDB.QueryParser
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
             //var createIndexStmt = new NonTerminal("createIndexStmt");
-            //var alterStmt = new NonTerminal("alterStmt");
+            var alterStmt = new NonTerminal("alterStmt");
             var dropTableStmt = new NonTerminal("dropTableStmt");
             var dropIndexStmt = new NonTerminal("dropIndexStmt");
             var selectStmt = new NonTerminal("selectStmt");
@@ -139,8 +139,8 @@ namespace PrismaDB.QueryParser
             //ID
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
-            stmt.Rule = createTableStmt //| alterStmt | createIndexStmt
-                                        //| dropTableStmt | dropIndexStmt
+            stmt.Rule = createTableStmt | alterStmt //| createIndexStmt
+                                                    //| dropTableStmt | dropIndexStmt
                       | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
                       | "GO";
             //Create table
@@ -192,7 +192,8 @@ namespace PrismaDB.QueryParser
             //withClauseOpt.Rule = Empty | WITH + PRIMARY | WITH + "Disallow" + NULL | WITH + "Ignore" + NULL;
 
             //Alter 
-            //alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
+            alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
+            alterCmd.Rule = ALTER + COLUMN + fieldDef;
             //alterCmd.Rule = ADD + COLUMN + fieldDefList + constraintListOpt
             //              | ADD + constraintDef
             //              | DROP + COLUMN + Id
