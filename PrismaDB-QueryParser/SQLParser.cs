@@ -158,7 +158,9 @@ namespace PrismaDB.QueryParser
                 {
                     // Only ALTER COLUMN is supported now
                     alterQuery.AlterType = AlterType.MODIFY;
-                    alterQuery.ColumnDefinitions.Add(BuildColumnDefinition(FindChildNode(mainNode, "fieldDef")));
+                    alterQuery.AlteredColumns.Add(new AlteredColumn(
+                                                      BuildColumnDefinition(
+                                                      FindChildNode(mainNode, "fieldDef"))));
                 }
             }
         }

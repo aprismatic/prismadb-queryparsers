@@ -9,6 +9,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Irony.Core" Version="1.0.7" />
-    <PackageReference Include="PrismaDB-QueryAST" Version="0.1.59" />
+    <PackageReference Include="PrismaDB-QueryAST" Version="0.1.61" />
   </ItemGroup>
 </Project>

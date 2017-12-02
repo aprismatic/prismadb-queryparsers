@@ -215,14 +215,14 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new TableRef("table1"), actual.TableName);
             Assert.Equal(AlterType.MODIFY, actual.AlterType);
 
-            Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SQLDataType.TEXT, actual.ColumnDefinitions[0].DataType);
-            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Store & actual.ColumnDefinitions[0].EncryptionFlags);
-            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Search & actual.ColumnDefinitions[0].EncryptionFlags);
-            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerAddition & actual.ColumnDefinitions[0].EncryptionFlags);
-            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerMultiplication & actual.ColumnDefinitions[0].EncryptionFlags);
-            Assert.True(actual.ColumnDefinitions[0].Nullable);
-            Assert.Null(actual.ColumnDefinitions[0].Length);
+            Assert.Equal(new Identifier("col1"), actual.AlteredColumns[0].ColumnDefinition.ColumnName);
+            Assert.Equal(SQLDataType.TEXT, actual.AlteredColumns[0].ColumnDefinition.DataType);
+            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Store & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
+            Assert.NotEqual(ColumnEncryptionFlags.None, ColumnEncryptionFlags.Search & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
+            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerAddition & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
+            Assert.Equal(ColumnEncryptionFlags.None, ColumnEncryptionFlags.IntegerMultiplication & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
+            Assert.True(actual.AlteredColumns[0].ColumnDefinition.Nullable);
+            Assert.Null(actual.AlteredColumns[0].ColumnDefinition.Length);
         }
     }
 }
