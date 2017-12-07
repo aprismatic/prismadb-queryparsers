@@ -123,7 +123,7 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var newidOpt = new NonTerminal("newidOpt"); // new
+            var identityOpt = new NonTerminal("identityOpt"); // new
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypePar = new NonTerminal("encryptTypePar");
@@ -146,7 +146,7 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + newidOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + identityOpt;
 
             encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
             encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
@@ -171,11 +171,12 @@ namespace PrismaDB.QueryParser
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
+            var t_FLOAT = ToTerm("FLOAT");
 
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME;
+                            t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
-            newidOpt.Rule = "DEFAULT NEWID()" | Empty;
+            identityOpt.Rule = "IDENTITY(1,1)" | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
