@@ -647,10 +647,10 @@ namespace PrismaDB.QueryParser
                 else if (node.Term.Name.Equals("number"))
                 {
                     int integer;
-                    if (Int32.TryParse(node.Token.Value.ToString(), out integer))
+                    if (Int32.TryParse(node.Token.ValueString, out integer))
                         expr = new IntConstant(integer);
                     else
-                        expr = new StringConstant(node.Token.ValueString);
+                        expr = new FloatingPointConstant(Convert.ToDouble(node.Token.Value));
                 }
                 else if (node.Term.Name.Equals("binExpr"))
                 {
