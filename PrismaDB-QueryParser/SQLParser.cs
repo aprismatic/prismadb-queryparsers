@@ -646,7 +646,11 @@ namespace PrismaDB.QueryParser
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    expr = new IntConstant(Convert.ToInt32(node.Token.Value));
+                    int integer;
+                    if (Int32.TryParse(node.Token.Value.ToString(), out integer))
+                        expr = new IntConstant(integer);
+                    else
+                        expr = new StringConstant(node.Token.ValueString);
                 }
                 else if (node.Term.Name.Equals("binExpr"))
                 {
