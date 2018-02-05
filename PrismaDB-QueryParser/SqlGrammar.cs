@@ -50,7 +50,7 @@ namespace PrismaDB.QueryParser
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
             var TOP = ToTerm("TOP");
-            var AUTO_INCREMENT = ToTerm("IDENTITY(1,1)");
+            var IDENTITY = ToTerm("IDENTITY(1,1)");
             var DEFAULT = ToTerm("DEFAULT");
 
             //Non-terminals
@@ -178,7 +178,7 @@ namespace PrismaDB.QueryParser
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
-            autoDefaultOpt.Rule = AUTO_INCREMENT | DEFAULT + term | Empty;
+            autoDefaultOpt.Rule = IDENTITY | DEFAULT + term | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
