@@ -21,7 +21,8 @@ namespace PrismaDB_QueryParser_Test
                        "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
                        "eee TEXT NULL, " +
                        "fff TEXT ENCRYPTED NULL, " +
-                       "ggg FLOAT" + ")";
+                       "ggg FLOAT," +
+                       "hhh DATETIME ENCRYPTED DEFAULT GETDATE()" + ")";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -58,6 +59,12 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("ggg"), actual.ColumnDefinitions[6].ColumnName);
             Assert.Equal(SQLDataType.DOUBLE, actual.ColumnDefinitions[6].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[6].EncryptionFlags);
+            Assert.Null(actual.ColumnDefinitions[6].DefaultValue);
+            Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
+            Assert.Equal(SQLDataType.DATETIME, actual.ColumnDefinitions[7].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
+            Assert.Equal(new Identifier("GETDATE"), ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
+            Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
 

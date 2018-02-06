@@ -306,9 +306,10 @@ namespace PrismaDB.QueryParser
             // Check for encryption
             colDef.EncryptionFlags = CheckEncryption(FindChildNode(node, "encryptionOpt"));
 
-            // Check for row id
-            ParseTreeNode newidNode = FindChildNode(FindChildNode(node, "newidOpt"), "DEFAULT NEWID()");
-            if (newidNode != null) colDef.isRowId = true;
+            // Check for autoDefault value 
+            ParseTreeNode autoDefaultNode = FindChildNode(node, "autoDefaultOpt");
+            if (FindChildNode(autoDefaultNode, "DEFAULT") != null)
+                colDef.DefaultValue = BuildExpression(autoDefaultNode.ChildNodes[1]);
 
             return colDef;
         }

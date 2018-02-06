@@ -25,9 +25,9 @@ namespace PrismaDB.QueryParser
             //var UNIQUE = ToTerm("UNIQUE"); 
             //var WITH = ToTerm("WITH");
             var TABLE = ToTerm("TABLE");
-            var ALTER = ToTerm("ALTER"); 
+            var ALTER = ToTerm("ALTER");
             //var ADD = ToTerm("ADD"); 
-            var COLUMN = ToTerm("COLUMN"); 
+            var COLUMN = ToTerm("COLUMN");
             //var DROP = ToTerm("DROP"); 
             //var CONSTRAINT = ToTerm("CONSTRAINT");
             //var INDEX = ToTerm("INDEX"); 
@@ -50,6 +50,8 @@ namespace PrismaDB.QueryParser
             var FOR = ToTerm("FOR");
             var USE = ToTerm("USE");
             var TOP = ToTerm("TOP");
+            var IDENTITY = ToTerm("IDENTITY(1,1)");
+            var DEFAULT = ToTerm("DEFAULT");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -123,7 +125,7 @@ namespace PrismaDB.QueryParser
             var inStmt = new NonTerminal("inStmt");
 
             var insertDataList = new NonTerminal("insertDataList"); // new
-            var identityOpt = new NonTerminal("identityOpt"); // new
+            var autoDefaultOpt = new NonTerminal("autoDefaultOpt"); // new 
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
             var encryptTypePar = new NonTerminal("encryptTypePar");
@@ -146,7 +148,7 @@ namespace PrismaDB.QueryParser
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
-            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + identityOpt;
+            fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
 
             encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
             encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
@@ -176,7 +178,7 @@ namespace PrismaDB.QueryParser
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT;
             typeParamsOpt.Rule = "(" + number + ")" | "(" + number + comma + number + ")" | Empty;
-            identityOpt.Rule = "IDENTITY(1,1)" | Empty;
+            autoDefaultOpt.Rule = IDENTITY | DEFAULT + term | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
