@@ -52,6 +52,7 @@ namespace PrismaDB.QueryParser
             var TOP = ToTerm("TOP");
             var IDENTITY = ToTerm("IDENTITY(1,1)");
             var DEFAULT = ToTerm("DEFAULT");
+            var CURRENT_TIMESTAMP = ToTerm("CURRENT_TIMESTAMP");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -265,7 +266,7 @@ namespace PrismaDB.QueryParser
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
             //funCall.Rule = Id + "()";
             //funCall.Rule = Id + "(" + Empty | exprList + ")";
-            funCall.Rule = Id + "(" + funArgs + ")";
+            funCall.Rule = Id + "(" + funArgs + ")" | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList;
             //funArgs.Rule = selectStmt | exprList;
             //inStmt.Rule = expression + "IN" + "(" + exprList + ")";

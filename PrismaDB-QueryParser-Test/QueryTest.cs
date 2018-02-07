@@ -22,7 +22,7 @@ namespace PrismaDB_QueryParser_Test
                        "eee TEXT NULL, " +
                        "fff TEXT ENCRYPTED NULL, " +
                        "ggg FLOAT," +
-                       "hhh DATETIME ENCRYPTED DEFAULT GETDATE()" + ")";
+                       "hhh DATETIME ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -63,7 +63,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
             Assert.Equal(SQLDataType.DATETIME, actual.ColumnDefinitions[7].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
-            Assert.Equal(new Identifier("GETDATE"), ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
+            Assert.Equal(new Identifier("CURRENT_TIMESTAMP"), ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
             Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }

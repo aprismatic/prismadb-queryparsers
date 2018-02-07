@@ -811,6 +811,10 @@ namespace PrismaDB.QueryParser
                     ((ScalarFunction)exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
                 }
             }
+            else if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("CURRENT_TIMESTAMP"))
+            {
+                exp = new ScalarFunction(node.ChildNodes[0].Token.ValueString);
+            }
             return exp;
         }
 
