@@ -177,7 +177,7 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
 
             // Assert
             var actual = (ExportSettingsCommand) result[0];
-            Assert.Equal("/home/user/settings.json", actual.FileUri);
+            Assert.Equal("/home/user/settings.json", actual.FileUri.strvalue);
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]

@@ -80,10 +80,8 @@ namespace PrismaDB.QueryParser.MSSQL
 
                             else if (stmtNode.Term.Name.Equals("exportSettingsCmd"))
                             {
-                                var exportCommand = new ExportSettingsCommand
-                                {
-                                    FileUri = FindChildNode(stmtNode, "string").Token.ValueString
-                                };
+                                var exportCommand =
+                                    new ExportSettingsCommand(FindChildNode(stmtNode, "string").Token.ValueString);
                                 queries.Add(exportCommand);
                             }
 
