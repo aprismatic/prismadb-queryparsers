@@ -1,5 +1,6 @@
 ﻿using System;
 using PrismaDB.QueryAST;
+using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MSSQL;
@@ -163,6 +164,22 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
 
+
+        [Fact(DisplayName = "Parse PRISMADB EXPORT SETTINGS")]
+        public void Parse_ExportSettings()
+        {
+            // Setup
+            var parser = new SqlParser();
+            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json'";
+
+            // Act
+            var result = parser.ParseToAST(test);
+
+            // Assert
+            var actual = (ExportSettingsCommand) result[0];
+            Assert.Equal("/home/user/settings.json", actual.FileUri);
+        }
+
         [Fact(DisplayName = "Parse functions in SELECT")]
         public void Parse_Function()
         {
@@ -248,7 +265,7 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         {
             // Setup
             var parser = new SqlParser();
-            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t";
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t ORDER BY a ASC, b DESC, c";
 
             // Act
             var result = parser.ParseToAST(test);
@@ -259,6 +276,13 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
             Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].ColumnName.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].ColumnName.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].ColumnName.id);
+
+            Assert.Equal(new Identifier("a"), actual.OrderBy[0].Item1.ColumnName);
+            Assert.Equal(new Identifier("b"), actual.OrderBy[1].Item1.ColumnName);
+            Assert.Equal(new Identifier("c"), actual.OrderBy[2].Item1.ColumnName);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy[0].Item2);
+            Assert.Equal(OrderDirection.DESC, actual.OrderBy[1].Item2);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy[2].Item2);
         }
 
         [Fact(DisplayName = "Parse USE")]

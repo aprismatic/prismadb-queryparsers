@@ -53,6 +53,8 @@ namespace PrismaDB.QueryParser.MSSQL
             var TOP = ToTerm("TOP");
             var DEFAULT = ToTerm("DEFAULT");
             var CURRENT_TIMESTAMP = ToTerm("CURRENT_TIMESTAMP");
+            var PRISMADB = ToTerm("PRISMADB");
+            var TO = ToTerm("TO");
 
             //Non-terminals
             var Id = new NonTerminal("Id");
@@ -124,6 +126,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var stmtList = new NonTerminal("stmtList");
             var funArgs = new NonTerminal("funArgs");
             var inStmt = new NonTerminal("inStmt");
+            var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
 
             var insertDataList = new NonTerminal("insertDataList");
             var autoDefaultOpt = new NonTerminal("autoDefaultOpt");
@@ -145,6 +148,7 @@ namespace PrismaDB.QueryParser.MSSQL
             stmt.Rule = createTableStmt | alterStmt //| createIndexStmt
                                         //| dropTableStmt | dropIndexStmt
                                         | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
+                                        | exportSettingsCmd
                                         | "GO";
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
@@ -209,6 +213,9 @@ namespace PrismaDB.QueryParser.MSSQL
             //Drop stmts
             //dropTableStmt.Rule = DROP + TABLE + Id;
             //dropIndexStmt.Rule = DROP + INDEX + Id + ON + Id;
+
+            //Command stmt
+            exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
 
             //Use stmt
             useStmt.Rule = USE + Id;
