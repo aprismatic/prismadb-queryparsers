@@ -4,10 +4,10 @@ dotnet_csproj:
   file: '**\*.csproj'
   version: '{version}'
   package_version: '{version}'
+skip_tags: true
 branches:
   only:
     - master
-skip_tags: true
 build:
   publish_nuget: true
   publish_nuget_symbols: true
