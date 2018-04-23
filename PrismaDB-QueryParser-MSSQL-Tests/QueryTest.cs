@@ -1,11 +1,11 @@
 ﻿using System;
 using Xunit;
-using PrismaDB.QueryParser;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
+using PrismaDB.QueryParser.MSSQL;
 
-namespace PrismaDB_QueryParser_Test
+namespace PrismaDB_QueryParser_MSSQL_Tests
 {
     public class QueryTest
     {
@@ -18,7 +18,7 @@ namespace PrismaDB_QueryParser_Test
                        "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
                        "[bbb] INT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
-                       "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
+                       "ddd VARCHAR(MAX) ENCRYPTED FOR (STORE, SEARCH), " +
                        "eee TEXT NULL, " +
                        "fff TEXT ENCRYPTED NULL, " +
                        "ggg FLOAT," +
@@ -46,7 +46,7 @@ namespace PrismaDB_QueryParser_Test
             Assert.False(actual.ColumnDefinitions[2].Nullable);
             Assert.Equal(new Identifier("ddd"), actual.ColumnDefinitions[3].ColumnName);
             Assert.Equal(SQLDataType.VARCHAR, actual.ColumnDefinitions[3].DataType);
-            Assert.Equal(20, actual.ColumnDefinitions[3].Length);
+            Assert.Equal(-1, actual.ColumnDefinitions[3].Length);
             Assert.Equal(ColumnEncryptionFlags.Store | ColumnEncryptionFlags.Search, actual.ColumnDefinitions[3].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[3].Nullable);
             Assert.Equal(new Identifier("eee"), actual.ColumnDefinitions[4].ColumnName);

@@ -16,7 +16,7 @@ before_build:
   - nuget update -self
   - nuget restore
 test_script:
-  - dotnet test .\PrismaDB-QueryParser-Test\PrismaDB-QueryParser-Test.csproj --no-build
+  - dotnet test .\PrismaDB-QueryParser-MSSQL-Tests\PrismaDB-QueryParser-MSSQL-Tests.csproj --no-build
 configuration: Release
 image: "Visual Studio 2017"
 nuget:

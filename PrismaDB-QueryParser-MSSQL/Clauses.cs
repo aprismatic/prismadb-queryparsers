@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace PrismaDB.QueryParser
+namespace PrismaDB.QueryParser.MSSQL
 {
     /// <summary>
     /// Additional AndClause to assist with conversion to CNF form.

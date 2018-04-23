@@ -8,6 +8,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PrismaDB-QueryParser\PrismaDB-QueryParser.csproj" />
+    <ProjectReference Include="..\PrismaDB-QueryParser-MSSQL\PrismaDB-QueryParser-MSSQL.csproj" />
   </ItemGroup>
 </Project>

@@ -2,10 +2,11 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <Version>0.1.0</Version>
-    <Description>SQL query parser for PrismaDB project.</Description>
+    <Description>SQL query parser (MSSQL dialect) for Prisma/DB project.</Description>
     <Company>Nanyang Technological Unviersity</Company>
-    <Product>PrismaDB-QueryParser</Product>
+    <Product>PrismaDB-QueryParser-MSSQL</Product>
     <Authors>Vasily Sidorov (bazzilic)</Authors>
+    <RootNamespace>PrismaDB.QueryParser.MSSQL</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Irony.Core" Version="1.0.7" />
