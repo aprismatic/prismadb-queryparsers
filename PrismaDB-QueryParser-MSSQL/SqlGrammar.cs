@@ -2,35 +2,36 @@
 
 namespace PrismaDB.QueryParser.MSSQL
 {
-    // Loosely based on SQL89 grammar from Gold parser. Supports some extra TSQL constructs.
-
     [Language("SQL", "89", "SQL 89 grammar")]
     public class SqlGrammar : Grammar
     {
         public SqlGrammar() : base(false)
-        { //SQL is case insensitive
-          //Terminals
+        {
+            //SQL is case insensitive
+            //Terminals
             var comment = new CommentTerminal("comment", "/*", "*/");
             var lineComment = new CommentTerminal("line_comment", "--", "\n", "\r\n");
             NonGrammarTerminals.Add(comment);
             NonGrammarTerminals.Add(lineComment);
             var number = new NumberLiteral("number");
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
-            var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple"); //covers normal identifiers (abc) and quoted id's ([abc d], "abc d")
+            var Id_simple =
+                TerminalFactory.CreateSqlExtIdentifier(this,
+                    "id_simple"); //covers normal identifiers (abc) and quoted id's ([abc d], "abc d")
             var comma = ToTerm(",");
             var dot = ToTerm(".");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
-            var UNIQUE = ToTerm("UNIQUE"); 
+            var UNIQUE = ToTerm("UNIQUE");
             var WITH = ToTerm("WITH");
             var TABLE = ToTerm("TABLE");
             var ALTER = ToTerm("ALTER");
-            var ADD = ToTerm("ADD"); 
+            var ADD = ToTerm("ADD");
             var COLUMN = ToTerm("COLUMN");
-            var DROP = ToTerm("DROP"); 
+            var DROP = ToTerm("DROP");
             var CONSTRAINT = ToTerm("CONSTRAINT");
-            var INDEX = ToTerm("INDEX"); 
+            var INDEX = ToTerm("INDEX");
             var ON = ToTerm("ON");
             var KEY = ToTerm("KEY");
             var PRIMARY = ToTerm("PRIMARY");
@@ -133,7 +134,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var encryptType = new NonTerminal("encryptType");
 
             //BNF Rules
-            this.Root = stmtList;
+            Root = stmtList;
             stmtLine.Rule = stmt + semiOpt;
             semiOpt.Rule = Empty | ";";
             stmtList.Rule = MakePlusRule(stmtList, stmtLine);
@@ -142,16 +143,16 @@ namespace PrismaDB.QueryParser.MSSQL
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
             stmt.Rule = createTableStmt | alterStmt //| createIndexStmt
-                                                    //| dropTableStmt | dropIndexStmt
-                      | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
-                      | "GO";
+                                        //| dropTableStmt | dropIndexStmt
+                                        | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
+                                        | "GO";
             //Create table
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
 
-            encryptionOpt.Rule = ENCRYPTED + encryptTypePar | Empty;
-            encryptTypePar.Rule = FOR + "(" + encryptTypeList + ")" | Empty;
+            encryptionOpt.Rule = (ENCRYPTED + encryptTypePar) | Empty;
+            encryptTypePar.Rule = (FOR + "(" + encryptTypeList + ")") | Empty;
             encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
 
             var et_STORE = ToTerm("STORE");
@@ -161,7 +162,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
             encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
 
-            nullSpecOpt.Rule = NULL | NOT + NULL | Empty;
+            nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
 
             var t_INT = ToTerm("INT");
             var t_CHAR = ToTerm("CHAR");
@@ -179,8 +180,9 @@ namespace PrismaDB.QueryParser.MSSQL
 
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT;
-            typeParamsOpt.Rule = "(" + number + ")" | "(" + t_MAX + ")" | Empty; // | "(" + number + comma + number + ")"
-            autoDefaultOpt.Rule = DEFAULT + term | Empty;
+            typeParamsOpt.Rule =
+                ("(" + number + ")") | ("(" + t_MAX + ")") | Empty; // | "(" + number + comma + number + ")"
+            autoDefaultOpt.Rule = (DEFAULT + term) | Empty;
             //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
             //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
             //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
@@ -215,7 +217,7 @@ namespace PrismaDB.QueryParser.MSSQL
             insertStmt.Rule = INSERT + intoOpt + Id + idlistPar + VALUES + insertDataList;
             insertData.Rule = "(" + exprList + ")"; //selectStmt | VALUES +
             intoOpt.Rule = Empty | INTO; //Into is optional in MSSQL
-            insertDataList.Rule = MakePlusRule(insertDataList, comma, insertData); // new
+            insertDataList.Rule = MakePlusRule(insertDataList, comma, insertData);
 
             //Update stmt
             updateStmt.Rule = UPDATE + Id + SET + assignList + whereClauseOpt;
@@ -226,48 +228,50 @@ namespace PrismaDB.QueryParser.MSSQL
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
             //Select stmt
-            selectStmt.Rule = SELECT + selRestrOpt + selList + fromClauseOpt + whereClauseOpt;
-            // + intoClauseOpt + groupClauseOpt + havingClauseOpt + orderClauseOpt
-            selRestrOpt.Rule = Empty | TOP + number | TOP + "(" + number + ")";
+            selectStmt.Rule = SELECT + selRestrOpt + selList + fromClauseOpt + whereClauseOpt + orderClauseOpt;
+            // + intoClauseOpt + groupClauseOpt + havingClauseOpt 
+            selRestrOpt.Rule = Empty | (TOP + number) | (TOP + "(" + number + ")");
             //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
             columnItem.Rule = columnSource + aliasOpt;
-            aliasOpt.Rule = Empty | asOpt + Id;
+            aliasOpt.Rule = Empty | (asOpt + Id);
             asOpt.Rule = Empty | AS;
-            columnSource.Rule = expression;  // new 
-                                             //| Id | aggregate ;
-                                             //aggregate.Rule = aggregateName + "(" + aggregateArg + ")";
-                                             //aggregateArg.Rule = expression | "*";
-                                             //aggregateName.Rule = COUNT | "Avg" | "Min" | "Max" | "StDev" | "StDevP" | "Sum" | "Var" | "VarP";
-                                             //intoClauseOpt.Rule = Empty | INTO + Id;
-            fromClauseOpt.Rule = Empty | FROM + idlist; //+ joinChainOpt;
-                                                        //joinChainOpt.Rule = Empty | joinKindOpt + JOIN + idlist + ON + Id + "=" + Id;
-                                                        //joinKindOpt.Rule = Empty | "INNER" | "LEFT" | "RIGHT";
-            whereClauseOpt.Rule = Empty | "WHERE" + expression;
+            columnSource.Rule = expression;
+            //| Id | aggregate ;
+            //aggregate.Rule = aggregateName + "(" + aggregateArg + ")";
+            //aggregateArg.Rule = expression | "*";
+            //aggregateName.Rule = COUNT | "Avg" | "Min" | "Max" | "StDev" | "StDevP" | "Sum" | "Var" | "VarP";
+            //intoClauseOpt.Rule = Empty | INTO + Id;
+            fromClauseOpt.Rule = Empty | (FROM + idlist); //+ joinChainOpt;
+            //joinChainOpt.Rule = Empty | joinKindOpt + JOIN + idlist + ON + Id + "=" + Id;
+            //joinKindOpt.Rule = Empty | "INNER" | "LEFT" | "RIGHT";
+            whereClauseOpt.Rule = Empty | ("WHERE" + expression);
             //groupClauseOpt.Rule = Empty | "GROUP" + BY + idlist;
             //havingClauseOpt.Rule = Empty | "HAVING" + expression;
-            orderClauseOpt.Rule = Empty | "ORDER" + BY + orderList;
+            orderClauseOpt.Rule = Empty | ("ORDER" + BY + orderList);
 
             //Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
-            expression.Rule = term | unExpr | binExpr;// | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
+            expression.Rule =
+                term | unExpr |
+                binExpr; // | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
             term.Rule = Id | string_literal | number | tuple | funCall; //| parSelectStmt;// | inStmt;
             tuple.Rule = "(" + exprList + ")";
             //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";
-            binExpr.Rule = expression + binOp + expression | "(" + expression + binOp + expression + ")";
+            binExpr.Rule = (expression + binOp + expression) | ("(" + expression + binOp + expression + ")");
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" //arithmetic
-                       | "&" | "|" | "^"                     //bit
-                       | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
-                       | "AND" | "OR" | "LIKE" | NOT + "LIKE" | "IN" | NOT + "IN";
+                         | "&" | "|" | "^" //bit
+                         | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
+                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
             //betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
             notOpt.Rule = Empty | NOT;
             //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
             //funCall.Rule = Id + "()";
             //funCall.Rule = Id + "(" + Empty | exprList + ")";
-            funCall.Rule = Id + "(" + funArgs + ")" | CURRENT_TIMESTAMP;
+            funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList;
             //funArgs.Rule = selectStmt | exprList;
             //inStmt.Rule = expression + "IN" + "(" + exprList + ")";
@@ -287,9 +291,8 @@ namespace PrismaDB.QueryParser.MSSQL
             // Transient non-terminals cannot have more than one non-punctuation child nodes.
             // Instead, we set flag InheritPrecedence on binOp , so that it inherits precedence value from it's children, and this precedence is used
             // in conflict resolution when binOp node is sitting on the stack
-            base.MarkTransient(stmt, term, asOpt, aliasOpt, stmtLine, expression, unOp, tuple);
+            MarkTransient(stmt, term, asOpt, aliasOpt, stmtLine, expression, unOp, tuple);
             binOp.SetFlag(TermFlags.InheritPrecedence);
-
-        }//constructor
+        }
     }
 }

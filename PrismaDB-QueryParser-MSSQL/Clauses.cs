@@ -1,15 +1,15 @@
-﻿using PrismaDB.QueryAST.DML;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using PrismaDB.QueryAST.DML;
 
 namespace PrismaDB.QueryParser.MSSQL
 {
     /// <summary>
-    /// Additional AndClause to assist with conversion to CNF form.
-    /// Not available in QueryAST.
+    ///     Additional AndClause to assist with conversion to CNF form.
+    ///     Not available in QueryAST.
     /// </summary>
-    class AndClause : Expression
+    internal class AndClause : Expression
     {
         public Expression left, right;
 
@@ -18,6 +18,7 @@ namespace PrismaDB.QueryParser.MSSQL
             this.left = left;
             this.right = right;
         }
+
         public override object Clone()
         {
             var left_clone = left.Clone() as Expression;
@@ -60,17 +61,19 @@ namespace PrismaDB.QueryParser.MSSQL
     }
 
     /// <summary>
-    /// Additional OrClause to assist with conversion to CNF form.
-    /// Not available in QueryAST.
+    ///     Additional OrClause to assist with conversion to CNF form.
+    ///     Not available in QueryAST.
     /// </summary>
-    class OrClause : Expression
+    internal class OrClause : Expression
     {
         public Expression left, right;
+
         public OrClause(Expression left, Expression right)
         {
             this.left = left;
             this.right = right;
         }
+
         public override object Clone()
         {
             var left_clone = left.Clone() as Expression;
