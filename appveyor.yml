@@ -26,4 +26,4 @@ cache:
 environment:
   AppVeyorAPIToken:
     secure: GvygCCndEp8eiXvItooIyglWYnyfUvg4YNyaufw3N3A=
-version: "0.1.{build}"
+version: "0.2.8.{build}"
