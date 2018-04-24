@@ -27,18 +27,3 @@ environment:
   AppVeyorAPIToken:
     secure: GvygCCndEp8eiXvItooIyglWYnyfUvg4YNyaufw3N3A=
 version: "0.1.{build}"
-init:
-  - ps: |
-        if (($env:APPVEYOR_REPO_COMMIT_MESSAGE -match '^v\d+\.\d+$') -And `
-            ($env:APPVEYOR_REPO_BRANCH -eq 'master') -And `
-            ($env:APPVEYOR_PULL_REQUEST_NUMBER -eq $null) ) # new version release
-        {
-          Invoke-RestMethod -Uri 'https://ci.appveyor.com/project/bazzilic/prismadb-queryparser/settings/build-number' `
-                            -Headers @{ "Authorization" = "Bearer ${env:AppVeyorAPIToken}" ; "Content-type" = "application/json" } `
-                            -Method Put `
-                            -Body '{ nextBuildNumber: 1 }'
-          $env:APPVEYOR_REPO_TAG_NAME -match '^v(\d+)\.(\d+)$'
-          [int]$major = $Matches[1]/1
-          [int]$minor = $Matches[2]/1
-          Update-AppVeyorBuild -Version "$major.$minor.0"
-        }
