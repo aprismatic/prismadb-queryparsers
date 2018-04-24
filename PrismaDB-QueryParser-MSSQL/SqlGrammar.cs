@@ -2,39 +2,30 @@
 
 namespace PrismaDB.QueryParser.MSSQL
 {
-    [Language("SQL", "89", "SQL 89 grammar")]
+    // Reference: https://github.com/IronyProject/Irony/tree/master/Irony.Samples/SQL
+    [Language("Prisma/DB MSSQL", "0.1", "Extended MSSQL grammer for Prisma/DB")]
     public class SqlGrammar : Grammar
     {
         public SqlGrammar() : base(false)
         {
-            //SQL is case insensitive
-            //Terminals
+            // SQL is case insensitive
+            // Terminals
             var comment = new CommentTerminal("comment", "/*", "*/");
             var lineComment = new CommentTerminal("line_comment", "--", "\n", "\r\n");
             NonGrammarTerminals.Add(comment);
             NonGrammarTerminals.Add(lineComment);
             var number = new NumberLiteral("number");
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
-            var Id_simple =
-                TerminalFactory.CreateSqlExtIdentifier(this,
-                    "id_simple"); //covers normal identifiers (abc) and quoted id's ([abc d], "abc d")
+            // Normal identifiers (abc) and quoted id's ([abc d], "abc d")
+            var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple");
             var comma = ToTerm(",");
             var dot = ToTerm(".");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
-            var UNIQUE = ToTerm("UNIQUE");
-            var WITH = ToTerm("WITH");
             var TABLE = ToTerm("TABLE");
             var ALTER = ToTerm("ALTER");
-            var ADD = ToTerm("ADD");
             var COLUMN = ToTerm("COLUMN");
-            var DROP = ToTerm("DROP");
-            var CONSTRAINT = ToTerm("CONSTRAINT");
-            var INDEX = ToTerm("INDEX");
-            var ON = ToTerm("ON");
-            var KEY = ToTerm("KEY");
-            var PRIMARY = ToTerm("PRIMARY");
             var INSERT = ToTerm("INSERT");
             var INTO = ToTerm("INTO");
             var UPDATE = ToTerm("UPDATE");
@@ -44,8 +35,6 @@ namespace PrismaDB.QueryParser.MSSQL
             var SELECT = ToTerm("SELECT");
             var FROM = ToTerm("FROM");
             var AS = ToTerm("AS");
-            var COUNT = ToTerm("COUNT");
-            var JOIN = ToTerm("JOIN");
             var BY = ToTerm("BY");
             var ENCRYPTED = ToTerm("ENCRYPTED");
             var FOR = ToTerm("FOR");
@@ -56,37 +45,32 @@ namespace PrismaDB.QueryParser.MSSQL
             var PRISMADB = ToTerm("PRISMADB");
             var TO = ToTerm("TO");
 
-            //Non-terminals
+            // Non-Terminals
             var Id = new NonTerminal("Id");
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
-            var createIndexStmt = new NonTerminal("createIndexStmt");
             var alterStmt = new NonTerminal("alterStmt");
-            var dropTableStmt = new NonTerminal("dropTableStmt");
-            var dropIndexStmt = new NonTerminal("dropIndexStmt");
             var selectStmt = new NonTerminal("selectStmt");
             var insertStmt = new NonTerminal("insertStmt");
             var updateStmt = new NonTerminal("updateStmt");
             var deleteStmt = new NonTerminal("deleteStmt");
             var useStmt = new NonTerminal("useStmt");
+
+            var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
+
             var fieldDef = new NonTerminal("fieldDef");
             var fieldDefList = new NonTerminal("fieldDefList");
             var nullSpecOpt = new NonTerminal("nullSpecOpt");
             var typeName = new NonTerminal("typeName");
-            var typeSpec = new NonTerminal("typeSpec");
             var typeParamsOpt = new NonTerminal("typeParams");
-            var constraintDef = new NonTerminal("constraintDef");
-            var constraintListOpt = new NonTerminal("constraintListOpt");
-            var constraintTypeOpt = new NonTerminal("constraintTypeOpt");
             var idlist = new NonTerminal("idlist");
             var idlistPar = new NonTerminal("idlistPar");
-            var uniqueOpt = new NonTerminal("uniqueOpt");
             var orderList = new NonTerminal("orderList");
             var orderMember = new NonTerminal("orderMember");
             var orderDirOpt = new NonTerminal("orderDirOpt");
-            var withClauseOpt = new NonTerminal("withClauseOpt");
             var alterCmd = new NonTerminal("alterCmd");
             var insertData = new NonTerminal("insertData");
+            var insertDataList = new NonTerminal("insertDataList");
             var intoOpt = new NonTerminal("intoOpt");
             var assignList = new NonTerminal("assignList");
             var whereClauseOpt = new NonTerminal("whereClauseOpt");
@@ -95,40 +79,25 @@ namespace PrismaDB.QueryParser.MSSQL
             var exprList = new NonTerminal("exprList");
             var selRestrOpt = new NonTerminal("selRestrOpt");
             var selList = new NonTerminal("selList");
-            var intoClauseOpt = new NonTerminal("intoClauseOpt");
             var fromClauseOpt = new NonTerminal("fromClauseOpt");
-            var groupClauseOpt = new NonTerminal("groupClauseOpt");
-            var havingClauseOpt = new NonTerminal("havingClauseOpt");
             var orderClauseOpt = new NonTerminal("orderClauseOpt");
             var columnItemList = new NonTerminal("columnItemList");
             var columnItem = new NonTerminal("columnItem");
             var columnSource = new NonTerminal("columnSource");
             var asOpt = new NonTerminal("asOpt");
             var aliasOpt = new NonTerminal("aliasOpt");
-            var aggregate = new NonTerminal("aggregate");
-            var aggregateArg = new NonTerminal("aggregateArg");
-            var aggregateName = new NonTerminal("aggregateName");
             var tuple = new NonTerminal("tuple");
-            var joinChainOpt = new NonTerminal("joinChainOpt");
-            var joinKindOpt = new NonTerminal("joinKindOpt");
             var term = new NonTerminal("term");
             var unExpr = new NonTerminal("unExpr");
             var unOp = new NonTerminal("unOp");
             var binExpr = new NonTerminal("binExpr");
             var binOp = new NonTerminal("binOp");
-            var betweenExpr = new NonTerminal("betweenExpr");
-            var inExpr = new NonTerminal("inExpr");
-            var parSelectStmt = new NonTerminal("parSelectStmt");
             var notOpt = new NonTerminal("notOpt");
             var funCall = new NonTerminal("funCall");
             var stmtLine = new NonTerminal("stmtLine");
             var semiOpt = new NonTerminal("semiOpt");
             var stmtList = new NonTerminal("stmtList");
             var funArgs = new NonTerminal("funArgs");
-            var inStmt = new NonTerminal("inStmt");
-            var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
-
-            var insertDataList = new NonTerminal("insertDataList");
             var autoDefaultOpt = new NonTerminal("autoDefaultOpt");
 
             var encryptionOpt = new NonTerminal("encryptionOpt");
@@ -136,37 +105,23 @@ namespace PrismaDB.QueryParser.MSSQL
             var encryptTypeList = new NonTerminal("encryptTypeList");
             var encryptType = new NonTerminal("encryptType");
 
-            //BNF Rules
+            // BNF Rules
             Root = stmtList;
             stmtLine.Rule = stmt + semiOpt;
             semiOpt.Rule = Empty | ";";
             stmtList.Rule = MakePlusRule(stmtList, stmtLine);
 
-            //ID
+            // ID
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
-            stmt.Rule = createTableStmt | alterStmt //| createIndexStmt
-                                        //| dropTableStmt | dropIndexStmt
-                                        | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt
-                                        | exportSettingsCmd
-                                        | "GO";
-            //Create table
-            createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")"; //+ constraintListOpt;
+            stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
+                        exportSettingsCmd |
+                        "GO";
+
+            // Create Statement
+            createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")";
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
-
-            encryptionOpt.Rule = (ENCRYPTED + encryptTypePar) | Empty;
-            encryptTypePar.Rule = (FOR + "(" + encryptTypeList + ")") | Empty;
-            encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
-
-            var et_STORE = ToTerm("STORE");
-            var et_INTEGER_ADDITION = ToTerm("INTEGER_ADDITION");
-            var et_INTEGER_MULTIPLICATION = ToTerm("INTEGER_MULTIPLICATION");
-            var et_SEARCH = ToTerm("SEARCH");
-
-            encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
-
-            nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
 
             var t_INT = ToTerm("INT");
             var t_CHAR = ToTerm("CHAR");
@@ -179,111 +134,82 @@ namespace PrismaDB.QueryParser.MSSQL
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
             var t_FLOAT = ToTerm("FLOAT");
-
             var t_MAX = ToTerm("MAX");
-
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT;
-            typeParamsOpt.Rule =
-                ("(" + number + ")") | ("(" + t_MAX + ")") | Empty; // | "(" + number + comma + number + ")"
+            typeParamsOpt.Rule = ("(" + number + ")") | ("(" + t_MAX + ")") | Empty;
+
+            var et_STORE = ToTerm("STORE");
+            var et_INTEGER_ADDITION = ToTerm("INTEGER_ADDITION");
+            var et_INTEGER_MULTIPLICATION = ToTerm("INTEGER_MULTIPLICATION");
+            var et_SEARCH = ToTerm("SEARCH");
+            encryptionOpt.Rule = (ENCRYPTED + encryptTypePar) | Empty;
+            encryptTypePar.Rule = (FOR + "(" + encryptTypeList + ")") | Empty;
+            encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
+            encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
+
+            nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
             autoDefaultOpt.Rule = (DEFAULT + term) | Empty;
-            //constraintDef.Rule = CONSTRAINT + Id + constraintTypeOpt;
-            //constraintListOpt.Rule = MakeStarRule(constraintListOpt, constraintDef);
-            //constraintTypeOpt.Rule = PRIMARY + KEY + idlistPar | UNIQUE + idlistPar | NOT + NULL + idlistPar
-            //                       | "Foreign" + KEY + idlistPar + "References" + Id + idlistPar;
-            idlistPar.Rule = "(" + idlist + ")";
-            idlist.Rule = MakePlusRule(idlist, comma, Id);
 
-            //Create Index
-            //createIndexStmt.Rule = CREATE + uniqueOpt + INDEX + Id + ON + Id + orderList + withClauseOpt;
-            //uniqueOpt.Rule = Empty | UNIQUE;
-            orderList.Rule = MakePlusRule(orderList, comma, orderMember);
-            orderMember.Rule = Id + orderDirOpt;
-            orderDirOpt.Rule = Empty | "ASC" | "DESC";
-            //withClauseOpt.Rule = Empty | WITH + PRIMARY | WITH + "Disallow" + NULL | WITH + "Ignore" + NULL;
-
-            //Alter 
+            // Alter Statement
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
             alterCmd.Rule = ALTER + COLUMN + fieldDef;
-            //alterCmd.Rule = ADD + COLUMN + fieldDefList + constraintListOpt
-            //              | ADD + constraintDef
-            //              | DROP + COLUMN + Id
-            //              | DROP + CONSTRAINT + Id;
 
-            //Drop stmts
-            //dropTableStmt.Rule = DROP + TABLE + Id;
-            //dropIndexStmt.Rule = DROP + INDEX + Id + ON + Id;
-
-            //Command stmt
+            // Command Statement
             exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
 
-            //Use stmt
+            // Use Statement
             useStmt.Rule = USE + Id;
 
-            //Insert stmt
+            // Insert Statement
             insertStmt.Rule = INSERT + intoOpt + Id + idlistPar + VALUES + insertDataList;
-            insertData.Rule = "(" + exprList + ")"; //selectStmt | VALUES +
-            intoOpt.Rule = Empty | INTO; //Into is optional in MSSQL
+            insertData.Rule = "(" + exprList + ")";
+            intoOpt.Rule = Empty | INTO; // Into is optional in MSSQL
+            idlistPar.Rule = "(" + idlist + ")";
+            idlist.Rule = MakePlusRule(idlist, comma, Id);
             insertDataList.Rule = MakePlusRule(insertDataList, comma, insertData);
 
-            //Update stmt
+            // Update Statement
             updateStmt.Rule = UPDATE + Id + SET + assignList + whereClauseOpt;
             assignList.Rule = MakePlusRule(assignList, comma, assignment);
             assignment.Rule = Id + "=" + expression;
 
-            //Delete stmt
+            // Delete Statement
             deleteStmt.Rule = DELETE + FROM + Id + whereClauseOpt;
 
-            //Select stmt
+            // Select Statement
             selectStmt.Rule = SELECT + selRestrOpt + selList + fromClauseOpt + whereClauseOpt + orderClauseOpt;
-            // + intoClauseOpt + groupClauseOpt + havingClauseOpt 
             selRestrOpt.Rule = Empty | (TOP + number) | (TOP + "(" + number + ")");
-            //selRestrOpt.Rule = Empty | "ALL" | "DISTINCT";
             selList.Rule = columnItemList | "*";
             columnItemList.Rule = MakePlusRule(columnItemList, comma, columnItem);
             columnItem.Rule = columnSource + aliasOpt;
             aliasOpt.Rule = Empty | (asOpt + Id);
             asOpt.Rule = Empty | AS;
             columnSource.Rule = expression;
-            //| Id | aggregate ;
-            //aggregate.Rule = aggregateName + "(" + aggregateArg + ")";
-            //aggregateArg.Rule = expression | "*";
-            //aggregateName.Rule = COUNT | "Avg" | "Min" | "Max" | "StDev" | "StDevP" | "Sum" | "Var" | "VarP";
-            //intoClauseOpt.Rule = Empty | INTO + Id;
-            fromClauseOpt.Rule = Empty | (FROM + idlist); //+ joinChainOpt;
-            //joinChainOpt.Rule = Empty | joinKindOpt + JOIN + idlist + ON + Id + "=" + Id;
-            //joinKindOpt.Rule = Empty | "INNER" | "LEFT" | "RIGHT";
+            fromClauseOpt.Rule = Empty | (FROM + idlist);
             whereClauseOpt.Rule = Empty | ("WHERE" + expression);
-            //groupClauseOpt.Rule = Empty | "GROUP" + BY + idlist;
-            //havingClauseOpt.Rule = Empty | "HAVING" + expression;
             orderClauseOpt.Rule = Empty | ("ORDER" + BY + orderList);
+            orderList.Rule = MakePlusRule(orderList, comma, orderMember);
+            orderMember.Rule = Id + orderDirOpt;
+            orderDirOpt.Rule = Empty | "ASC" | "DESC";
 
-            //Expression
+            // Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
-            expression.Rule =
-                term | unExpr |
-                binExpr; // | betweenExpr; //-- BETWEEN doesn't work - yet; brings a few parsing conflicts 
-            term.Rule = Id | string_literal | number | tuple | funCall; //| parSelectStmt;// | inStmt;
+            expression.Rule = term | unExpr | binExpr;
+            term.Rule = Id | string_literal | number | tuple | funCall;
             tuple.Rule = "(" + exprList + ")";
-            //parSelectStmt.Rule = "(" + selectStmt + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";
             binExpr.Rule = (expression + binOp + expression) | ("(" + expression + binOp + expression + ")");
-            binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" //arithmetic
-                         | "&" | "|" | "^" //bit
+            binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" // Arithmetic
+                         | "&" | "|" | "^" // Bit
                          | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
                          | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
-            //betweenExpr.Rule = expression + notOpt + "BETWEEN" + expression + "AND" + expression;
             notOpt.Rule = Empty | NOT;
-            //funCall covers some psedo-operators and special forms like ANY(...), SOME(...), ALL(...), EXISTS(...), IN(...)
-            //funCall.Rule = Id + "()";
-            //funCall.Rule = Id + "(" + Empty | exprList + ")";
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList;
-            //funArgs.Rule = selectStmt | exprList;
-            //inStmt.Rule = expression + "IN" + "(" + exprList + ")";
 
-            //Operators
+            // Operators
             RegisterOperators(10, "*", "/", "%");
             RegisterOperators(9, "+", "-");
             RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN");
