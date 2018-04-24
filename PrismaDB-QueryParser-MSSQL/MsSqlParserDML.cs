@@ -191,9 +191,9 @@ namespace PrismaDB.QueryParser.MSSQL
         /// </summary>
         /// <param name="node">Parent node of clause</param>
         /// <returns>Resulting Order By clause</returns>
-        private static List<Tuple<Expression, OrderDirection>> BuildOrderByClause(ParseTreeNode node)
+        private static OrderByClause BuildOrderByClause(ParseTreeNode node)
         {
-            var orderBy = new List<Tuple<Expression, OrderDirection>>();
+            var orderBy = new OrderByClause();
 
             var listNode = FindChildNode(node, "orderList");
 
@@ -207,7 +207,7 @@ namespace PrismaDB.QueryParser.MSSQL
                     if (FindChildNode(dirNode, "DESC") != null)
                         direction = OrderDirection.DESC;
 
-                    orderBy.Add(new Tuple<Expression, OrderDirection>(cofRef, direction));
+                    orderBy.OrderColumns.Add(new Tuple<Expression, OrderDirection>(cofRef, direction));
                 }
 
             return orderBy;

@@ -6,7 +6,7 @@ using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MSSQL;
 using Xunit;
 
-namespace PrismaDB_QueryParser_MSSQL_Tests
+namespace ParserTests
 {
     public class QueryTest
     {
@@ -277,12 +277,12 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].ColumnName.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].ColumnName.id);
 
-            Assert.Equal(new Identifier("a"), actual.OrderBy[0].Item1.ColumnName);
-            Assert.Equal(new Identifier("b"), actual.OrderBy[1].Item1.ColumnName);
-            Assert.Equal(new Identifier("c"), actual.OrderBy[2].Item1.ColumnName);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy[0].Item2);
-            Assert.Equal(OrderDirection.DESC, actual.OrderBy[1].Item2);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy[2].Item2);
+            Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].Item1.ColumnName);
+            Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].Item1.ColumnName);
+            Assert.Equal(new Identifier("c"), actual.OrderBy.OrderColumns[2].Item1.ColumnName);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[0].Item2);
+            Assert.Equal(OrderDirection.DESC, actual.OrderBy.OrderColumns[1].Item2);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[2].Item2);
         }
 
         [Fact(DisplayName = "Parse USE")]
