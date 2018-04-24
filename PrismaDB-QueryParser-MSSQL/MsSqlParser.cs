@@ -11,11 +11,11 @@ namespace PrismaDB.QueryParser.MSSQL
     /// <summary>
     ///     Parses SQL statment strings into PrismaDB Query AST.
     /// </summary>
-    public partial class SqlParser
+    public partial class MsSqlParser
     {
-        private readonly Grammar grammar = new SqlGrammar();
-        private LanguageData language;
-        private Parser parser;
+        private readonly Grammar _grammar = new MsSqlGrammar();
+        private LanguageData _language;
+        private Parser _parser;
 
 
         /// <summary>
@@ -23,7 +23,7 @@ namespace PrismaDB.QueryParser.MSSQL
         /// </summary>
         /// <param name="source">SQL query string</param>
         /// <returns>List of Query objects</returns>
-        public List<Query> ParseToAST(string source)
+        public List<Query> ParseToAst(string source)
         {
             // Declare list of queries
             var queries = new List<Query>();
@@ -105,14 +105,14 @@ namespace PrismaDB.QueryParser.MSSQL
         /// <returns>Irony ParseTree object</returns>
         private ParseTree Parse(string source)
         {
-            language = new LanguageData(grammar);
-            parser = new Parser(language);
+            _language = new LanguageData(_grammar);
+            _parser = new Parser(_language);
 
-            if (parser == null || !parser.Language.CanParse())
+            if (_parser == null || !_parser.Language.CanParse())
                 return null;
 
-            parser.Parse(source);
-            var parseTree = parser.Context.CurrentParseTree;
+            _parser.Parse(source);
+            var parseTree = _parser.Context.CurrentParseTree;
 
             return parseTree;
         }

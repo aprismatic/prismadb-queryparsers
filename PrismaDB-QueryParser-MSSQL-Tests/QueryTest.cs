@@ -14,12 +14,12 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_AlterTable()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "ALTER TABLE table1 " +
                        "ALTER COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (AlterTableQuery) result[0];
@@ -46,12 +46,12 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_CreateTable_DATETIME()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "CREATE TABLE table1 " +
                        "(col1 DATETIME NOT NULL)";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery) result[0];
@@ -69,13 +69,13 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_CreateTable_TEXT()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "CREATE TABLE table1 " +
                        "(col1 TEXT, " +
                        "col2 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL)";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery) result[0];
@@ -106,7 +106,7 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_CreateTable_WithPartialEncryption()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "CREATE TABLE ttt " +
                        "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
                        "[bbb] INT NULL, " +
@@ -118,7 +118,7 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
                        "hhh DATETIME ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery) result[0];
@@ -169,11 +169,11 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_ExportSettings()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json'";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (ExportSettingsCommand) result[0];
@@ -184,11 +184,11 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_Function()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "SELECT CONNECTION_ID()";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery) result[0];
@@ -204,11 +204,11 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_FunctionWithParams()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "SELECT TOP(1) COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery) result[0];
@@ -234,12 +234,12 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_InsertInto()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test =
                 "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) VALUES ( 1, 12.345 , 'hey', 'hi' ), (0,050,'  ', '&')";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (InsertQuery) result[0];
@@ -264,11 +264,11 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_Select()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t ORDER BY a ASC, b DESC, c";
 
             // Act
-            var result = parser.ParseToAST(test);
+            var result = parser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery) result[0];
@@ -289,11 +289,11 @@ namespace PrismaDB_QueryParser_MSSQL_Tests
         public void Parse_Use()
         {
             // Setup
-            var parser = new SqlParser();
+            var parser = new MsSqlParser();
             var test = "USE ThisDB";
 
             // Act
-            var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAST(test));
+            var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAst(test));
             Assert.Equal("Database switching not supported.", ex.Message);
         }
     }

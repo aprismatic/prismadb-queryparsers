@@ -4,7 +4,7 @@ using PrismaDB.QueryAST.DDL;
 
 namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class SqlParser
+    public partial class MsSqlParser
     {
         /// <summary>
         ///     Builds a Create Table Query.

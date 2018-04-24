@@ -4,9 +4,9 @@ namespace PrismaDB.QueryParser.MSSQL
 {
     // Reference: https://github.com/IronyProject/Irony/tree/master/Irony.Samples/SQL
     [Language("Prisma/DB MSSQL", "0.1", "Extended MSSQL grammer for Prisma/DB")]
-    public class SqlGrammar : Grammar
+    public class MsSqlGrammar : Grammar
     {
-        public SqlGrammar() : base(false)
+        public MsSqlGrammar() : base(false)
         {
             // SQL is case insensitive
             // Terminals
