@@ -52,9 +52,12 @@ namespace PrismaDB.QueryParser.MSSQL
             foreach (var mainNode in node.ChildNodes)
                 // Check for table name
                 if (mainNode.Term.Name.Equals("Id"))
+                {
                     updQuery.UpdateTable = BuildTableRef(mainNode);
+                }
                 // Check for columns and data to update
                 else if (mainNode.Term.Name.Equals("assignList"))
+                {
                     foreach (var exprNode in mainNode.ChildNodes)
                         if (exprNode.Term.Name.Equals("assignment"))
                         {
@@ -68,11 +71,12 @@ namespace PrismaDB.QueryParser.MSSQL
 
                             updQuery.UpdateExpressions.Add(new Pair<ColumnRef, Constant>(colRef, constant));
                         }
-                        // Check for where clause
-                        else if (mainNode.Term.Name.Equals("whereClauseOpt"))
-                        {
-                            updQuery.Where = BuildWhereClause(mainNode);
-                        }
+                }
+                // Check for where clause
+                else if (mainNode.Term.Name.Equals("whereClauseOpt"))
+                {
+                    updQuery.Where = BuildWhereClause(mainNode);
+                }
         }
 
 
