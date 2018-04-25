@@ -67,51 +67,51 @@ namespace PrismaDB.QueryParser.MSSQL
 
             if (FindChildNode(dataTypeNode, "INT") != null)
             {
-                colDef.DataType = SQLDataType.INT;
+                colDef.DataType = SqlDataType.INT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "CHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "VARCHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "NCHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "NVARCHAR") != null)
             {
-                colDef.DataType = SQLDataType.VARCHAR;
+                colDef.DataType = SqlDataType.VARCHAR;
             }
             else if (FindChildNode(dataTypeNode, "TEXT") != null)
             {
-                colDef.DataType = SQLDataType.TEXT;
+                colDef.DataType = SqlDataType.TEXT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "BINARY") != null)
             {
-                colDef.DataType = SQLDataType.VARBINARY;
+                colDef.DataType = SqlDataType.VARBINARY;
             }
             else if (FindChildNode(dataTypeNode, "VARBINARY") != null)
             {
-                colDef.DataType = SQLDataType.VARBINARY;
+                colDef.DataType = SqlDataType.VARBINARY;
             }
             else if (FindChildNode(dataTypeNode, "UNIQUEIDENTIFIER") != null)
             {
-                colDef.DataType = SQLDataType.MSSQL_UNIQUEIDENTIFIER;
+                colDef.DataType = SqlDataType.MSSQL_UNIQUEIDENTIFIER;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "DATETIME") != null)
             {
-                colDef.DataType = SQLDataType.DATETIME;
+                colDef.DataType = SqlDataType.DATETIME;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "FLOAT") != null)
             {
-                colDef.DataType = SQLDataType.DOUBLE;
+                colDef.DataType = SqlDataType.DOUBLE;
                 prohibitedLength = true;
             }
 
