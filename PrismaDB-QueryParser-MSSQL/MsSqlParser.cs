@@ -124,13 +124,14 @@ namespace PrismaDB.QueryParser.MSSQL
         /// <param name="parentNode">The parent node</param>
         /// <param name="termName">The name of the child node to find</param>
         /// <returns>The child node</returns>
-        private static ParseTreeNode FindChildNode(ParseTreeNode parentNode, string termName)
+        private static ParseTreeNode FindChildNode(ParseTreeNode parentNode, string termName, int occurrence = 0)
         {
             if (parentNode == null) return null;
 
             foreach (var childNode in parentNode.ChildNodes)
                 if (childNode.Term.Name.Equals(termName))
-                    return childNode;
+                    if (occurrence-- == 0)
+                        return childNode;
             return null;
         }
 

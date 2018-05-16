@@ -107,6 +107,12 @@ namespace PrismaDB.QueryParser.MSSQL
                 // Check and build columns to select from
                 if (mainNode.Term.Name.Equals("selList"))
                 {
+                    if (FindChildNode(mainNode, "*") != null)
+                    {
+                        selQuery.SelectExpressions.Add(new AllColumns());
+                        continue;
+                    }
+
                     var listNode = FindChildNode(mainNode, "columnItemList");
 
                     if (listNode != null)
@@ -140,11 +146,25 @@ namespace PrismaDB.QueryParser.MSSQL
                     if (listNode != null)
                         foreach (var idNode in listNode.ChildNodes)
                             selQuery.FromTables.Add(BuildTableRef(idNode));
+
+                    // Append INNER JOIN to WHERE clause 
+                    var joinNode = FindChildNode(mainNode, "joinChainOpt");
+                    if (joinNode == null || joinNode.ChildNodes.Count == 0) continue;
+
+                    var joinListNode = FindChildNode(joinNode, "idlist");
+                    foreach (var idTableNode in joinListNode.ChildNodes)
+                        selQuery.FromTables.Add(BuildTableRef(idTableNode));
+
+                    var colFirst = BuildColumnRef(FindChildNode(joinNode, "Id", 0));
+                    var colSecond = BuildColumnRef(FindChildNode(joinNode, "Id", 1));
+                    var joinCols = new Disjunction();
+                    joinCols.OR.Add(new BooleanEquals(colFirst, colSecond));
+                    selQuery.Where.CNF.AND.Add(joinCols);
                 }
                 // Check and build where clause
                 else if (mainNode.Term.Name.Equals("whereClauseOpt"))
                 {
-                    selQuery.Where = BuildWhereClause(mainNode);
+                    selQuery.Where.CNF.AND.AddRange(BuildWhereClause(mainNode).CNF.AND);
                 }
                 // Check for TOP
                 else if (mainNode.Term.Name.Equals("selRestrOpt"))
