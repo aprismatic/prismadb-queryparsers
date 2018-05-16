@@ -296,5 +296,56 @@ namespace ParserTests
             var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAst(test));
             Assert.Equal("Database switching not supported.", ex.Message);
         }
+
+        [Fact(DisplayName = "Parse JOIN")]
+        public void Parse_Join()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "select tt1.a, tt2.b FROM tt1 INNER JOIN tt2 ON tt1.c=tt2.c; " +
+                       "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; ";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            {
+                var actual = (SelectQuery)result[0];
+                Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
+                Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
+                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt2"), actual.FromTables[1]);
+                Assert.Equal(new ColumnRef("tt1", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
+                Assert.Equal(new ColumnRef("tt2", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
+            }
+            {
+                var actual = (SelectQuery)result[1];
+                Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
+                Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
+                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt2"), actual.FromTables[1]);
+                Assert.Equal(new ColumnRef("tt1", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
+                Assert.Equal(new ColumnRef("tt2", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
+                Assert.Equal(new ColumnRef("tt1", "a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[0]).left);
+                Assert.Equal(new IntConstant(123), ((BooleanEquals)actual.Where.CNF.AND[1].OR[0]).right);
+            }
+        }
+
+        [Fact(DisplayName = "Parse All Columns")]
+        public void Parse_AllColumns()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "select * from tt;";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            {
+                var actual = (SelectQuery)result[0];
+                Assert.Equal(new AllColumns(), actual.SelectExpressions[0]);
+            }
+        }
     }
 }
