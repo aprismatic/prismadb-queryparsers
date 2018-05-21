@@ -347,5 +347,28 @@ namespace ParserTests
                 Assert.Equal(new AllColumns(), actual.SelectExpressions[0]);
             }
         }
+
+        [Fact(DisplayName = "Parse NULLs")]
+        public void Parse_NULLExpressions()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test1 = "SELECT NULL";
+            var test2 = "INSERT INTO tbl1 ( col1 ) VALUES ( NULL )";
+
+            // Act
+            var result1 = parser.ParseToAst(test1)[0];
+
+            // Assert
+            Assert.IsType<SelectQuery>(result1);
+            Assert.IsType<NullConstant>(((SelectQuery)result1).SelectExpressions[0]);
+
+            // Act
+            var result2 = parser.ParseToAst(test2)[0];
+
+            // Assert
+            Assert.IsType<InsertQuery>(result2);
+            Assert.IsType<NullConstant>(((InsertQuery)result2).Values[0][0]);
+        }
     }
 }

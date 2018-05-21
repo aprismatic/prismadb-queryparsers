@@ -17,6 +17,7 @@ namespace PrismaDB.QueryParser.MSSQL
         private static void BuildInsertQuery(InsertQuery insQuery, ParseTreeNode node)
         {
             foreach (var mainNode in node.ChildNodes)
+            {
                 // Check for table name
                 if (mainNode.Term.Name.Equals("Id"))
                 {
@@ -39,6 +40,7 @@ namespace PrismaDB.QueryParser.MSSQL
                         insQuery.Values.Add(BuildExpressions(listNode));
                     }
                 }
+            }
         }
 
 
@@ -50,6 +52,7 @@ namespace PrismaDB.QueryParser.MSSQL
         private static void BuildUpdateQuery(UpdateQuery updQuery, ParseTreeNode node)
         {
             foreach (var mainNode in node.ChildNodes)
+            {
                 // Check for table name
                 if (mainNode.Term.Name.Equals("Id"))
                 {
@@ -59,6 +62,7 @@ namespace PrismaDB.QueryParser.MSSQL
                 else if (mainNode.Term.Name.Equals("assignList"))
                 {
                     foreach (var exprNode in mainNode.ChildNodes)
+                    {
                         if (exprNode.Term.Name.Equals("assignment"))
                         {
                             var colRef = BuildColumnRef(FindChildNode(exprNode, "Id"));
@@ -71,12 +75,14 @@ namespace PrismaDB.QueryParser.MSSQL
 
                             updQuery.UpdateExpressions.Add(new Pair<ColumnRef, Constant>(colRef, constant));
                         }
+                    }
                 }
                 // Check for where clause
                 else if (mainNode.Term.Name.Equals("whereClauseOpt"))
                 {
                     updQuery.Where = BuildWhereClause(mainNode);
                 }
+            }
         }
 
 
@@ -88,11 +94,13 @@ namespace PrismaDB.QueryParser.MSSQL
         private static void BuildDeleteQuery(DeleteQuery delQuery, ParseTreeNode node)
         {
             foreach (var mainNode in node.ChildNodes)
+            {
                 // Check for table name
                 if (mainNode.Term.Name.Equals("Id"))
                     delQuery.DeleteTable = BuildTableRef(mainNode);
                 // Check and build where clause
                 else if (mainNode.Term.Name.Equals("whereClauseOpt")) delQuery.Where = BuildWhereClause(mainNode);
+            }
         }
 
 
@@ -314,6 +322,10 @@ namespace PrismaDB.QueryParser.MSSQL
                 else if (node.Term.Name.Equals("exprList"))
                 {
                     if (node.ChildNodes.Count == 1) expr = BuildExpression(node.ChildNodes[0]);
+                }
+                else if (node.Term.Name.Equals("NULL"))
+                {
+                    expr = new NullConstant();
                 }
             }
 

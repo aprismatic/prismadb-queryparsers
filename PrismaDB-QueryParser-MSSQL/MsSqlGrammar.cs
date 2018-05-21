@@ -202,7 +202,7 @@ namespace PrismaDB.QueryParser.MSSQL
             // Expression
             exprList.Rule = MakePlusRule(exprList, comma, expression);
             expression.Rule = term | unExpr | binExpr;
-            term.Rule = Id | string_literal | number | tuple | funCall;
+            term.Rule = Id | string_literal | number | tuple | funCall | NULL;
             tuple.Rule = "(" + exprList + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";
