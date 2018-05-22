@@ -194,7 +194,7 @@ namespace ParserTests
             var actual = (SelectQuery) result[0];
 
             Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction) actual.SelectExpressions[0]).FunctionName);
-            Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction) actual.SelectExpressions[0]).ColumnName);
+            Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction) actual.SelectExpressions[0]).Alias);
             Assert.Empty(((ScalarFunction) actual.SelectExpressions[0]).Parameters);
 
             Assert.Null(actual.Limit);
@@ -214,7 +214,7 @@ namespace ParserTests
             var actual = (SelectQuery) result[0];
 
             Assert.Equal(new Identifier("COUNT"), ((ScalarFunction) actual.SelectExpressions[0]).FunctionName);
-            Assert.Equal(new Identifier("Num"), ((ScalarFunction) actual.SelectExpressions[0]).ColumnName);
+            Assert.Equal(new Identifier("Num"), ((ScalarFunction) actual.SelectExpressions[0]).Alias);
             Assert.Equal(new TableRef("tt"),
                 ((ColumnRef) ((ScalarFunction) actual.SelectExpressions[0]).Parameters[0]).Table);
             Assert.Equal(new Identifier("col1"),
@@ -222,7 +222,7 @@ namespace ParserTests
 
             Assert.Equal(new Identifier("TEST"), ((ScalarFunction) actual.SelectExpressions[1]).FunctionName);
             Assert.Equal(new Identifier("TEST('string',12)"),
-                ((ScalarFunction) actual.SelectExpressions[1]).ColumnName);
+                ((ScalarFunction) actual.SelectExpressions[1]).Alias);
             Assert.Equal("string",
                 (((ScalarFunction) actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
             Assert.Equal(12, (((ScalarFunction) actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
@@ -273,9 +273,9 @@ namespace ParserTests
             // Assert
             var actual = (SelectQuery) result[0];
 
-            Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].ColumnName.id);
-            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].ColumnName.id);
-            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].ColumnName.id);
+            Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].Alias.id);
+            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
+            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
 
             Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].Item1.ColumnName);
             Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].Item1.ColumnName);
@@ -302,7 +302,7 @@ namespace ParserTests
         {
             // Setup
             var parser = new MsSqlParser();
-            var test = "select tt1.a, tt2.b FROM tt1 INNER JOIN tt2 ON tt1.c=tt2.c; " +
+            var test = "select tt1.a AS abc, tt2.b FROM tt1 INNER JOIN tt2 ON tt1.c=tt2.c; " +
                        "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; ";
 
             // Act
@@ -311,7 +311,7 @@ namespace ParserTests
             // Assert
             {
                 var actual = (SelectQuery)result[0];
-                Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
+                Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
                 Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
                 Assert.Equal(new TableRef("tt2"), actual.FromTables[1]);
