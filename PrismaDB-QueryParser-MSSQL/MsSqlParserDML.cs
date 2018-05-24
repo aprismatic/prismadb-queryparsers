@@ -237,7 +237,7 @@ namespace PrismaDB.QueryParser.MSSQL
                     if (FindChildNode(dirNode, "DESC") != null)
                         direction = OrderDirection.DESC;
 
-                    orderBy.OrderColumns.Add(new Tuple<ColumnRef, OrderDirection>(cofRef, direction));
+                    orderBy.OrderColumns.Add(new Pair<ColumnRef, OrderDirection>(cofRef, direction));
                 }
 
             return orderBy;

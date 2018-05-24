@@ -277,12 +277,12 @@ namespace ParserTests
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
 
-            Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].Item1.ColumnName);
-            Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].Item1.ColumnName);
-            Assert.Equal(new Identifier("c"), actual.OrderBy.OrderColumns[2].Item1.ColumnName);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[0].Item2);
-            Assert.Equal(OrderDirection.DESC, actual.OrderBy.OrderColumns[1].Item2);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[2].Item2);
+            Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].First.ColumnName);
+            Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].First.ColumnName);
+            Assert.Equal(new Identifier("c"), actual.OrderBy.OrderColumns[2].First.ColumnName);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[0].Second);
+            Assert.Equal(OrderDirection.DESC, actual.OrderBy.OrderColumns[1].Second);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[2].Second);
         }
 
         [Fact(DisplayName = "Parse USE")]
