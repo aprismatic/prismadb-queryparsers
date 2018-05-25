@@ -184,12 +184,31 @@ namespace PrismaDB.QueryParser.MSSQL
             {
                 exp = BuildExpression(node.ChildNodes[0]);
             }
-            else if (node.ChildNodes.Count == 2 && node.ChildNodes[0].Term.Name.Equals("Id") &&
-                     node.ChildNodes[1].Term.Name.Equals("funArgs"))
+            else if (node.ChildNodes.Count == 2 &&
+                     (node.ChildNodes[0].Term.Name.Equals("Id") &&
+                      node.ChildNodes[1].Term.Name.Equals("funArgs")))
             {
                 if (node.ChildNodes[0].ChildNodes.Count == 1 &&
                     node.ChildNodes[0].ChildNodes[0].Term.Name.Equals("id_simple"))
-                    exp = new ScalarFunction(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
+                {
+                    var funcName = node.ChildNodes[0].ChildNodes[0].Token.ValueString.ToUpperInvariant();
+                    switch (funcName)
+                    {
+                        case "SUM":
+                            exp = new SumAggregationFunction(funcName);
+                            break;
+                        case "AVG":
+                            exp = new AvgAggregationFunction(funcName);
+                            break;
+                        case "COUNT":
+                            exp = new CountAggregationFunction(funcName);
+                            break;
+                        default:
+                            exp = new ScalarFunction(funcName);
+                            break;
+                    }
+                }
+
                 if (node.ChildNodes[1].ChildNodes.Count == 1 &&
                     node.ChildNodes[1].ChildNodes[0].Term.Name.Equals("exprList"))
                     ((ScalarFunction) exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
