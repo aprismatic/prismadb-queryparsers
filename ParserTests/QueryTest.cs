@@ -22,7 +22,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (AlterTableQuery) result[0];
+            var actual = (AlterTableQuery)result[0];
 
             Assert.Equal(new TableRef("table1"), actual.TableName);
             Assert.Equal(AlterType.MODIFY, actual.AlterType);
@@ -54,7 +54,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (CreateTableQuery) result[0];
+            var actual = (CreateTableQuery)result[0];
 
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
@@ -78,7 +78,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (CreateTableQuery) result[0];
+            var actual = (CreateTableQuery)result[0];
 
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
@@ -121,7 +121,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (CreateTableQuery) result[0];
+            var actual = (CreateTableQuery)result[0];
 
             Assert.Equal(new TableRef("ttt"), actual.TableName);
             Assert.Equal(new Identifier("aaa"), actual.ColumnDefinitions[0].ColumnName);
@@ -159,7 +159,7 @@ namespace ParserTests
             Assert.Equal(SqlDataType.DATETIME, actual.ColumnDefinitions[7].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
             Assert.Equal(new Identifier("CURRENT_TIMESTAMP"),
-                ((ScalarFunction) actual.ColumnDefinitions[7].DefaultValue).FunctionName);
+                ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
             Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
@@ -176,7 +176,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (ExportSettingsCommand) result[0];
+            var actual = (ExportSettingsCommand)result[0];
             Assert.Equal("/home/user/settings.json", actual.FileUri.strvalue);
         }
 
@@ -191,11 +191,11 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (SelectQuery) result[0];
+            var actual = (SelectQuery)result[0];
 
-            Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction) actual.SelectExpressions[0]).FunctionName);
-            Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction) actual.SelectExpressions[0]).Alias);
-            Assert.Empty(((ScalarFunction) actual.SelectExpressions[0]).Parameters);
+            Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction)actual.SelectExpressions[0]).Alias);
+            Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
 
             Assert.Null(actual.Limit);
         }
@@ -211,23 +211,23 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (SelectQuery) result[0];
+            var actual = (SelectQuery)result[0];
 
-            Assert.Equal(new Identifier("COUNT"), ((ScalarFunction) actual.SelectExpressions[0]).FunctionName);
-            Assert.Equal(new Identifier("Num"), ((ScalarFunction) actual.SelectExpressions[0]).Alias);
+            Assert.Equal(new Identifier("COUNT"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
+            Assert.Equal(new Identifier("Num"), ((ScalarFunction)actual.SelectExpressions[0]).Alias);
             Assert.Equal(new TableRef("tt"),
-                ((ColumnRef) ((ScalarFunction) actual.SelectExpressions[0]).Parameters[0]).Table);
+                ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).Table);
             Assert.Equal(new Identifier("col1"),
-                ((ColumnRef) ((ScalarFunction) actual.SelectExpressions[0]).Parameters[0]).ColumnName);
+                ((ColumnRef)((ScalarFunction)actual.SelectExpressions[0]).Parameters[0]).ColumnName);
 
-            Assert.Equal(new Identifier("TEST"), ((ScalarFunction) actual.SelectExpressions[1]).FunctionName);
+            Assert.Equal(new Identifier("TEST"), ((ScalarFunction)actual.SelectExpressions[1]).FunctionName);
             Assert.Equal(new Identifier("TEST('string',12)"),
-                ((ScalarFunction) actual.SelectExpressions[1]).Alias);
+                ((ScalarFunction)actual.SelectExpressions[1]).Alias);
             Assert.Equal("string",
-                (((ScalarFunction) actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
-            Assert.Equal(12, (((ScalarFunction) actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
+                (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
+            Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
 
-            Assert.Equal((uint) 1, actual.Limit);
+            Assert.Equal((uint)1, actual.Limit);
         }
 
         [Fact(DisplayName = "Parse INSERT INTO")]
@@ -242,7 +242,7 @@ namespace ParserTests
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (InsertQuery) result[0];
+            var actual = (InsertQuery)result[0];
 
             Assert.Equal(new TableRef("tt1"), actual.Into);
             Assert.Equal(new Identifier("col1"), actual.Columns[0].ColumnName);
