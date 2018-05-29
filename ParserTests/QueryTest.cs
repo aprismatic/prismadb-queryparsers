@@ -265,17 +265,35 @@ namespace ParserTests
         {
             // Setup
             var parser = new MsSqlParser();
-            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t ORDER BY a ASC, b DESC, c";
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a < b) AND t.b !> a AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
             var result = parser.ParseToAst(test);
 
             // Assert
-            var actual = (SelectQuery) result[0];
+            var actual = (SelectQuery)result[0];
 
             Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
+
+            Assert.Equal(new ColumnRef("a"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).left);
+            Assert.Equal(new ColumnRef("b"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).right);
+            Assert.False(((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).NOT);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
+            Assert.True(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
+            Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
+            Assert.Equal(new StringConstant("abc"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[0]);
+            Assert.Equal(new StringConstant("def"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[1]);
+            Assert.False(((BooleanIn)actual.Where.CNF.AND[2].OR[0]).NOT);
+            Assert.Equal(new ColumnRef("d"), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).Column);
+            Assert.Equal(new IntConstant(123), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[0]);
+            Assert.Equal(new IntConstant(456), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[1]);
+            Assert.True(((BooleanIn)actual.Where.CNF.AND[3].OR[0]).NOT);
+
+            Assert.Equal(new ColumnRef("t", "a"), actual.GroupBy.GetColumns()[0]);
+            Assert.Equal(new ColumnRef("b"), actual.GroupBy.GetColumns()[1]);
 
             Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].First.ColumnName);
             Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].First.ColumnName);
@@ -303,7 +321,8 @@ namespace ParserTests
             // Setup
             var parser = new MsSqlParser();
             var test = "select tt1.a AS abc, tt2.b FROM tt1 INNER JOIN tt2 ON tt1.c=tt2.c; " +
-                       "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; ";
+                       "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; " +
+                       "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -314,20 +333,36 @@ namespace ParserTests
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
                 Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
-                Assert.Equal(new TableRef("tt2"), actual.FromTables[1]);
-                Assert.Equal(new ColumnRef("tt1", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
-                Assert.Equal(new ColumnRef("tt2", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
+                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
+                Assert.Equal(new ColumnRef("tt1", "c"), actual.Joins[0].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
+                Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
             }
             {
                 var actual = (SelectQuery)result[1];
                 Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
                 Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
-                Assert.Equal(new TableRef("tt2"), actual.FromTables[1]);
-                Assert.Equal(new ColumnRef("tt1", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
-                Assert.Equal(new ColumnRef("tt2", "c"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
-                Assert.Equal(new ColumnRef("tt1", "a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[0]).left);
-                Assert.Equal(new IntConstant(123), ((BooleanEquals)actual.Where.CNF.AND[1].OR[0]).right);
+                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
+                Assert.Equal(new ColumnRef("tt1", "c"), actual.Joins[0].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
+                Assert.Equal(new ColumnRef("tt1", "a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
+                Assert.Equal(new IntConstant(123), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
+                Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
+            }
+            {
+                var actual = (SelectQuery)result[2];
+                Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
+                Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
+                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
+                Assert.Empty(actual.Joins[0].GetColumns());
+                Assert.Equal(JoinType.CROSS, actual.Joins[0].JoinType);
+                Assert.Equal(new TableRef("tt3"), actual.Joins[1].JoinTable);
+                Assert.Equal(new ColumnRef("tt3", "c"), actual.Joins[1].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[1].SecondColumn);
+                Assert.Equal(2, actual.Joins[1].GetColumns().Count);
+                Assert.Equal(JoinType.LEFT_OUTER, actual.Joins[1].JoinType);
             }
         }
 

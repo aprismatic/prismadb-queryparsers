@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Irony.Parsing;
 using PrismaDB.Commons;
 using PrismaDB.QueryAST;
@@ -153,24 +154,25 @@ namespace PrismaDB.QueryParser.MSSQL
                         foreach (var idNode in listNode.ChildNodes)
                             selQuery.FromTables.Add(BuildTableRef(idNode));
 
-                    // Append INNER JOIN to WHERE clause 
-                    var joinNode = FindChildNode(mainNode, "joinChainOpt");
-                    if (joinNode == null || joinNode.ChildNodes.Count == 0) continue;
+                    // Check and build join clause
+                    var joinListNode = FindChildNode(
+                        FindChildNode(
+                            mainNode, "joinClauseListOpt"),
+                        "joinClauseList");
 
-                    var joinListNode = FindChildNode(joinNode, "idlist");
-                    foreach (var idTableNode in joinListNode.ChildNodes)
-                        selQuery.FromTables.Add(BuildTableRef(idTableNode));
-
-                    var colFirst = BuildColumnRef(FindChildNode(joinNode, "Id", 0));
-                    var colSecond = BuildColumnRef(FindChildNode(joinNode, "Id", 1));
-                    var joinCols = new Disjunction();
-                    joinCols.OR.Add(new BooleanEquals(colFirst, colSecond));
-                    selQuery.Where.CNF.AND.Add(joinCols);
+                    if (joinListNode != null)
+                        foreach (var joinNode in joinListNode.ChildNodes)
+                            selQuery.Joins.Add(BuildJoinClause(joinNode));
+                }
+                // Check and build group by clause
+                else if (mainNode.Term.Name.Equals("groupClauseOpt"))
+                {
+                    selQuery.GroupBy = BuildGroupByClause(mainNode);
                 }
                 // Check and build where clause
                 else if (mainNode.Term.Name.Equals("whereClauseOpt"))
                 {
-                    selQuery.Where.CNF.AND.AddRange(BuildWhereClause(mainNode).CNF.AND);
+                    selQuery.Where = BuildWhereClause(mainNode);
                 }
                 // Check for TOP
                 else if (mainNode.Term.Name.Equals("selRestrOpt"))
@@ -183,6 +185,58 @@ namespace PrismaDB.QueryParser.MSSQL
                 {
                     selQuery.OrderBy = BuildOrderByClause(mainNode);
                 }
+        }
+
+
+        /// <summary>
+        ///     Builds Join Clause.
+        /// </summary>
+        /// <param name="node">Parent node of clause</param>
+        /// <returns>Resulting Join clause</returns>
+        private static JoinClause BuildJoinClause(ParseTreeNode node)
+        {
+            var join = new JoinClause();
+
+            var kindNode = FindChildNode(node, "joinKindOpt");
+            if (FindChildNode(kindNode, "INNER") != null)
+                join.JoinType = JoinType.INNER;
+            else if (FindChildNode(kindNode, "LEFT") != null)
+                join.JoinType = JoinType.LEFT_OUTER;
+            else if (FindChildNode(kindNode, "RIGHT") != null)
+                join.JoinType = JoinType.RIGHT_OUTER;
+            else if (FindChildNode(kindNode, "FULL") != null)
+                join.JoinType = JoinType.FULL_OUTER;
+            else if (FindChildNode(kindNode, "CROSS") != null)
+                join.JoinType = JoinType.CROSS;
+
+            join.JoinTable = BuildTableRef(FindChildNode(node, "Id"));
+
+            var onNode = FindChildNode(node, "joinOnOpt");
+            if (onNode.ChildNodes.Count == 4)
+            {
+                join.FirstColumn = BuildColumnRef(FindChildNode(onNode, "Id", 0));
+                join.SecondColumn = BuildColumnRef(FindChildNode(onNode, "Id", 1));
+            }
+
+            return join;
+        }
+
+
+        /// <summary>
+        ///     Builds Group By Clause.
+        /// </summary>
+        /// <param name="node">Parent node of clause</param>
+        /// <returns>Resulting Group By clause</returns>
+        private static GroupByClause BuildGroupByClause(ParseTreeNode node)
+        {
+            var groupBy = new GroupByClause();
+
+            var listNode = FindChildNode(node, "idlist");
+            if (listNode != null)
+                foreach (var groupColNode in listNode.ChildNodes)
+                    groupBy.GroupColumns.Add(BuildColumnRef(groupColNode));
+
+            return groupBy;
         }
 
 
@@ -308,6 +362,27 @@ namespace PrismaDB.QueryParser.MSSQL
                             else if (FindChildNode(opNode, "!=") != null)
                                 expr = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]), true);
+                            else if (FindChildNode(opNode, ">") != null)
+                                expr = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                            else if (FindChildNode(opNode, "<") != null)
+                                expr = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                            else if (FindChildNode(opNode, "!>") != null)
+                                expr = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]), true);
+                            else if (FindChildNode(opNode, "!<") != null)
+                                expr = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]), true);
+                            else if (FindChildNode(opNode, "IN") != null)
+                            {
+                                if (FindChildNode(opNode, "NOT") == null)
+                                    expr = new BooleanIn((ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                        BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
+                                else
+                                    expr = new BooleanIn(true, (ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                        BuildExpressions(node.ChildNodes[2]).Cast<Constant>().ToArray());
+                            }
                             else if (FindChildNode(opNode, "AND") != null)
                                 expr = new AndClause(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
