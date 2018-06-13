@@ -311,8 +311,11 @@ namespace ParserTests
             var test = "USE ThisDB";
 
             // Act
-            var ex = Assert.Throws<NotSupportedException>(() => parser.ParseToAst(test));
-            Assert.Equal("Database switching not supported.", ex.Message);
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            var actual = (UseStatement)result[0];
+            Assert.Equal(new DatabaseRef("ThisDB"), actual.Database);
         }
 
         [Fact(DisplayName = "Parse JOIN")]
