@@ -86,8 +86,8 @@ namespace PrismaDB.QueryParser.MSSQL
 
                             else if (stmtNode.Term.Name.Equals("useStmt"))
                             {
-                                var delQuery = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));
-                                queries.Add(delQuery);
+                                var useStmt = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));
+                                queries.Add(useStmt);
                             }
             }
             catch (ApplicationException)
