@@ -86,7 +86,8 @@ namespace PrismaDB.QueryParser.MSSQL
 
                             else if (stmtNode.Term.Name.Equals("useStmt"))
                             {
-                                throw new NotSupportedException("Database switching not supported.");
+                                var useStmt = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));
+                                queries.Add(useStmt);
                             }
             }
             catch (ApplicationException)
@@ -172,6 +173,21 @@ namespace PrismaDB.QueryParser.MSSQL
 
 
         /// <summary>
+        ///     Build database reference with database name.
+        /// </summary>
+        /// <param name="node">Parent node of database</param>
+        /// <returns>Database reference</returns>
+        private static DatabaseRef BuildDatabaseRef(ParseTreeNode node)
+        {
+            DatabaseRef exp = null;
+
+            if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("id_simple"))
+                exp = new DatabaseRef(node.ChildNodes[0].Token.ValueString);
+            return exp;
+        }
+
+
+        /// <summary>
         ///     Build ScalarFunction with parameters.
         /// </summary>
         /// <param name="node">Parent node of ScalarFunction</param>
@@ -211,7 +227,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
                 if (node.ChildNodes[1].ChildNodes.Count == 1 &&
                     node.ChildNodes[1].ChildNodes[0].Term.Name.Equals("exprList"))
-                    ((ScalarFunction) exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
+                    ((ScalarFunction)exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
             }
             else if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("CURRENT_TIMESTAMP"))
             {

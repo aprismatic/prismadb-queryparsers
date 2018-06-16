@@ -158,10 +158,11 @@ namespace PrismaDB.QueryParser.MSSQL
             var et_INTEGER_ADDITION = ToTerm("INTEGER_ADDITION");
             var et_INTEGER_MULTIPLICATION = ToTerm("INTEGER_MULTIPLICATION");
             var et_SEARCH = ToTerm("SEARCH");
+            var et_RANGE = ToTerm("RANGE");
             encryptionOpt.Rule = (ENCRYPTED + encryptTypePar) | Empty;
             encryptTypePar.Rule = (FOR + "(" + encryptTypeList + ")") | Empty;
             encryptTypeList.Rule = MakePlusRule(encryptTypeList, comma, encryptType);
-            encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH;
+            encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH | et_RANGE;
 
             nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
             autoDefaultOpt.Rule = (DEFAULT + term) | Empty;
