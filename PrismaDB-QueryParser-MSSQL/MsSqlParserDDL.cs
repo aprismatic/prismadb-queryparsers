@@ -70,6 +70,11 @@ namespace PrismaDB.QueryParser.MSSQL
                 colDef.DataType = SqlDataType.INT;
                 prohibitedLength = true;
             }
+            else if (FindChildNode(dataTypeNode, "BIGINT") != null)
+            {
+                colDef.DataType = SqlDataType.BIGINT;
+                prohibitedLength = true;
+            }
             else if (FindChildNode(dataTypeNode, "CHAR") != null)
             {
                 colDef.DataType = SqlDataType.VARCHAR;
