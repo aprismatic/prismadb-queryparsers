@@ -109,7 +109,7 @@ namespace ParserTests
             var parser = new MsSqlParser();
             var test = "CREATE TABLE ttt " +
                        "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL, " +
-                       "[bbb] INT NULL, " +
+                       "[bbb] BIGINT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
                        "ddd VARCHAR(MAX) ENCRYPTED FOR (STORE, SEARCH), " +
                        "eee TEXT NULL, " +
@@ -130,7 +130,7 @@ namespace ParserTests
                 actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Equal(new Identifier("bbb"), actual.ColumnDefinitions[1].ColumnName);
-            Assert.Equal(SqlDataType.INT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(SqlDataType.BIGINT, actual.ColumnDefinitions[1].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[1].Nullable);
             Assert.Equal(new Identifier("ccc"), actual.ColumnDefinitions[2].ColumnName);
@@ -236,7 +236,7 @@ namespace ParserTests
             // Setup
             var parser = new MsSqlParser();
             var test =
-                "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) VALUES ( 1, 12.345 , 'hey', 'hi' ), (0,050,'  ', '&')";
+                "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) VALUES ( 1, 12.345 , 'hey', 'hi' ), (0,050, 3147483647, '  ', '&')";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -256,8 +256,9 @@ namespace ParserTests
             Assert.Equal(2, actual.Values.Count);
             Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
             Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
-            Assert.Equal("  ", (actual.Values[1][2] as StringConstant)?.strvalue);
-            Assert.Equal("&", (actual.Values[1][3] as StringConstant)?.strvalue);
+            Assert.Equal(3147483647, (actual.Values[1][2] as IntConstant)?.intvalue);
+            Assert.Equal("  ", (actual.Values[1][3] as StringConstant)?.strvalue);
+            Assert.Equal("&", (actual.Values[1][4] as StringConstant)?.strvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT")]
