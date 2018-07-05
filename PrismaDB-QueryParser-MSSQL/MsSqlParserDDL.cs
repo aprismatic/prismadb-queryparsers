@@ -77,7 +77,7 @@ namespace PrismaDB.QueryParser.MSSQL
             }
             else if (FindChildNode(dataTypeNode, "TINYINT") != null)
             {
-                colDef.DataType = SqlDataType.TINYINT;
+                colDef.DataType = SqlDataType.MSSQL_TINYINT;
                 prohibitedLength = true;
             }
             else if (FindChildNode(dataTypeNode, "BIGINT") != null)
