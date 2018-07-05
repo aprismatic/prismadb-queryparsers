@@ -339,10 +339,10 @@ namespace PrismaDB.QueryParser.MSSQL
                 }
                 else if (node.Term.Name.Equals("number"))
                 {
-                    if (int.TryParse(node.Token.ValueString, out var integer))
+                    if (Int64.TryParse(node.Token.ValueString, out var integer))
                         expr = new IntConstant(integer);
                     else
-                        expr = new FloatingPointConstant(Convert.ToDouble(node.Token.Value));
+                        expr = new FloatingPointConstant(Convert.ToDecimal(node.Token.Value));
                 }
                 else if (node.Term.Name.Equals("binExpr"))
                 {

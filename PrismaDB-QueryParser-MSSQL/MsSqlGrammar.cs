@@ -139,6 +139,8 @@ namespace PrismaDB.QueryParser.MSSQL
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
 
             var t_INT = ToTerm("INT");
+            var t_SMALLINT = ToTerm("SMALLINT");
+            var t_TINYINT = ToTerm("TINYINT");
             var t_BIGINT = ToTerm("BIGINT");
             var t_CHAR = ToTerm("CHAR");
             var t_VARCHAR = ToTerm("VARCHAR");
@@ -152,7 +154,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var t_FLOAT = ToTerm("FLOAT");
             var t_MAX = ToTerm("MAX");
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT | t_BIGINT;
+                            t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT | t_BIGINT | t_SMALLINT | t_TINYINT;
             typeParamsOpt.Rule = ("(" + number + ")") | ("(" + t_MAX + ")") | Empty;
 
             var et_STORE = ToTerm("STORE");
