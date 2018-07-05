@@ -1,4 +1,5 @@
-﻿using Irony.Parsing;
+﻿using System;
+using Irony.Parsing;
 
 namespace PrismaDB.QueryParser.MSSQL
 {
@@ -14,7 +15,11 @@ namespace PrismaDB.QueryParser.MSSQL
             var lineComment = new CommentTerminal("line_comment", "--", "\n", "\r\n");
             NonGrammarTerminals.Add(comment);
             NonGrammarTerminals.Add(lineComment);
-            var number = new NumberLiteral("number");
+            var number = new NumberLiteral("number")
+            {
+                DefaultIntTypes = new[] { TypeCode.Int64 },
+                DefaultFloatType = TypeCode.Decimal
+            };
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
             // Normal identifiers (abc) and quoted id's ([abc d], "abc d")
             var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple");
