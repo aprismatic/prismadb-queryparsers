@@ -279,17 +279,17 @@ namespace ParserTests
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
 
-            Assert.Equal(new ColumnRef("a"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).left);
-            Assert.Equal(new ColumnRef("b"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).right);
+            Assert.Equal(new ColumnRef("b"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).right);
             Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
             Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
-            Assert.False(((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).NOT);
+            Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).NOT);
-            Assert.Equal(new ColumnRef("t", "b"), ((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).left);
-            Assert.Equal(new ColumnRef("a"), ((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).right);
+            Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).left);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
             Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
             Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
-            Assert.False(((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).NOT);
+            Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).NOT);
             Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
             Assert.Equal(new StringConstant("abc"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[0]);

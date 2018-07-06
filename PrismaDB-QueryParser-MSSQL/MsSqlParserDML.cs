@@ -371,8 +371,8 @@ namespace PrismaDB.QueryParser.MSSQL
                                 expr = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
                             else if (FindChildNode(opNode, "<") != null)
-                                expr = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
-                                    BuildExpression(node.ChildNodes[2]));
+                                expr = new BooleanGreaterThan(BuildExpression(node.ChildNodes[2]),
+                                    BuildExpression(node.ChildNodes[0]));
                             else if (FindChildNode(opNode, ">=") != null)
                             {
                                 var exprLeft = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
@@ -383,16 +383,16 @@ namespace PrismaDB.QueryParser.MSSQL
                             }
                             else if (FindChildNode(opNode, "<=") != null)
                             {
-                                var exprLeft = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
-                                    BuildExpression(node.ChildNodes[2]));
+                                var exprLeft = new BooleanGreaterThan(BuildExpression(node.ChildNodes[2]),
+                                    BuildExpression(node.ChildNodes[0]));
                                 var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
                                 expr = new OrClause(exprLeft, exprRight);
                             }
                             else if (FindChildNode(opNode, "!>") != null)
                             {
-                                var exprLeft = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
-                                    BuildExpression(node.ChildNodes[2]));
+                                var exprLeft = new BooleanGreaterThan(BuildExpression(node.ChildNodes[2]),
+                                    BuildExpression(node.ChildNodes[0]));
                                 var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
                                 expr = new OrClause(exprLeft, exprRight);
