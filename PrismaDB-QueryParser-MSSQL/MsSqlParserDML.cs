@@ -373,12 +373,38 @@ namespace PrismaDB.QueryParser.MSSQL
                             else if (FindChildNode(opNode, "<") != null)
                                 expr = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
+                            else if (FindChildNode(opNode, ">=") != null)
+                            {
+                                var exprLeft = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                expr = new OrClause(exprLeft, exprRight);
+                            }
+                            else if (FindChildNode(opNode, "<=") != null)
+                            {
+                                var exprLeft = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                expr = new OrClause(exprLeft, exprRight);
+                            }
                             else if (FindChildNode(opNode, "!>") != null)
-                                expr = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
-                                    BuildExpression(node.ChildNodes[2]), true);
+                            {
+                                var exprLeft = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                expr = new OrClause(exprLeft, exprRight);
+                            }
                             else if (FindChildNode(opNode, "!<") != null)
-                                expr = new BooleanLessThan(BuildExpression(node.ChildNodes[0]),
-                                    BuildExpression(node.ChildNodes[2]), true);
+                            {
+                                var exprLeft = new BooleanGreaterThan(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                var exprRight = new BooleanEquals(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                                expr = new OrClause(exprLeft, exprRight);
+                            }
                             else if (FindChildNode(opNode, "IN") != null)
                             {
                                 if (FindChildNode(opNode, "NOT") == null)

@@ -267,7 +267,7 @@ namespace ParserTests
         {
             // Setup
             var parser = new MsSqlParser();
-            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a < b) AND t.b !> a AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND t.b !> a AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -281,10 +281,16 @@ namespace ParserTests
 
             Assert.Equal(new ColumnRef("a"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).left);
             Assert.Equal(new ColumnRef("b"), ((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).right);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
+            Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
             Assert.False(((BooleanLessThan)actual.Where.CNF.AND[0].OR[0]).NOT);
-            Assert.Equal(new ColumnRef("t", "b"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).left);
-            Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
-            Assert.True(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
+            Assert.False(((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).NOT);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).right);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
+            Assert.False(((BooleanLessThan)actual.Where.CNF.AND[1].OR[0]).NOT);
+            Assert.False(((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).NOT);
             Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
             Assert.Equal(new StringConstant("abc"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[0]);
             Assert.Equal(new StringConstant("def"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[1]);
