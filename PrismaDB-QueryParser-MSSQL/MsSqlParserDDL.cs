@@ -168,7 +168,8 @@ namespace PrismaDB.QueryParser.MSSQL
             var autoDefaultNode = FindChildNode(node, "autoDefaultOpt");
             if (FindChildNode(autoDefaultNode, "DEFAULT") != null)
                 colDef.DefaultValue = BuildExpression(autoDefaultNode.ChildNodes[1]);
-
+            else if (FindChildNode(autoDefaultNode, "IDENTITY") != null)
+                colDef.AutoIncrement = true;
             return colDef;
         }
 

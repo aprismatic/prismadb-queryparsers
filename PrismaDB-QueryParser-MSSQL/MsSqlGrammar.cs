@@ -59,6 +59,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var PRISMADB = ToTerm("PRISMADB");
             var TO = ToTerm("TO");
             var STAR = ToTerm("*");
+            var IDENTITY = ToTerm("IDENTITY");
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
@@ -174,7 +175,7 @@ namespace PrismaDB.QueryParser.MSSQL
             encryptType.Rule = et_STORE | et_INTEGER_ADDITION | et_INTEGER_MULTIPLICATION | et_SEARCH | et_RANGE;
 
             nullSpecOpt.Rule = NULL | (NOT + NULL) | Empty;
-            autoDefaultOpt.Rule = (DEFAULT + term) | Empty;
+            autoDefaultOpt.Rule = (DEFAULT + term) | (IDENTITY + "(" + "1" + comma + "1" + ")") | Empty;
 
             // Alter Statement
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
