@@ -415,6 +415,7 @@ namespace ParserTests
             var parser = new MsSqlParser();
             var test1 = "SELECT NULL";
             var test2 = "INSERT INTO tbl1 ( col1 ) VALUES ( NULL )";
+            var test3 = "SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL";
 
             // Act
             var result1 = parser.ParseToAst(test1)[0];
@@ -429,6 +430,14 @@ namespace ParserTests
             // Assert
             Assert.IsType<InsertQuery>(result2);
             Assert.IsType<NullConstant>(((InsertQuery)result2).Values[0][0]);
+
+            // Act
+            var result3 = parser.ParseToAst(test3)[0];
+
+            // Assert
+            Assert.IsType<SelectQuery>(result3);
+            Assert.True(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[0].OR[0]).NOT);
+            Assert.False(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[1].OR[0]).NOT);
         }
 
         [Fact(DisplayName = "Parse known functions")]

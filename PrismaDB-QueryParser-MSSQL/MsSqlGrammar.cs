@@ -238,7 +238,7 @@ namespace PrismaDB.QueryParser.MSSQL
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" // Arithmetic
                          | "&" | "|" | "^" // Bit
                          | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
-                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
+                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN") | "IS" + notOpt;
             notOpt.Rule = Empty | NOT;
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList | STAR;
@@ -246,7 +246,7 @@ namespace PrismaDB.QueryParser.MSSQL
             // Operators
             RegisterOperators(10, "*", "/", "%");
             RegisterOperators(9, "+", "-");
-            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN");
+            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN", "IS");
             RegisterOperators(7, "^", "&", "|");
             RegisterOperators(6, NOT);
             RegisterOperators(5, "AND");
