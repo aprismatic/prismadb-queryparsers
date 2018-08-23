@@ -238,7 +238,17 @@ namespace ParserTests
             // Setup
             var parser = new MsSqlParser();
             var test =
-                "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) VALUES ( -1, 12.345 , 'hey', 'hi' ), (0,050, 3147483647, '  ', '&')";
+                "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) " +
+                "VALUES ( -1, 12.345 , 'hey', 'hi' ), " +
+                "(0,050, 3147483647, '  ', '&'), " +
+                "(0xdec2976ac4fc39864683a83f7b9876f4b2cbc65b0b6ede9e74e9" +
+                "cb918fda451597b0dffd6198943aef879acc3cdf426c61849299b7b" +
+                "150d2589709d3d51752d4281b1f89ada432564e049bd3ab89fd2f9f" +
+                "f1c24491d39a9afb94625d8b3d439d1cd391488850e4a6f638192fd" +
+                "5e792b5d604024190be22c9a8c136349228311ab2321cde85a349c0" +
+                "4c5222ef02acb3ef9e782062d390b1544df245d2c9590c2258b3e5a" +
+                "90c5ba10dfe9daf4c9c8a340da149c2ca987616545c005ef4a607a5" +
+                "14ecc35bb8f37b8ece, 0x4242)";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -255,13 +265,15 @@ namespace ParserTests
             Assert.Equal(new TableRef("tt1"), actual.Columns[2].Table);
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
             Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
-            Assert.Equal(2, actual.Values.Count);
+            Assert.Equal(3, actual.Values.Count);
             Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
             Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
             Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
             Assert.Equal(3147483647, (actual.Values[1][2] as IntConstant)?.intvalue);
             Assert.Equal("  ", (actual.Values[1][3] as StringConstant)?.strvalue);
             Assert.Equal("&", (actual.Values[1][4] as StringConstant)?.strvalue);
+            Assert.Equal(typeof(BinaryConstant), actual.Values[2][0].GetType());
+            Assert.Equal(new byte[] { 0x42, 0x42 }, (actual.Values[2][1] as BinaryConstant)?.binvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT")]
