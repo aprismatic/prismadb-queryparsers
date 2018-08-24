@@ -17,10 +17,11 @@ namespace PrismaDB.QueryParser.MSSQL
             NonGrammarTerminals.Add(lineComment);
             var number = new NumberLiteral("number", NumberOptions.AllowSign)
             {
-                DefaultIntTypes = new[] { TypeCode.Int64 },
+                DefaultIntTypes = new[] { NumberLiteral.TypeCodeBigInt },
                 DefaultFloatType = TypeCode.Decimal,
                 DecimalSeparator = '.'
             };
+            number.AddPrefix("0x", NumberOptions.Hex);
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
             // Normal identifiers (abc) and quoted id's ([abc d], "abc d")
             var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple");
@@ -159,9 +160,10 @@ namespace PrismaDB.QueryParser.MSSQL
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
             var t_DATETIME = ToTerm("DATETIME");
             var t_FLOAT = ToTerm("FLOAT");
+            var t_DATE = ToTerm("DATE");
             var t_MAX = ToTerm("MAX");
             typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
-                            t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT | t_BIGINT | t_SMALLINT | t_TINYINT;
+                            t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT | t_BIGINT | t_SMALLINT | t_TINYINT | t_DATE;
             typeParamsOpt.Rule = ("(" + number + ")") | ("(" + t_MAX + ")") | Empty;
 
             var et_STORE = ToTerm("STORE");
@@ -236,7 +238,7 @@ namespace PrismaDB.QueryParser.MSSQL
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" // Arithmetic
                          | "&" | "|" | "^" // Bit
                          | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
-                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN");
+                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN") | "IS" + notOpt;
             notOpt.Rule = Empty | NOT;
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList | STAR;
@@ -244,7 +246,7 @@ namespace PrismaDB.QueryParser.MSSQL
             // Operators
             RegisterOperators(10, "*", "/", "%");
             RegisterOperators(9, "+", "-");
-            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN");
+            RegisterOperators(8, "=", ">", "<", ">=", "<=", "<>", "!=", "!<", "!>", "LIKE", "IN", "IS");
             RegisterOperators(7, "^", "&", "|");
             RegisterOperators(6, NOT);
             RegisterOperators(5, "AND");
