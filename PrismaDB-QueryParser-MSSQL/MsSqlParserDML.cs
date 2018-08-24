@@ -342,7 +342,9 @@ namespace PrismaDB.QueryParser.MSSQL
                 {
                     if (node.Token.Details is CompoundTerminalBase.CompoundTokenDetails details && details.Prefix == "0x")
                     {
-                        expr = new BinaryConstant(((BigInteger)node.Token.Value).ToByteArray());
+                        var bytes = new byte[((CompoundTerminalBase.CompoundTokenDetails)node.Token.Details).Body.Length / 2];
+                        Array.Copy(((BigInteger)node.Token.Value).ToByteArray(), 0, bytes, 0, bytes.Length);
+                        expr = new BinaryConstant(bytes.Reverse().ToArray());
                     }
                     else
                     {

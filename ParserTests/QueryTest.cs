@@ -248,7 +248,7 @@ namespace ParserTests
                 "5e792b5d604024190be22c9a8c136349228311ab2321cde85a349c0" +
                 "4c5222ef02acb3ef9e782062d390b1544df245d2c9590c2258b3e5a" +
                 "90c5ba10dfe9daf4c9c8a340da149c2ca987616545c005ef4a607a5" +
-                "14ecc35bb8f37b8ece, 0x4242)";
+                "14ecc35bb8f37b8ece, 0x4202, 0xffff)";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -273,7 +273,8 @@ namespace ParserTests
             Assert.Equal("  ", (actual.Values[1][3] as StringConstant)?.strvalue);
             Assert.Equal("&", (actual.Values[1][4] as StringConstant)?.strvalue);
             Assert.Equal(typeof(BinaryConstant), actual.Values[2][0].GetType());
-            Assert.Equal(new byte[] { 0x42, 0x42 }, (actual.Values[2][1] as BinaryConstant)?.binvalue);
+            Assert.Equal(new byte[] { 0x42, 0x02 }, (actual.Values[2][1] as BinaryConstant)?.binvalue);
+            Assert.Equal(new byte[] { 0xff, 0xff }, (actual.Values[2][2] as BinaryConstant)?.binvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT")]
