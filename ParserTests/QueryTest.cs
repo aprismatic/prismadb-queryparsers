@@ -397,7 +397,8 @@ namespace ParserTests
         {
             // Setup
             var parser = new MsSqlParser();
-            var test = "select * from tt;";
+            var test = "select * from tt; " +
+                       "select t1.* from t1; ";
 
             // Act
             var result = parser.ParseToAst(test);
@@ -406,6 +407,10 @@ namespace ParserTests
             {
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new AllColumns(), actual.SelectExpressions[0]);
+            }
+            {
+                var actual = (SelectQuery)result[1];
+                Assert.Equal(new AllColumns("t1"), actual.SelectExpressions[0]);
             }
         }
 
