@@ -25,6 +25,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
             // Normal identifiers (abc) and quoted id's ([abc d], "abc d")
             var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple");
+            Id_simple.AllFirstChars += "*";
             var comma = ToTerm(",");
             var dot = ToTerm(".");
             var CREATE = ToTerm("CREATE");

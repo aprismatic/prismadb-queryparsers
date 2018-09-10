@@ -329,6 +329,8 @@ namespace PrismaDB.QueryParser.MSSQL
                 if (node.Term.Name.Equals("Id"))
                 {
                     expr = BuildColumnRef(node);
+                    if (((ColumnRef)expr).ColumnName.id == "*")
+                        expr = new AllColumns(((ColumnRef)expr).Table);
                 }
                 else if (node.Term.Name.Equals("funCall"))
                 {
