@@ -474,5 +474,20 @@ namespace ParserTests
             Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
         }
+
+        [Fact(DisplayName = "Parse UPDATE")]
+        public void Parse_Update()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "UPDATE tt SET a = NULL WHERE b = 'abc'; ";
+
+            // Act
+            var result = parser.ParseToAst(test)[0] as UpdateQuery;
+
+            // Assert
+            Assert.IsType<ColumnRef>(result.UpdateExpressions[0].First);
+            Assert.IsType<NullConstant>(result.UpdateExpressions[0].Second);
+        }
     }
 }

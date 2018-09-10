@@ -64,20 +64,13 @@ namespace PrismaDB.QueryParser.MSSQL
                 else if (mainNode.Term.Name.Equals("assignList"))
                 {
                     foreach (var exprNode in mainNode.ChildNodes)
-                    {
                         if (exprNode.Term.Name.Equals("assignment"))
                         {
                             var colRef = BuildColumnRef(FindChildNode(exprNode, "Id"));
-                            Constant constant = null;
-                            if (FindChildNode(exprNode, "number") != null)
-                                constant = new IntConstant(
-                                    Convert.ToInt32(FindChildNode(exprNode, "number").Token.ValueString));
-                            else if (FindChildNode(exprNode, "string") != null)
-                                constant = new StringConstant(FindChildNode(exprNode, "string").Token.ValueString);
-
-                            updQuery.UpdateExpressions.Add(new Pair<ColumnRef, Constant>(colRef, constant));
+                            var exp = BuildExpression(exprNode.ChildNodes[2]);
+                            if (exp is Constant constant)
+                                updQuery.UpdateExpressions.Add(new Pair<ColumnRef, Constant>(colRef, constant));
                         }
-                    }
                 }
                 // Check for where clause
                 else if (mainNode.Term.Name.Equals("whereClauseOpt"))
