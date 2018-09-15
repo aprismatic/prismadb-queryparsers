@@ -156,6 +156,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var t_NCHAR = ToTerm("NCHAR");
             var t_NVARCHAR = ToTerm("NVARCHAR");
             var t_TEXT = ToTerm("TEXT");
+            var t_NTEXT = ToTerm("NTEXT");
             var t_BINARY = ToTerm("BINARY");
             var t_VARBINARY = ToTerm("VARBINARY");
             var t_UNIQUEIDENTIFIER = ToTerm("UNIQUEIDENTIFIER");
@@ -163,7 +164,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var t_FLOAT = ToTerm("FLOAT");
             var t_DATE = ToTerm("DATE");
             var t_MAX = ToTerm("MAX");
-            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_BINARY | t_VARBINARY |
+            typeName.Rule = t_INT | t_CHAR | t_VARCHAR | t_NCHAR | t_NVARCHAR | t_TEXT | t_NTEXT | t_BINARY | t_VARBINARY |
                             t_UNIQUEIDENTIFIER | t_DATETIME | t_FLOAT | t_BIGINT | t_SMALLINT | t_TINYINT | t_DATE;
             typeParamsOpt.Rule = ("(" + number + ")") | ("(" + t_MAX + ")") | Empty;
 
