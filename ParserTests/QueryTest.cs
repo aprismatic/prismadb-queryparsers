@@ -28,7 +28,7 @@ namespace ParserTests
             Assert.Equal(AlterType.MODIFY, actual.AlterType);
 
             Assert.Equal(new Identifier("col1"), actual.AlteredColumns[0].ColumnDefinition.ColumnName);
-            Assert.Equal(SqlDataType.TEXT, actual.AlteredColumns[0].ColumnDefinition.DataType);
+            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.AlteredColumns[0].ColumnDefinition.DataType);
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Store & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
             Assert.NotEqual(ColumnEncryptionFlags.None,
@@ -59,7 +59,7 @@ namespace ParserTests
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
             Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.DATETIME, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MSSQL_DATETIME, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Null(actual.ColumnDefinitions[0].Length);
@@ -83,13 +83,13 @@ namespace ParserTests
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
             Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.TEXT, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[0].Nullable);
             Assert.Null(actual.ColumnDefinitions[0].Length);
 
             Assert.Equal(new Identifier("col2"), actual.ColumnDefinitions[1].ColumnName);
-            Assert.Equal(SqlDataType.TEXT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[1].DataType);
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Store & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.NotEqual(ColumnEncryptionFlags.None,
@@ -125,40 +125,40 @@ namespace ParserTests
 
             Assert.Equal(new TableRef("ttt"), actual.TableName);
             Assert.Equal(new Identifier("aaa"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.INT, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MSSQL_INT, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.IntegerAddition | ColumnEncryptionFlags.IntegerMultiplication,
                 actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[0].AutoIncrement);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Equal(new Identifier("bbb"), actual.ColumnDefinitions[1].ColumnName);
-            Assert.Equal(SqlDataType.BIGINT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(SqlDataType.MSSQL_BIGINT, actual.ColumnDefinitions[1].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[1].Nullable);
             Assert.False(actual.ColumnDefinitions[1].AutoIncrement);
             Assert.Equal(new Identifier("ccc"), actual.ColumnDefinitions[2].ColumnName);
-            Assert.Equal(SqlDataType.VARCHAR, actual.ColumnDefinitions[2].DataType);
+            Assert.Equal(SqlDataType.MSSQL_VARCHAR, actual.ColumnDefinitions[2].DataType);
             Assert.Equal(80, actual.ColumnDefinitions[2].Length);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[2].EncryptionFlags);
             Assert.False(actual.ColumnDefinitions[2].Nullable);
             Assert.Equal(new Identifier("ddd"), actual.ColumnDefinitions[3].ColumnName);
-            Assert.Equal(SqlDataType.VARCHAR, actual.ColumnDefinitions[3].DataType);
+            Assert.Equal(SqlDataType.MSSQL_VARCHAR, actual.ColumnDefinitions[3].DataType);
             Assert.Equal(-1, actual.ColumnDefinitions[3].Length);
             Assert.Equal(ColumnEncryptionFlags.Store | ColumnEncryptionFlags.Search,
                 actual.ColumnDefinitions[3].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[3].Nullable);
             Assert.Equal(new Identifier("eee"), actual.ColumnDefinitions[4].ColumnName);
-            Assert.Equal(SqlDataType.TEXT, actual.ColumnDefinitions[4].DataType);
+            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[4].DataType);
             Assert.True(actual.ColumnDefinitions[4].Nullable);
             Assert.Equal(new Identifier("fff"), actual.ColumnDefinitions[5].ColumnName);
-            Assert.Equal(SqlDataType.TEXT, actual.ColumnDefinitions[5].DataType);
+            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[5].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[5].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[5].Nullable);
             Assert.Equal(new Identifier("ggg"), actual.ColumnDefinitions[6].ColumnName);
-            Assert.Equal(SqlDataType.DOUBLE, actual.ColumnDefinitions[6].DataType);
+            Assert.Equal(SqlDataType.MSSQL_FLOAT, actual.ColumnDefinitions[6].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[6].EncryptionFlags);
             Assert.Null(actual.ColumnDefinitions[6].DefaultValue);
             Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
-            Assert.Equal(SqlDataType.DATETIME, actual.ColumnDefinitions[7].DataType);
+            Assert.Equal(SqlDataType.MSSQL_DATETIME, actual.ColumnDefinitions[7].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
             Assert.Equal(new Identifier("CURRENT_TIMESTAMP"),
                 ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
