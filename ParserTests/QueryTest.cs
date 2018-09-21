@@ -346,7 +346,7 @@ namespace ParserTests
         {
             // Setup
             var parser = new MsSqlParser();
-            var test = "select tt1.a AS abc, tt2.b FROM tt1 INNER JOIN tt2 ON tt1.c=tt2.c; " +
+            var test = "select tt1.a AS abc, tt2.b FROM tt1 AS table INNER JOIN tt2 ON table.c=tt2.c; " +
                        "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; " +
                        "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
@@ -358,9 +358,9 @@ namespace ParserTests
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt1", AliasName: "table"), actual.FromTables[0]);
                 Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Equal(new ColumnRef("tt1", "c"), actual.Joins[0].FirstColumn);
+                Assert.Equal(new ColumnRef("table", "c"), actual.Joins[0].FirstColumn);
                 Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
                 Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
             }
