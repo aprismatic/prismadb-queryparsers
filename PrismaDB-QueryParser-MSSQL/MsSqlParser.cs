@@ -147,7 +147,12 @@ namespace PrismaDB.QueryParser.MSSQL
             TableRef exp = null;
 
             if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("id_simple"))
-                exp = new TableRef(node.ChildNodes[0].Token.ValueString);
+                return new TableRef(node.ChildNodes[0].Token.ValueString);
+
+            if (node.ChildNodes.Count >= 1 && node.ChildNodes[0].Term.Name.Equals("Id"))
+                exp = new TableRef(node.ChildNodes[0].ChildNodes[0].Token.ValueString);
+            if (node.ChildNodes.Count == 2 && node.ChildNodes[1].Term.Name.Equals("Id"))
+                exp.Alias = new Identifier(node.ChildNodes[1].ChildNodes[0].Token.ValueString);
             return exp;
         }
 

@@ -102,6 +102,8 @@ namespace PrismaDB.QueryParser.MSSQL
             var orderClauseOpt = new NonTerminal("orderClauseOpt");
             var columnItemList = new NonTerminal("columnItemList");
             var columnItem = new NonTerminal("columnItem");
+            var tableItemList = new NonTerminal("tableItemList");
+            var tableItem = new NonTerminal("tableItem");
             var columnSource = new NonTerminal("columnSource");
             var asOpt = new NonTerminal("asOpt");
             var aliasOpt = new NonTerminal("aliasOpt");
@@ -216,10 +218,12 @@ namespace PrismaDB.QueryParser.MSSQL
             aliasOpt.Rule = Empty | (asOpt + Id);
             asOpt.Rule = Empty | AS;
             columnSource.Rule = expression;
-            fromClauseOpt.Rule = Empty | FROM + idlist + joinClauseListOpt;
+            fromClauseOpt.Rule = Empty | FROM + tableItemList + joinClauseListOpt;
+            tableItemList.Rule = MakePlusRule(tableItemList, comma, tableItem);
+            tableItem.Rule = Id + aliasOpt;
             joinClauseListOpt.Rule = Empty | joinClauseList;
             joinClauseList.Rule = MakePlusRule(joinClauseList, joinClause);
-            joinClause.Rule = joinKindOpt + JOIN + Id + joinOnOpt;
+            joinClause.Rule = joinKindOpt + JOIN + tableItem + joinOnOpt;
             joinKindOpt.Rule = Empty | INNER | LEFT | LEFT + OUTER | RIGHT | RIGHT + OUTER | FULL | FULL + OUTER | CROSS;
             joinOnOpt.Rule = Empty | ON + Id + "=" + Id;
             whereClauseOpt.Rule = Empty | ("WHERE" + expression);

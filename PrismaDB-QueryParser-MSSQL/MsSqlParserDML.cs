@@ -142,11 +142,11 @@ namespace PrismaDB.QueryParser.MSSQL
                 // Check table to select from
                 else if (mainNode.Term.Name.Equals("fromClauseOpt"))
                 {
-                    var listNode = FindChildNode(mainNode, "idlist");
+                    var listNode = FindChildNode(mainNode, "tableItemList");
 
                     if (listNode != null)
-                        foreach (var idNode in listNode.ChildNodes)
-                            selQuery.FromTables.Add(BuildTableRef(idNode));
+                        foreach (var tableNode in listNode.ChildNodes)
+                            selQuery.FromTables.Add(BuildTableRef(tableNode));
 
                     // Check and build join clause
                     var joinListNode = FindChildNode(
@@ -203,7 +203,7 @@ namespace PrismaDB.QueryParser.MSSQL
             else if (FindChildNode(kindNode, "CROSS") != null)
                 join.JoinType = JoinType.CROSS;
 
-            join.JoinTable = BuildTableRef(FindChildNode(node, "Id"));
+            join.JoinTable = BuildTableRef(FindChildNode(node, "tableItem"));
 
             var onNode = FindChildNode(node, "joinOnOpt");
             if (onNode.ChildNodes.Count == 4)
