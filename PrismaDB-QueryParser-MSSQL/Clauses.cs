@@ -39,6 +39,11 @@ namespace PrismaDB.QueryParser.MSSQL
             throw new NotImplementedException();
         }
 
+        public override List<ColumnRef> GetNoCopyColumns()
+        {
+            throw new NotImplementedException();
+        }
+
         public override void setValue(params object[] value)
         {
             throw new NotImplementedException();
@@ -90,6 +95,11 @@ namespace PrismaDB.QueryParser.MSSQL
         }
 
         public override List<ColumnRef> GetColumns()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override List<ColumnRef> GetNoCopyColumns()
         {
             throw new NotImplementedException();
         }
