@@ -75,6 +75,9 @@ namespace PrismaDB.QueryParser.MSSQL
             var useStmt = new NonTerminal("useStmt");
 
             var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
+            var updateKeysCmd = new NonTerminal("updateKeysCmd");
+            var decryptColumnCmd = new NonTerminal("decryptColumnCmd");
+            var encryptColumnCmd = new NonTerminal("encryptColumnCmd");
 
             var fieldDef = new NonTerminal("fieldDef");
             var fieldDefList = new NonTerminal("fieldDefList");
@@ -141,7 +144,7 @@ namespace PrismaDB.QueryParser.MSSQL
             Id.Rule = MakePlusRule(Id, dot, Id_simple);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
-                        exportSettingsCmd |
+                        exportSettingsCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd |
                         "GO";
 
             // Create Statement
@@ -187,8 +190,11 @@ namespace PrismaDB.QueryParser.MSSQL
             alterStmt.Rule = ALTER + TABLE + Id + alterCmd;
             alterCmd.Rule = ALTER + COLUMN + fieldDef;
 
-            // Command Statement
+            // Command Statements
             exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
+            updateKeysCmd.Rule = PRISMADB + "UPDATE" + "KEYS";
+            decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id;
+            encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar;
 
             // Use Statement
             useStmt.Rule = USE + Id;

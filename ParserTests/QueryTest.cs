@@ -165,21 +165,31 @@ namespace ParserTests
             Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
-
-
-        [Fact(DisplayName = "Parse PRISMADB EXPORT SETTINGS")]
-        public void Parse_ExportSettings()
+        
+        [Fact(DisplayName = "Parse Commands")]
+        public void Parse_Commands()
         {
-            // Setup
+            // Setup 
             var parser = new MsSqlParser();
-            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json'";
+            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
+                       "PRISMADB UPDATE KEYS;" +
+                       "PRISMADB DECRYPT tt.col1;" +
+                       "PRISMADB ENCRYPT tt.col1;" +
+                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);";
 
-            // Act
+            // Act 
             var result = parser.ParseToAst(test);
 
-            // Assert
-            var actual = (ExportSettingsCommand)result[0];
-            Assert.Equal("/home/user/settings.json", actual.FileUri.strvalue);
+            // Assert 
+            Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
+            Assert.Equal(typeof(UpdateKeysCommand), result[1].GetType());
+            Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[2]).Column);
+            Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[3]).Column);
+            Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[3]).EncryptionFlags);
+            Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
+            Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
+            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerAddition));
+            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerMultiplication));
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]
