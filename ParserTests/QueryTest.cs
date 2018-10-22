@@ -34,9 +34,9 @@ namespace ParserTests
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Search & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None,
-                ColumnEncryptionFlags.IntegerAddition & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
+                ColumnEncryptionFlags.Addition & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None,
-                ColumnEncryptionFlags.IntegerMultiplication &
+                ColumnEncryptionFlags.Multiplication &
                 actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
             Assert.True(actual.AlteredColumns[0].ColumnDefinition.Nullable);
             Assert.Null(actual.AlteredColumns[0].ColumnDefinition.Length);
@@ -95,9 +95,9 @@ namespace ParserTests
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Search & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None,
-                ColumnEncryptionFlags.IntegerAddition & actual.ColumnDefinitions[1].EncryptionFlags);
+                ColumnEncryptionFlags.Addition & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.Equal(ColumnEncryptionFlags.None,
-                ColumnEncryptionFlags.IntegerMultiplication & actual.ColumnDefinitions[1].EncryptionFlags);
+                ColumnEncryptionFlags.Multiplication & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[1].Nullable);
             Assert.Null(actual.ColumnDefinitions[1].Length);
         }
@@ -108,7 +108,7 @@ namespace ParserTests
             // Setup
             var parser = new MsSqlParser();
             var test = "CREATE TABLE ttt " +
-                       "(aaa INT ENCRYPTED FOR (INTEGER_ADDITION, INTEGER_MULTIPLICATION) NOT NULL IDENTITY(1,1), " +
+                       "(aaa INT ENCRYPTED FOR (ADDITION, MULTIPLICATION) NOT NULL IDENTITY(1,1), " +
                        "[bbb] BIGINT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
                        "ddd VARCHAR(MAX) ENCRYPTED FOR (STORE, SEARCH), " +
@@ -126,7 +126,7 @@ namespace ParserTests
             Assert.Equal(new TableRef("ttt"), actual.TableName);
             Assert.Equal(new Identifier("aaa"), actual.ColumnDefinitions[0].ColumnName);
             Assert.Equal(SqlDataType.MSSQL_INT, actual.ColumnDefinitions[0].DataType);
-            Assert.Equal(ColumnEncryptionFlags.IntegerAddition | ColumnEncryptionFlags.IntegerMultiplication,
+            Assert.Equal(ColumnEncryptionFlags.Addition | ColumnEncryptionFlags.Multiplication,
                 actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[0].AutoIncrement);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
@@ -188,8 +188,8 @@ namespace ParserTests
             Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[3]).EncryptionFlags);
             Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
             Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
-            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerAddition));
-            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.IntegerMultiplication));
+            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
+            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]
