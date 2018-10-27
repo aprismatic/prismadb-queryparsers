@@ -207,10 +207,10 @@ namespace PrismaDB.QueryParser.MSSQL
             foreach (var childNode in encryptTypeNodes.ChildNodes)
                 if (FindChildNode(childNode, "STORE") != null)
                     flags |= ColumnEncryptionFlags.Store;
-                else if (FindChildNode(childNode, "INTEGER_ADDITION") != null)
-                    flags |= ColumnEncryptionFlags.IntegerAddition;
-                else if (FindChildNode(childNode, "INTEGER_MULTIPLICATION") != null)
-                    flags |= ColumnEncryptionFlags.IntegerMultiplication;
+                else if (FindChildNode(childNode, "ADDITION") != null)
+                    flags |= ColumnEncryptionFlags.Addition;
+                else if (FindChildNode(childNode, "MULTIPLICATION") != null)
+                    flags |= ColumnEncryptionFlags.Multiplication;
                 else if (FindChildNode(childNode, "SEARCH") != null)
                     flags |= ColumnEncryptionFlags.Search;
                 else if (FindChildNode(childNode, "RANGE") != null)
