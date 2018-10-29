@@ -363,8 +363,14 @@ namespace PrismaDB.QueryParser.MSSQL
                             if (FindChildNode(opNode, "+") != null)
                                 expr = new Addition(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
+                            else if (FindChildNode(opNode, "-") != null)
+                                expr = new Subtraction(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
                             else if (FindChildNode(opNode, "*") != null)
                                 expr = new Multiplication(BuildExpression(node.ChildNodes[0]),
+                                    BuildExpression(node.ChildNodes[2]));
+                            else if (FindChildNode(opNode, "/") != null)
+                                expr = new Division(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
                             else if (FindChildNode(opNode, "=") != null)
                                 expr = new BooleanEquals(BuildExpression(node.ChildNodes[0]),

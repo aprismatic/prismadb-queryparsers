@@ -479,7 +479,7 @@ namespace ParserTests
             Assert.IsType<ColumnRef>((result.SelectExpressions[2] as ScalarFunction).Parameters[0]);
 
             Assert.IsType<CountAggregationFunction>(result.SelectExpressions[3]);
-            Assert.Empty((result.SelectExpressions[3] as ScalarFunction).Parameters);
+            Assert.IsType<AllColumns>((result.SelectExpressions[3] as ScalarFunction).Parameters[0]);
 
             Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
@@ -498,6 +498,25 @@ namespace ParserTests
             // Assert
             Assert.IsType<ColumnRef>(result.UpdateExpressions[0].First);
             Assert.IsType<NullConstant>(result.UpdateExpressions[0].Second);
+        }
+
+        [Fact(DisplayName = "Parse operators")]
+        public void Parse_Operators()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = @"SELECT a+b, a-b, a*b, a/b
+                         FROM   numerictable";
+
+            // Act
+            var result = parser.ParseToAst(test)[0] as SelectQuery;
+
+            // Assert
+            Assert.Equal(4, result.SelectExpressions.Count);
+            Assert.IsType<Addition>(result.SelectExpressions[0]);
+            Assert.IsType<Subtraction>(result.SelectExpressions[1]);
+            Assert.IsType<Multiplication>(result.SelectExpressions[2]);
+            Assert.IsType<Division>(result.SelectExpressions[3]);
         }
     }
 }
