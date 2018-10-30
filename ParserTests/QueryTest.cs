@@ -479,7 +479,7 @@ namespace ParserTests
             Assert.IsType<ColumnRef>((result.SelectExpressions[2] as ScalarFunction).Parameters[0]);
 
             Assert.IsType<CountAggregationFunction>(result.SelectExpressions[3]);
-            Assert.IsType<AllColumns>((result.SelectExpressions[3] as ScalarFunction).Parameters[0]);
+            Assert.Empty((result.SelectExpressions[3] as ScalarFunction).Parameters);
 
             Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);

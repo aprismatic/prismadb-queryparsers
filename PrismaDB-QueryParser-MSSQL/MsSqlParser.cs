@@ -254,6 +254,11 @@ namespace PrismaDB.QueryParser.MSSQL
                 if (node.ChildNodes[1].ChildNodes.Count == 1 &&
                     node.ChildNodes[1].ChildNodes[0].Term.Name.Equals("exprList"))
                     ((ScalarFunction)exp).Parameters = BuildExpressions(node.ChildNodes[1].ChildNodes[0]);
+
+                if (((ScalarFunction)exp).Parameters.Count == 1 && ((ScalarFunction)exp).Parameters[0] is AllColumns)
+                {
+                    ((ScalarFunction)exp).Parameters.Clear();
+                }
             }
             else if (node.ChildNodes.Count == 1 && node.ChildNodes[0].Term.Name.Equals("CURRENT_TIMESTAMP"))
             {
