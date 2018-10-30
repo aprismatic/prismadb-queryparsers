@@ -25,9 +25,9 @@ namespace PrismaDB.QueryParser.MSSQL
             var string_literal = new StringLiteral("string", "'", StringOptions.AllowsDoubledQuote);
             // Normal identifiers (abc) and quoted id's ([abc d], "abc d")
             var Id_simple = TerminalFactory.CreateSqlExtIdentifier(this, "id_simple");
-            Id_simple.AllFirstChars += "*";
             var comma = ToTerm(",");
             var dot = ToTerm(".");
+            var star = ToTerm("*");
             var CREATE = ToTerm("CREATE");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
@@ -65,6 +65,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
+            var IdStar = new NonTerminal("IdStar");
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
             var alterStmt = new NonTerminal("alterStmt");
@@ -141,7 +142,8 @@ namespace PrismaDB.QueryParser.MSSQL
             stmtList.Rule = MakePlusRule(stmtList, stmtLine);
 
             // ID
-            Id.Rule = MakePlusRule(Id, dot, Id_simple);
+            IdStar.Rule = Id_simple | star;
+            Id.Rule = MakePlusRule(Id, dot, IdStar);
 
             stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
                         exportSettingsCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd |
