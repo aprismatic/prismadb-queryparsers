@@ -10,6 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Irony.NetCore" Version="1.0.11" />
-    <PackageReference Include="PrismaDB-QueryAST" Version="0.2.8.214" />
+    <PackageReference Include="PrismaDB-QueryAST" Version="0.2.8.215" />
   </ItemGroup>
 </Project>
