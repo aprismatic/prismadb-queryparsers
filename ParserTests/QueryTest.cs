@@ -518,5 +518,25 @@ namespace ParserTests
             Assert.IsType<Multiplication>(result.SelectExpressions[2]);
             Assert.IsType<Division>(result.SelectExpressions[3]);
         }
+
+        [Fact(DisplayName = "Parse LIKE")]
+        public void Parse_Like()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "SELECT * FROM TT WHERE a LIKE 'abc%'; " +
+                       "SELECT * FROM TT WHERE a NOT LIKE 'a_34'; ";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
+            Assert.False(((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).NOT);
+            Assert.Equal("abc%", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+
+            Assert.True(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).NOT);
+            Assert.Equal("a_34", (((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+        }
     }
 }
