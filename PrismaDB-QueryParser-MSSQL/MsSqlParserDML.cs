@@ -432,6 +432,15 @@ namespace PrismaDB.QueryParser.MSSQL
                                 else
                                     expr = new BooleanIsNull((ColumnRef)BuildExpression(node.ChildNodes[0]), true);
                             }
+                            else if (FindChildNode(opNode, "LIKE") != null)
+                            {
+                                if (FindChildNode(opNode, "NOT") == null)
+                                    expr = new BooleanLike((ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                        (StringConstant)BuildExpression(node.ChildNodes[2]));
+                                else
+                                    expr = new BooleanLike((ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                        (StringConstant)BuildExpression(node.ChildNodes[2]), true);
+                            }
                             else if (FindChildNode(opNode, "AND") != null)
                                 expr = new AndClause(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
