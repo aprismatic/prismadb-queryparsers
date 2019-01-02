@@ -88,6 +88,10 @@ namespace PrismaDB.QueryParser.MSSQL
                             {
                                 var updateKeysCommand =
                                     new UpdateKeysCommand();
+
+                                if (FindChildNode(FindChildNode(stmtNode, "statusOpt"), "STATUS") != null)
+                                    updateKeysCommand.StatusCheck = true;
+
                                 queries.Add(updateKeysCommand);
                             }
 
@@ -95,6 +99,10 @@ namespace PrismaDB.QueryParser.MSSQL
                             {
                                 var decryptColumnCommand =
                                     new DecryptColumnCommand(BuildColumnRef(FindChildNode(stmtNode, "Id")));
+
+                                if (FindChildNode(FindChildNode(stmtNode, "statusOpt"), "STATUS") != null)
+                                    decryptColumnCommand.StatusCheck = true;
+
                                 queries.Add(decryptColumnCommand);
                             }
 
@@ -102,6 +110,10 @@ namespace PrismaDB.QueryParser.MSSQL
                             {
                                 var encryptColumnCommand =
                                     new EncryptColumnCommand(BuildColumnRef(FindChildNode(stmtNode, "Id")), CheckEncryption(stmtNode));
+
+                                if (FindChildNode(FindChildNode(stmtNode, "statusOpt"), "STATUS") != null)
+                                    encryptColumnCommand.StatusCheck = true;
+
                                 queries.Add(encryptColumnCommand);
                             }
 
@@ -109,6 +121,12 @@ namespace PrismaDB.QueryParser.MSSQL
                             {
                                 var useStmt = new UseStatement(BuildDatabaseRef(FindChildNode(stmtNode, "Id")));
                                 queries.Add(useStmt);
+                            }
+
+                            else if (stmtNode.Term.Name.Equals("dropTableStmt"))
+                            {
+                                var dropStmt = new DropTableQuery(BuildTableRef(FindChildNode(stmtNode, "Id")));
+                                queries.Add(dropStmt);
                             }
             }
             catch (ApplicationException)
