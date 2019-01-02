@@ -29,6 +29,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var dot = ToTerm(".");
             var star = ToTerm("*");
             var CREATE = ToTerm("CREATE");
+            var DROP = ToTerm("DROP");
             var NULL = ToTerm("NULL");
             var NOT = ToTerm("NOT");
             var TABLE = ToTerm("TABLE");
@@ -62,12 +63,14 @@ namespace PrismaDB.QueryParser.MSSQL
             var TO = ToTerm("TO");
             var STAR = ToTerm("*");
             var IDENTITY = ToTerm("IDENTITY");
+            var STATUS = ToTerm("STATUS");
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
             var IdStar = new NonTerminal("IdStar");
             var stmt = new NonTerminal("stmt");
             var createTableStmt = new NonTerminal("createTableStmt");
+            var dropTableStmt = new NonTerminal("dropTableStmt");
             var alterStmt = new NonTerminal("alterStmt");
             var selectStmt = new NonTerminal("selectStmt");
             var insertStmt = new NonTerminal("insertStmt");
@@ -134,6 +137,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var encryptTypePar = new NonTerminal("encryptTypePar");
             var encryptTypeList = new NonTerminal("encryptTypeList");
             var encryptType = new NonTerminal("encryptType");
+            var statusOpt = new NonTerminal("statusOpt");
 
             // BNF Rules
             Root = stmtList;
@@ -145,7 +149,7 @@ namespace PrismaDB.QueryParser.MSSQL
             IdStar.Rule = Id_simple | star;
             Id.Rule = MakePlusRule(Id, dot, IdStar);
 
-            stmt.Rule = createTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
+            stmt.Rule = createTableStmt | dropTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
                         exportSettingsCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd |
                         "GO";
 
@@ -153,6 +157,9 @@ namespace PrismaDB.QueryParser.MSSQL
             createTableStmt.Rule = CREATE + TABLE + Id + "(" + fieldDefList + ")";
             fieldDefList.Rule = MakePlusRule(fieldDefList, comma, fieldDef);
             fieldDef.Rule = Id + typeName + typeParamsOpt + encryptionOpt + nullSpecOpt + autoDefaultOpt;
+
+            // Drop Statement
+            dropTableStmt.Rule = DROP + TABLE + Id;
 
             var t_INT = ToTerm("INT");
             var t_SMALLINT = ToTerm("SMALLINT");
@@ -195,9 +202,10 @@ namespace PrismaDB.QueryParser.MSSQL
 
             // Command Statements
             exportSettingsCmd.Rule = PRISMADB + "EXPORT" + "SETTINGS" + TO + string_literal;
-            updateKeysCmd.Rule = PRISMADB + "UPDATE" + "KEYS";
-            decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id;
-            encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar;
+            updateKeysCmd.Rule = PRISMADB + "UPDATE" + "KEYS" + statusOpt;
+            decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id + statusOpt;
+            encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar + statusOpt;
+            statusOpt.Rule = STATUS | Empty;
 
             // Use Statement
             useStmt.Rule = USE + Id;

@@ -175,7 +175,8 @@ namespace ParserTests
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
-                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);";
+                       "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
+                       "PRISMADB DECRYPT tt.col1 STATUS;";
 
             // Act 
             var result = parser.ParseToAst(test);
@@ -183,13 +184,16 @@ namespace ParserTests
             // Assert 
             Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
             Assert.Equal(typeof(UpdateKeysCommand), result[1].GetType());
+            Assert.False(((UpdateKeysCommand)result[1]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[2]).Column);
+            Assert.False(((DecryptColumnCommand)result[2]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[3]).Column);
             Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[3]).EncryptionFlags);
             Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
             Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
+            Assert.True(((DecryptColumnCommand)result[5]).StatusCheck);
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]
@@ -349,6 +353,21 @@ namespace ParserTests
             // Assert
             var actual = (UseStatement)result[0];
             Assert.Equal(new DatabaseRef("ThisDB"), actual.Database);
+        }
+
+        [Fact(DisplayName = "Parse DROP TABLE")]
+        public void Parse_DropTable()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "DROP TABLE tt";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            var actual = (DropTableQuery)result[0];
+            Assert.Equal(new TableRef("tt"), actual.TableName);
         }
 
         [Fact(DisplayName = "Parse JOIN")]
