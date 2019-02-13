@@ -126,6 +126,8 @@ namespace PrismaDB.QueryParser.MSSQL
             var binExpr = new NonTerminal("binExpr");
             var binOp = new NonTerminal("binOp");
             var notOpt = new NonTerminal("notOpt");
+            var likeOp = new NonTerminal("likeOp");
+            var escapeOpt = new NonTerminal("escapeOpt");
             var funCall = new NonTerminal("funCall");
             var stmtLine = new NonTerminal("stmtLine");
             var semiOpt = new NonTerminal("semiOpt");
@@ -257,11 +259,14 @@ namespace PrismaDB.QueryParser.MSSQL
             tuple.Rule = "(" + exprList + ")";
             unExpr.Rule = unOp + term;
             unOp.Rule = NOT | "+" | "-" | "~";
-            binExpr.Rule = (expression + binOp + expression) | ("(" + expression + binOp + expression + ")");
+            binExpr.Rule = (expression + binOp + expression) | ("(" + expression + binOp + expression + ")") |
+                           (expression + likeOp + expression + escapeOpt) | ("(" + expression + likeOp + expression + escapeOpt + ")");
             binOp.Rule = ToTerm("+") | "-" | "*" | "/" | "%" // Arithmetic
                          | "&" | "|" | "^" // Bit
                          | "=" | ">" | "<" | ">=" | "<=" | "<>" | "!=" | "!<" | "!>"
-                         | "AND" | "OR" | "LIKE" | (NOT + "LIKE") | "IN" | (NOT + "IN") | "IS" + notOpt;
+                         | "AND" | "OR" | "IN" | (NOT + "IN") | "IS" + notOpt;
+            likeOp.Rule = "LIKE" | (NOT + "LIKE");
+            escapeOpt.Rule = Empty | "ESCAPE" + string_literal;
             notOpt.Rule = Empty | NOT;
             funCall.Rule = (Id + "(" + funArgs + ")") | CURRENT_TIMESTAMP;
             funArgs.Rule = Empty | exprList | STAR;
