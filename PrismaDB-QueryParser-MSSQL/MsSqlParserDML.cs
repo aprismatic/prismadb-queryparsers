@@ -357,7 +357,9 @@ namespace PrismaDB.QueryParser.MSSQL
                 else if (node.Term.Name.Equals("binExpr"))
                 {
                     var opNode = FindChildNode(node, "binOp");
+                    var likeNode = FindChildNode(node, "likeOp");
                     if (opNode != null)
+                    {
                         if (node.ChildNodes.Count == 3)
                         {
                             if (FindChildNode(opNode, "+") != null)
@@ -432,15 +434,6 @@ namespace PrismaDB.QueryParser.MSSQL
                                 else
                                     expr = new BooleanIsNull((ColumnRef)BuildExpression(node.ChildNodes[0]), true);
                             }
-                            else if (FindChildNode(opNode, "LIKE") != null)
-                            {
-                                if (FindChildNode(opNode, "NOT") == null)
-                                    expr = new BooleanLike((ColumnRef)BuildExpression(node.ChildNodes[0]),
-                                        (StringConstant)BuildExpression(node.ChildNodes[2]));
-                                else
-                                    expr = new BooleanLike((ColumnRef)BuildExpression(node.ChildNodes[0]),
-                                        (StringConstant)BuildExpression(node.ChildNodes[2]), true);
-                            }
                             else if (FindChildNode(opNode, "AND") != null)
                                 expr = new AndClause(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
@@ -448,6 +441,24 @@ namespace PrismaDB.QueryParser.MSSQL
                                 expr = new OrClause(BuildExpression(node.ChildNodes[0]),
                                     BuildExpression(node.ChildNodes[2]));
                         }
+                    }
+                    else if (likeNode != null)
+                    {
+                        if (FindChildNode(likeNode, "LIKE") != null)
+                        {
+                            BooleanLike likeExpr = new BooleanLike((ColumnRef)BuildExpression(node.ChildNodes[0]),
+                                (StringConstant)BuildExpression(node.ChildNodes[2]));
+
+                            if (FindChildNode(likeNode, "NOT") != null)
+                                likeExpr.NOT = true;
+
+                            var escapeNode = FindChildNode(node, "escapeOpt");
+                            if (FindChildNode(escapeNode, "ESCAPE") != null)
+                                likeExpr.EscapeChar = ((StringConstant)BuildExpression(escapeNode.ChildNodes[1])).strvalue[0];
+
+                            expr = likeExpr;
+                        }
+                    }
                 }
                 else if (node.Term.Name.Equals("exprList"))
                 {
