@@ -165,7 +165,7 @@ namespace ParserTests
             Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
-        
+
         [Fact(DisplayName = "Parse Commands")]
         public void Parse_Commands()
         {
@@ -561,6 +561,23 @@ namespace ParserTests
             Assert.Null(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).EscapeChar);
 
             Assert.Equal('!', (((BooleanLike)((SelectQuery)result[2]).Where.CNF.AND[0].OR[0]).EscapeChar));
+        }
+
+        [Fact(DisplayName = "Parse SHOW")]
+        public void Parse_Show()
+        {
+            // Setup
+            var parser = new MsSqlParser();
+            var test = "SHOW TABLES;" +
+                       "SHOW COLUMNS FROM abc;";
+
+            // Act
+            var result = parser.ParseToAst(test);
+
+            // Assert
+            Assert.True(result[0] is ShowTablesQuery);
+
+            Assert.Equal(new TableRef("abc"), ((ShowColumnsQuery)result[1]).TableName);
         }
     }
 }
