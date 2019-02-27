@@ -64,6 +64,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var STAR = ToTerm("*");
             var IDENTITY = ToTerm("IDENTITY");
             var STATUS = ToTerm("STATUS");
+            var SHOW = ToTerm("SHOW");
 
             // Non-Terminals
             var Id = new NonTerminal("Id");
@@ -77,6 +78,9 @@ namespace PrismaDB.QueryParser.MSSQL
             var updateStmt = new NonTerminal("updateStmt");
             var deleteStmt = new NonTerminal("deleteStmt");
             var useStmt = new NonTerminal("useStmt");
+
+            var showTablesStmt = new NonTerminal("showTablesStmt");
+            var showColumnsStmt = new NonTerminal("showColumnsStmt");
 
             var exportSettingsCmd = new NonTerminal("exportSettingsCmd");
             var updateKeysCmd = new NonTerminal("updateKeysCmd");
@@ -153,6 +157,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
             stmt.Rule = createTableStmt | dropTableStmt | alterStmt | selectStmt | insertStmt | updateStmt | deleteStmt | useStmt |
                         exportSettingsCmd | updateKeysCmd | decryptColumnCmd | encryptColumnCmd |
+                        showTablesStmt | showColumnsStmt |
                         "GO";
 
             // Create Statement
@@ -208,6 +213,10 @@ namespace PrismaDB.QueryParser.MSSQL
             decryptColumnCmd.Rule = PRISMADB + "DECRYPT" + Id + statusOpt;
             encryptColumnCmd.Rule = PRISMADB + "ENCRYPT" + Id + encryptTypePar + statusOpt;
             statusOpt.Rule = STATUS | Empty;
+
+            // Show Statements
+            showTablesStmt.Rule = SHOW + "TABLES";
+            showColumnsStmt.Rule = SHOW + "COLUMNS" + FROM + Id;
 
             // Use Statement
             useStmt.Rule = USE + Id;
