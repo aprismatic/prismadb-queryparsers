@@ -140,9 +140,9 @@ ABS:                                 'ABS';
 COUNT:                               'COUNT';
 MIN:                                 'MIN';
 MAX:                                 'MAX';
-NOW:                                 'NOW';
-UTC_TIMESTAMP:                       'UTC_TIMESTAMP';
-TIMEDIFF:                            'TIMEDIFF';
+GETDATE:                             'GETDATE';
+GETUTCDATE:                          'GETUTCDATE';
+DATEDIFF:                            'DATEDIFF';
 
 
 // Common function Keywords

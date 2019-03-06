@@ -389,6 +389,7 @@ constants
 defaultValue
     : constant
     | currentTimestamp
+    | functionCall
     ;
 
 currentTimestamp
@@ -415,7 +416,7 @@ specificFunction
 
 scalarFunctionName
     : SUM | AVG | ABS | COUNT | MIN | MAX
-    | NOW | DATE | UTC_TIMESTAMP | TIMEDIFF
+    | GETDATE | GETUTCDATE | DATEDIFF
     ;
 
 functionArgs
