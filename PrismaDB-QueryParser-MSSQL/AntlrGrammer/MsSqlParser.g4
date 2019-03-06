@@ -92,7 +92,7 @@ columnDefinition
 	nullNotnull?
 	(
 	  ( DEFAULT defaultValue )
-      | IDENTITY '('intLiteral','intLiteral')'
+      | IDENTITY '(' seed=intLiteral ',' increment=intLiteral ')'
 	)?
     ;
 
