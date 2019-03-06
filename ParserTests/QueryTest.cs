@@ -244,7 +244,7 @@ namespace ParserTests
         {
             // Setup
             var test =
-                "INSERT INTO [tt1] (tt1.col1, [tt1].col2, [tt1].[col3], tt1.[col4]) " +
+                "INSERT INTO [tt1] (col1, col2, [col3], [col4]) " +
                 "VALUES ( -1, 12.345 , 'hey', 'hi' ), " +
                 "(0,050, 3147483647, '  ', '&'), " +
                 "(0xdec2976ac4fc39864683a83f7b9876f4b2cbc65b0b6ede9e74e9" +
@@ -264,13 +264,9 @@ namespace ParserTests
 
             Assert.Equal(new TableRef("tt1"), actual.Into);
             Assert.Equal(new Identifier("col1"), actual.Columns[0].ColumnName);
-            Assert.Equal(new TableRef("tt1"), actual.Columns[0].Table);
             Assert.Equal(new Identifier("col2"), actual.Columns[1].ColumnName);
-            Assert.Equal(new TableRef("tt1"), actual.Columns[1].Table);
             Assert.Equal(new Identifier("col3"), actual.Columns[2].ColumnName);
-            Assert.Equal(new TableRef("tt1"), actual.Columns[2].Table);
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
-            Assert.Equal(new TableRef("tt1"), actual.Columns[3].Table);
             Assert.Equal(3, actual.Values.Count);
             Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
             Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
@@ -287,7 +283,7 @@ namespace ParserTests
         public void Parse_Select()
         {
             // Setup
-            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND t.b !> a AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
+            var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND (t.b <= a) AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
             var result = MsSqlQueryParser.ParseToAst(test);
@@ -297,18 +293,18 @@ namespace ParserTests
 
             Assert.Equal("(a+b)*(a+b)", actual.SelectExpressions[0].Alias.id);
             Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[1].Alias.id);
-            Assert.Equal("((a+b)*(a+b))", actual.SelectExpressions[2].Alias.id);
+            Assert.Equal("(((a+b)*(a+b)))", actual.SelectExpressions[2].Alias.id);
 
             Assert.Equal(new ColumnRef("b"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).left);
             Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).right);
-            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
-            Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
+            Assert.Equal(new ColumnRef("b"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).left);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).right);
             Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[0].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[0].OR[1]).NOT);
             Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).left);
             Assert.Equal(new ColumnRef("t", "b"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
-            Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
-            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
+            Assert.Equal(new ColumnRef("t", "b"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).right);
+            Assert.Equal(new ColumnRef("a"), ((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).left);
             Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
             Assert.False(((BooleanEquals)actual.Where.CNF.AND[1].OR[1]).NOT);
             Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
@@ -363,7 +359,7 @@ namespace ParserTests
         public void Parse_Join()
         {
             // Setup
-            var test = "select tt1.a AS abc, tt2.b FROM tt1 AS table INNER JOIN tt2 ON table.c=tt2.c; " +
+            var test = "select tt1.a AS abc, tt2.b FROM tt1 AS table1 INNER JOIN tt2 ON table1.c=tt2.c; " +
                        "select tt1.a, tt2.b FROM tt1 JOIN tt2 ON tt1.c=tt2.c WHERE tt1.a=123; " +
                        "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
@@ -375,9 +371,9 @@ namespace ParserTests
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1", AliasName: "table"), actual.FromTables[0]);
+                Assert.Equal(new TableRef("tt1", AliasName: "table1"), actual.FromTables[0]);
                 Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Equal(new ColumnRef("table", "c"), actual.Joins[0].FirstColumn);
+                Assert.Equal(new ColumnRef("table1", "c"), actual.Joins[0].FirstColumn);
                 Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
                 Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
             }
@@ -550,7 +546,7 @@ namespace ParserTests
         {
             // Setup
             var test = "SHOW TABLES;" +
-                       "SHOW COLUMNS FROM abc;";
+                       "SHOW COLUMNS FROM [abc];";
 
             // Act
             var result = MsSqlQueryParser.ParseToAst(test);

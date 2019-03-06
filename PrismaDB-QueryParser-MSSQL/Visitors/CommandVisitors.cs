@@ -2,18 +2,18 @@
 using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitExportSettingsCommand([NotNull] MySqlParser.ExportSettingsCommandContext context)
+        public override object VisitExportSettingsCommand([NotNull] MsSqlParser.ExportSettingsCommandContext context)
         {
             return new ExportSettingsCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
-        public override object VisitUpdateKeysCommand([NotNull] MySqlParser.UpdateKeysCommandContext context)
+        public override object VisitUpdateKeysCommand([NotNull] MsSqlParser.UpdateKeysCommandContext context)
         {
             var res = new UpdateKeysCommand();
             if (context.STATUS() != null)
@@ -21,7 +21,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitEncyrptCommand([NotNull] MySqlParser.EncyrptCommandContext context)
+        public override object VisitEncyrptCommand([NotNull] MsSqlParser.EncyrptCommandContext context)
         {
             var res = new EncryptColumnCommand();
             res.Column = (ColumnRef)Visit(context.fullColumnName());
@@ -33,20 +33,12 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitDecryptCommand([NotNull] MySqlParser.DecryptCommandContext context)
+        public override object VisitDecryptCommand([NotNull] MsSqlParser.DecryptCommandContext context)
         {
             var res = new DecryptColumnCommand();
             res.Column = (ColumnRef)Visit(context.fullColumnName());
             if (context.STATUS() != null)
                 res.StatusCheck = true;
-            return res;
-        }
-
-        public override object VisitRegisterUserCommand([NotNull] MySqlParser.RegisterUserCommandContext context)
-        {
-            var res = new RegisterUserCommand();
-            res.UserId = (StringConstant)Visit(context.user);
-            res.Password = (StringConstant)Visit(context.password);
             return res;
         }
     }

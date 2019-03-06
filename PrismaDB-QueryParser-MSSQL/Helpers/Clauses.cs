@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryAST.Result;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
     internal class AndClause : Expression
     {

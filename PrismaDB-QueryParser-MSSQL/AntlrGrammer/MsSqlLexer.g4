@@ -23,14 +23,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-lexer grammar MySqlLexer;
+lexer grammar MsSqlLexer;
 
-channels { MYSQLCOMMENT, ERRORCHANNEL }
+channels { ERRORCHANNEL }
 
 // SKIP
 
 SPACE:                               [ \t\r\n]+    -> channel(HIDDEN);
-SPEC_MYSQL_COMMENT:                  '/*!' .+? '*/' -> channel(MYSQLCOMMENT);
 COMMENT_INPUT:                       '/*' .*? '*/' -> channel(HIDDEN);
 LINE_COMMENT:                        (
                                        ('-- ' | '#') ~[\r\n]* ('\r'? '\n' | EOF) 
@@ -46,7 +45,6 @@ ALTER:                               'ALTER';
 AND:                                 'AND';
 AS:                                  'AS';
 ASC:                                 'ASC';
-AUTO_INCREMENT:                      'AUTO_INCREMENT';
 BY:                                  'BY';
 COLUMN:                              'COLUMN';
 COLUMNS:                             'COLUMNS';
@@ -60,6 +58,7 @@ ESCAPE:                              'ESCAPE';
 FOR:                                 'FOR';
 FROM:                                'FROM';
 GROUP:                               'GROUP';
+IDENTITY:                            'IDENTITY';
 IN:                                  'IN';
 INNER:                               'INNER';
 INSERT:                              'INSERT';
@@ -69,8 +68,6 @@ JOIN:                                'JOIN';
 KEY:                                 'KEY';
 LEFT:                                'LEFT';
 LIKE:                                'LIKE';
-LIMIT:                               'LIMIT';
-MODIFY:                              'MODIFY';
 NOT:                                 'NOT';
 NULL_LITERAL:                        'NULL';
 ON:                                  'ON';
@@ -85,6 +82,7 @@ SHOW:                                'SHOW';
 TABLE:                               'TABLE';
 TABLES:                              'TABLES';
 TO:                                  'TO';
+TOP:                                 'TOP';
 UPDATE:                              'UPDATE';
 USE:                                 'USE';
 VALUES:                              'VALUES';
@@ -97,17 +95,19 @@ TINYINT:                             'TINYINT';
 SMALLINT:                            'SMALLINT';
 INT:                                 'INT';
 BIGINT:                              'BIGINT';
-DOUBLE:                              'DOUBLE';
+FLOAT:                               'FLOAT';
 DATE:                                'DATE';
-TIMESTAMP:                           'TIMESTAMP';
 DATETIME:                            'DATETIME';
+TIMESTAMP:                           'TIMESTAMP';
 CHAR:                                'CHAR';
 VARCHAR:                             'VARCHAR';
+NCHAR:                               'NCHAR';
+NVARCHAR:                            'NVARCHAR';
 BINARY:                              'BINARY';
 VARBINARY:                           'VARBINARY';
-BLOB:                                'BLOB';
 TEXT:                                'TEXT';
-ENUM:                                'ENUM';
+NTEXT:                               'NTEXT';
+UNIQUEIDENTIFIER:                    'UNIQUEIDENTIFIER';
 
 
 // Encryption keywords
@@ -130,9 +130,6 @@ KEYS:                                'KEYS';
 ENCRYPT:                             'ENCRYPT';
 DECRYPT:                             'DECRYPT';
 STATUS:                              'STATUS';
-REGISTER:                            'REGISTER';
-USER:                                'USER';
-PASSWORD:                            'PASSWORD';
 
 
 // Common function names
@@ -189,7 +186,7 @@ COLON_SYMB:                          ':';
 // Literal Primitives
 
 
-STRING_LITERAL:                      DQUOTA_STRING | SQUOTA_STRING;
+STRING_LITERAL:                      SQUOTA_STRING;
 INT_LITERAL:                         '-'? DEC_DIGIT+;
 DECIMAL_LITERAL:                     '-'? (DEC_DIGIT+)? '.' DEC_DIGIT+;
 HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
@@ -210,12 +207,7 @@ DOT_ID:                              '.' ID_LITERAL;
 // Identifiers
 
 ID:                                  ID_LITERAL;
-REVERSE_QUOTE_ID:                    '`' ~'`'+ '`';
-GLOBAL_ID:                           '@' '@' 
-                                (
-                                  [A-Z0-9._$]+ 
-                                  | BQUOTA_STRING
-                                );
+BRACKET_ID:                          '[' ~('['|']')+ ']';
 
 
 // Fragments for Literal primitives
@@ -223,7 +215,6 @@ GLOBAL_ID:                           '@' '@'
 fragment ID_LITERAL:                 [A-Z_$0-9]*?[A-Z_$]+?[A-Z_$0-9]*;
 fragment DQUOTA_STRING:              '"' ( '\\'. | '""' | ~('"'| '\\') )* '"';
 fragment SQUOTA_STRING:              '\'' ('\\'. | '\'\'' | ~('\'' | '\\'))* '\'';
-fragment BQUOTA_STRING:              '`' ( '\\'. | '``' | ~('`'|'\\'))* '`';
 fragment HEX_DIGIT:                  [0-9A-F];
 fragment DEC_DIGIT:                  [0-9];
 

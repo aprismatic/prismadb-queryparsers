@@ -2,26 +2,26 @@ using Antlr4.Runtime.Misc;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 using System;
 using System.Collections.Generic;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
         #region DB Objects
-        public override object VisitDatabaseName([NotNull] MySqlParser.DatabaseNameContext context)
+        public override object VisitDatabaseName([NotNull] MsSqlParser.DatabaseNameContext context)
         {
             return new DatabaseRef(((Identifier)Visit(context.uid())).id);
         }
 
-        public override object VisitTableName([NotNull] MySqlParser.TableNameContext context)
+        public override object VisitTableName([NotNull] MsSqlParser.TableNameContext context)
         {
             return new TableRef(((Identifier)Visit(context.uid())).id);
         }
 
-        public override object VisitFullColumnName([NotNull] MySqlParser.FullColumnNameContext context)
+        public override object VisitFullColumnName([NotNull] MsSqlParser.FullColumnNameContext context)
         {
             if (context.dottedId() == null)
                 return new ColumnRef((Identifier)Visit(context.uid()));
@@ -29,31 +29,23 @@ namespace PrismaDB.QueryParser.MySQL
                 return new ColumnRef(((Identifier)Visit(context.uid())).id, (Identifier)Visit(context.dottedId()));
         }
 
-        public override object VisitMysqlVariable([NotNull] MySqlParser.MysqlVariableContext context)
-        {
-            var str = context.GLOBAL_ID().GetText().TrimStart('@');
-            if (str.StartsWith("`"))
-                str = str.Trim('`');
-            return new MySqlVariable(str);
-        }
-
-        public override object VisitUid([NotNull] MySqlParser.UidContext context)
+        public override object VisitUid([NotNull] MsSqlParser.UidContext context)
         {
             if (context.simpleId() != null)
                 return Visit(context.simpleId());
-            if (context.REVERSE_QUOTE_ID() != null)
-                return new Identifier(context.REVERSE_QUOTE_ID().GetText().Trim('`'));
+            if (context.BRACKET_ID() != null)
+                return new Identifier(context.BRACKET_ID().GetText().Trim('[', ']'));
             return null;
         }
 
-        public override object VisitSimpleId([NotNull] MySqlParser.SimpleIdContext context)
+        public override object VisitSimpleId([NotNull] MsSqlParser.SimpleIdContext context)
         {
             if (context.ID() != null)
                 return new Identifier(context.ID().GetText());
             return null;
         }
 
-        public override object VisitDottedId([NotNull] MySqlParser.DottedIdContext context)
+        public override object VisitDottedId([NotNull] MsSqlParser.DottedIdContext context)
         {
             if (context.uid() != null)
                 return Visit(context.uid());
@@ -65,17 +57,17 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Literals
-        public override object VisitIntLiteral([NotNull] MySqlParser.IntLiteralContext context)
+        public override object VisitIntLiteral([NotNull] MsSqlParser.IntLiteralContext context)
         {
             return new IntConstant(Int64.Parse(context.INT_LITERAL().GetText()));
         }
 
-        public override object VisitDecimalLiteral([NotNull] MySqlParser.DecimalLiteralContext context)
+        public override object VisitDecimalLiteral([NotNull] MsSqlParser.DecimalLiteralContext context)
         {
             return new FloatingPointConstant(Decimal.Parse(context.DECIMAL_LITERAL().GetText()));
         }
 
-        public override object VisitStringLiteral([NotNull] MySqlParser.StringLiteralContext context)
+        public override object VisitStringLiteral([NotNull] MsSqlParser.StringLiteralContext context)
         {
             var str = context.STRING_LITERAL().GetText();
             if (str.StartsWith("'"))
@@ -83,15 +75,10 @@ namespace PrismaDB.QueryParser.MySQL
                 str = str.Substring(1, str.Length - 2).Replace("\\'", "'").Replace("''", "'");
                 return new StringConstant(str);
             }
-            if (str.StartsWith("\""))
-            {
-                str = str.Substring(1, str.Length - 2).Replace("\\\"", "\"").Replace("\"\"", "\"");
-                return new StringConstant(str);
-            }
             return null;
         }
 
-        public override object VisitHexadecimalLiteral([NotNull] MySqlParser.HexadecimalLiteralContext context)
+        public override object VisitHexadecimalLiteral([NotNull] MsSqlParser.HexadecimalLiteralContext context)
         {
             var str = context.HEXADECIMAL_LITERAL().GetText().ToUpperInvariant();
             var length = 0;
@@ -105,14 +92,14 @@ namespace PrismaDB.QueryParser.MySQL
             return new BinaryConstant(bytes);
         }
 
-        public override object VisitNullNotnull([NotNull] MySqlParser.NullNotnullContext context)
+        public override object VisitNullNotnull([NotNull] MsSqlParser.NullNotnullContext context)
         {
             if (context.NOT() == null)
                 return true;
             return false;
         }
 
-        public override object VisitConstant([NotNull] MySqlParser.ConstantContext context)
+        public override object VisitConstant([NotNull] MsSqlParser.ConstantContext context)
         {
             if (context.nullLiteral != null)
                 return new NullConstant();
@@ -123,19 +110,28 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Data Types
-        public override object VisitStringDataType([NotNull] MySqlParser.StringDataTypeContext context)
+        public override object VisitStringDataType([NotNull] MsSqlParser.StringDataTypeContext context)
         {
             var res = new ColumnDefinition();
             switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "CHAR":
-                    res.DataType = SqlDataType.MySQL_CHAR;
+                    res.DataType = SqlDataType.MSSQL_CHAR;
                     break;
                 case "VARCHAR":
-                    res.DataType = SqlDataType.MySQL_VARCHAR;
+                    res.DataType = SqlDataType.MSSQL_VARCHAR;
                     break;
                 case "TEXT":
-                    res.DataType = SqlDataType.MySQL_TEXT;
+                    res.DataType = SqlDataType.MSSQL_TEXT;
+                    break;
+                case "NCHAR":
+                    res.DataType = SqlDataType.MSSQL_NCHAR;
+                    break;
+                case "NVARCHAR":
+                    res.DataType = SqlDataType.MSSQL_NVARCHAR;
+                    break;
+                case "NTEXT":
+                    res.DataType = SqlDataType.MSSQL_NTEXT;
                     break;
             }
             if (context.lengthOneDimension() != null)
@@ -143,52 +139,49 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSimpleDataType([NotNull] MySqlParser.SimpleDataTypeContext context)
+        public override object VisitSimpleDataType([NotNull] MsSqlParser.SimpleDataTypeContext context)
         {
             var res = new ColumnDefinition();
             switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "TINYINT":
-                    res.DataType = SqlDataType.MySQL_TINYINT;
+                    res.DataType = SqlDataType.MSSQL_TINYINT;
                     break;
                 case "SMALLINT":
-                    res.DataType = SqlDataType.MySQL_SMALLINT;
+                    res.DataType = SqlDataType.MSSQL_SMALLINT;
                     break;
                 case "INT":
-                    res.DataType = SqlDataType.MySQL_INT;
+                    res.DataType = SqlDataType.MSSQL_INT;
                     break;
                 case "BIGINT":
-                    res.DataType = SqlDataType.MySQL_BIGINT;
+                    res.DataType = SqlDataType.MSSQL_BIGINT;
                     break;
-                case "DOUBLE":
-                    res.DataType = SqlDataType.MySQL_DOUBLE;
+                case "FLOAT":
+                    res.DataType = SqlDataType.MSSQL_FLOAT;
                     break;
                 case "DATE":
-                    res.DataType = SqlDataType.MySQL_DATE;
-                    break;
-                case "TIMESTAMP":
-                    res.DataType = SqlDataType.MySQL_TIMESTAMP;
+                    res.DataType = SqlDataType.MSSQL_DATE;
                     break;
                 case "DATETIME":
-                    res.DataType = SqlDataType.MySQL_DATETIME;
+                    res.DataType = SqlDataType.MSSQL_DATETIME;
                     break;
-                case "BLOB":
-                    res.DataType = SqlDataType.MySQL_BLOB;
+                case "UNIQUEIDENTIFIER":
+                    res.DataType = SqlDataType.MSSQL_UNIQUEIDENTIFIER;
                     break;
             }
             return res;
         }
 
-        public override object VisitDimensionDataType([NotNull] MySqlParser.DimensionDataTypeContext context)
+        public override object VisitDimensionDataType([NotNull] MsSqlParser.DimensionDataTypeContext context)
         {
             var res = new ColumnDefinition();
             switch (context.typeName.Text.ToUpperInvariant())
             {
                 case "BINARY":
-                    res.DataType = SqlDataType.MySQL_BINARY;
+                    res.DataType = SqlDataType.MSSQL_BINARY;
                     break;
                 case "VARBINARY":
-                    res.DataType = SqlDataType.MySQL_VARBINARY;
+                    res.DataType = SqlDataType.MSSQL_VARBINARY;
                     break;
             }
             if (context.lengthOneDimension() != null)
@@ -196,29 +189,19 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitCollectionDataType([NotNull] MySqlParser.CollectionDataTypeContext context)
+        public override object VisitLengthOneDimension([NotNull] MsSqlParser.LengthOneDimensionContext context)
         {
-            var res = new ColumnDefinition();
-            switch (context.typeName.Text.ToUpperInvariant())
-            {
-                case "ENUM":
-                    res.DataType = SqlDataType.MySQL_ENUM;
-                    break;
-            }
-            foreach (var str in context.stringLiteral())
-                res.EnumValues.Add((StringConstant)Visit(str));
-            return res;
-        }
-
-        public override object VisitLengthOneDimension([NotNull] MySqlParser.LengthOneDimensionContext context)
-        {
-            return (int?)((IntConstant)Visit(context.intLiteral())).intvalue;
+            if (context.intLiteral() != null)
+                return (int?)((IntConstant)Visit(context.intLiteral())).intvalue;
+            else if (context.MAX() != null)
+                return -1;
+            return null;
         }
         #endregion
 
 
         #region Common Lists
-        public override object VisitUidList([NotNull] MySqlParser.UidListContext context)
+        public override object VisitUidList([NotNull] MsSqlParser.UidListContext context)
         {
             var res = new List<Identifier>();
             foreach (var uid in context.uid())
@@ -226,7 +209,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitTables([NotNull] MySqlParser.TablesContext context)
+        public override object VisitTables([NotNull] MsSqlParser.TablesContext context)
         {
             var res = new List<TableRef>();
             foreach (var tableName in context.tableName())
@@ -234,7 +217,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitExpressions([NotNull] MySqlParser.ExpressionsContext context)
+        public override object VisitExpressions([NotNull] MsSqlParser.ExpressionsContext context)
         {
             var res = new List<Expression>();
             foreach (var exp in context.expression())
@@ -242,7 +225,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitConstants([NotNull] MySqlParser.ConstantsContext context)
+        public override object VisitConstants([NotNull] MsSqlParser.ConstantsContext context)
         {
             var res = new List<Constant>();
             foreach (var constant in context.constant())
@@ -253,7 +236,7 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Common Expressions
-        public override object VisitCurrentTimestamp([NotNull] MySqlParser.CurrentTimestampContext context)
+        public override object VisitCurrentTimestamp([NotNull] MsSqlParser.CurrentTimestampContext context)
         {
             return new ScalarFunction(context.GetText());
         }
@@ -261,12 +244,12 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Functions
-        public override object VisitFunctionCallExpressionAtom([NotNull] MySqlParser.FunctionCallExpressionAtomContext context)
+        public override object VisitFunctionCallExpressionAtom([NotNull] MsSqlParser.FunctionCallExpressionAtomContext context)
         {
             return Visit(context.functionCall());
         }
 
-        public override object VisitScalarFunctionCall([NotNull] MySqlParser.ScalarFunctionCallContext context)
+        public override object VisitScalarFunctionCall([NotNull] MsSqlParser.ScalarFunctionCallContext context)
         {
             if (context.scalarFunctionName().SUM() != null)
                 return new SumAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
@@ -281,7 +264,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitUdfFunctionCall([NotNull] MySqlParser.UdfFunctionCallContext context)
+        public override object VisitUdfFunctionCall([NotNull] MsSqlParser.UdfFunctionCallContext context)
         {
             var res = new ScalarFunction((Identifier)Visit(context.uid()));
             if (context.functionArgs() != null)
@@ -289,12 +272,12 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSimpleFunctionCall([NotNull] MySqlParser.SimpleFunctionCallContext context)
+        public override object VisitSimpleFunctionCall([NotNull] MsSqlParser.SimpleFunctionCallContext context)
         {
             return new ScalarFunction(context.GetText());
         }
 
-        public override object VisitFunctionArgs([NotNull] MySqlParser.FunctionArgsContext context)
+        public override object VisitFunctionArgs([NotNull] MsSqlParser.FunctionArgsContext context)
         {
             var res = new List<Expression>();
             foreach (var arg in context.functionArg())
@@ -306,14 +289,14 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Expressions, predicates
-        public override object VisitNotExpression([NotNull] MySqlParser.NotExpressionContext context)
+        public override object VisitNotExpression([NotNull] MsSqlParser.NotExpressionContext context)
         {
             var exp = Visit(context.expression());
             ((BooleanExpression)exp).NOT = !((BooleanExpression)exp).NOT;
             return exp;
         }
 
-        public override object VisitLogicalExpression([NotNull] MySqlParser.LogicalExpressionContext context)
+        public override object VisitLogicalExpression([NotNull] MsSqlParser.LogicalExpressionContext context)
         {
             switch (context.logicalOperator().GetText().ToUpperInvariant())
             {
@@ -326,12 +309,12 @@ namespace PrismaDB.QueryParser.MySQL
             }
         }
 
-        public override object VisitNestedExpression([NotNull] MySqlParser.NestedExpressionContext context)
+        public override object VisitNestedExpression([NotNull] MsSqlParser.NestedExpressionContext context)
         {
             return Visit(context.expression());
         }
 
-        public override object VisitInPredicate([NotNull] MySqlParser.InPredicateContext context)
+        public override object VisitInPredicate([NotNull] MsSqlParser.InPredicateContext context)
         {
             var res = new BooleanIn();
             res.Column = (ColumnRef)Visit(context.predicate());
@@ -342,12 +325,12 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitIsNullPredicate([NotNull] MySqlParser.IsNullPredicateContext context)
+        public override object VisitIsNullPredicate([NotNull] MsSqlParser.IsNullPredicateContext context)
         {
             return new BooleanIsNull((ColumnRef)Visit(context.predicate()), !(bool)Visit(context.nullNotnull()));
         }
 
-        public override object VisitBinaryComparasionPredicate([NotNull] MySqlParser.BinaryComparasionPredicateContext context)
+        public override object VisitBinaryComparasionPredicate([NotNull] MsSqlParser.BinaryComparasionPredicateContext context)
         {
             switch (context.comparisonOperator().GetText())
             {
@@ -377,7 +360,7 @@ namespace PrismaDB.QueryParser.MySQL
             }
         }
 
-        public override object VisitLikePredicate([NotNull] MySqlParser.LikePredicateContext context)
+        public override object VisitLikePredicate([NotNull] MsSqlParser.LikePredicateContext context)
         {
             var res = new BooleanLike();
             res.Column = (ColumnRef)Visit(context.predicate()[0]);
@@ -389,37 +372,37 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitMathExpressionPredicate([NotNull] MySqlParser.MathExpressionPredicateContext context)
+        public override object VisitMathExpressionPredicate([NotNull] MsSqlParser.MathExpressionPredicateContext context)
         {
             return Visit(context.addSubExpression());
         }
 
-        public override object VisitNestedPredicate([NotNull] MySqlParser.NestedPredicateContext context)
+        public override object VisitNestedPredicate([NotNull] MsSqlParser.NestedPredicateContext context)
         {
             return Visit(context.predicate());
         }
 
-        public override object VisitNestedMulDivExpression([NotNull] MySqlParser.NestedMulDivExpressionContext context)
+        public override object VisitNestedMulDivExpression([NotNull] MsSqlParser.NestedMulDivExpressionContext context)
         {
             return Visit(context.mulDivExpression());
         }
 
-        public override object VisitNestedAddSubExpression([NotNull] MySqlParser.NestedAddSubExpressionContext context)
+        public override object VisitNestedAddSubExpression([NotNull] MsSqlParser.NestedAddSubExpressionContext context)
         {
             return Visit(context.addSubExpression());
         }
 
-        public override object VisitSimpleExpressionAtom([NotNull] MySqlParser.SimpleExpressionAtomContext context)
+        public override object VisitSimpleExpressionAtom([NotNull] MsSqlParser.SimpleExpressionAtomContext context)
         {
             return Visit(context.expressionAtom());
         }
 
-        public override object VisitNestedAddSubExpressionInMulDiv([NotNull] MySqlParser.NestedAddSubExpressionInMulDivContext context)
+        public override object VisitNestedAddSubExpressionInMulDiv([NotNull] MsSqlParser.NestedAddSubExpressionInMulDivContext context)
         {
             return Visit(context.addSubExpression());
         }
 
-        public override object VisitAddSubExpressionAtom([NotNull] MySqlParser.AddSubExpressionAtomContext context)
+        public override object VisitAddSubExpressionAtom([NotNull] MsSqlParser.AddSubExpressionAtomContext context)
         {
             switch (context.addSubOperator().GetText())
             {
@@ -432,7 +415,7 @@ namespace PrismaDB.QueryParser.MySQL
             }
         }
 
-        public override object VisitMulDivExpressionAtom([NotNull] MySqlParser.MulDivExpressionAtomContext context)
+        public override object VisitMulDivExpressionAtom([NotNull] MsSqlParser.MulDivExpressionAtomContext context)
         {
             switch (context.mulDivOperator().GetText())
             {
@@ -445,14 +428,14 @@ namespace PrismaDB.QueryParser.MySQL
             }
         }
 
-        public override object VisitUnaryExpressionAtom([NotNull] MySqlParser.UnaryExpressionAtomContext context)
+        public override object VisitUnaryExpressionAtom([NotNull] MsSqlParser.UnaryExpressionAtomContext context)
         {
             var exp = Visit(context.expressionAtom());
             ((BooleanExpression)exp).NOT = !((BooleanExpression)exp).NOT;
             return exp;
         }
 
-        public override object VisitNestedExpressionAtom([NotNull] MySqlParser.NestedExpressionAtomContext context)
+        public override object VisitNestedExpressionAtom([NotNull] MsSqlParser.NestedExpressionAtomContext context)
         {
             return Visit(context.expressionAtom());
         }
@@ -460,7 +443,7 @@ namespace PrismaDB.QueryParser.MySQL
 
 
         #region Encryption
-        public override object VisitEncryptionOptions([NotNull] MySqlParser.EncryptionOptionsContext context)
+        public override object VisitEncryptionOptions([NotNull] MsSqlParser.EncryptionOptionsContext context)
         {
             var res = ColumnEncryptionFlags.None;
             foreach (var encType in context.encryptionType())
@@ -468,7 +451,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitEncryptionType([NotNull] MySqlParser.EncryptionTypeContext context)
+        public override object VisitEncryptionType([NotNull] MsSqlParser.EncryptionTypeContext context)
         {
             switch (context.GetText().ToUpperInvariant())
             {

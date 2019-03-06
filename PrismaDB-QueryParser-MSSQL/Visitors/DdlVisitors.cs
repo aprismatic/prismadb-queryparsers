@@ -2,14 +2,14 @@
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 using System.Collections.Generic;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitCreateTable([NotNull] MySqlParser.CreateTableContext context)
+        public override object VisitCreateTable([NotNull] MsSqlParser.CreateTableContext context)
         {
             var res = new CreateTableQuery();
             res.TableName = (TableRef)Visit(context.tableName());
@@ -17,7 +17,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitCreateDefinitions([NotNull] MySqlParser.CreateDefinitionsContext context)
+        public override object VisitCreateDefinitions([NotNull] MsSqlParser.CreateDefinitionsContext context)
         {
             var res = new List<ColumnDefinition>();
             foreach (var createDefinition in context.createDefinition())
@@ -25,14 +25,14 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitColumnDeclaration([NotNull] MySqlParser.ColumnDeclarationContext context)
+        public override object VisitColumnDeclaration([NotNull] MsSqlParser.ColumnDeclarationContext context)
         {
             var res = (ColumnDefinition)Visit(context.columnDefinition());
             res.ColumnName = (Identifier)Visit(context.uid());
             return res;
         }
 
-        public override object VisitColumnDefinition([NotNull] MySqlParser.ColumnDefinitionContext context)
+        public override object VisitColumnDefinition([NotNull] MsSqlParser.ColumnDefinitionContext context)
         {
             var res = (ColumnDefinition)Visit(context.dataType());
             if (context.ENCRYPTED() != null)
@@ -45,12 +45,12 @@ namespace PrismaDB.QueryParser.MySQL
                 res.Nullable = (bool)Visit(context.nullNotnull());
             if (context.DEFAULT() != null)
                 res.DefaultValue = (Expression)Visit(context.defaultValue());
-            else if (context.AUTO_INCREMENT() != null)
+            else if (context.IDENTITY() != null)
                 res.AutoIncrement = true;
             return res;
         }
 
-        public override object VisitAlterTable([NotNull] MySqlParser.AlterTableContext context)
+        public override object VisitAlterTable([NotNull] MsSqlParser.AlterTableContext context)
         {
             var res = new AlterTableQuery();
             res.AlterType = AlterType.MODIFY;
@@ -59,7 +59,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitAlterByModifyColumn([NotNull] MySqlParser.AlterByModifyColumnContext context)
+        public override object VisitAlterByModifyColumn([NotNull] MsSqlParser.AlterByModifyColumnContext context)
         {
             var colDef = (ColumnDefinition)Visit(context.columnDefinition());
             colDef.ColumnName = (Identifier)Visit(context.uid());
@@ -67,7 +67,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitDropTable([NotNull] MySqlParser.DropTableContext context)
+        public override object VisitDropTable([NotNull] MsSqlParser.DropTableContext context)
         {
             var res = new DropTableQuery();
             var tables = (List<TableRef>)Visit(context.tables());

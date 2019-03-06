@@ -23,9 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-parser grammar MySqlParser;
+parser grammar MsSqlParser;
 
-options { tokenVocab=MySqlLexer; }
+options { tokenVocab=MsSqlLexer; }
 
 
 // Top Level Description
@@ -58,7 +58,7 @@ dmlStatement
 
 dclStatement
 	: exportSettingsCommand | updateKeysCommand | encyrptCommand
-    | decryptCommand | registerUserCommand
+    | decryptCommand
 	;
 
 utilityStatement
@@ -92,7 +92,7 @@ columnDefinition
 	nullNotnull?
 	(
 	  ( DEFAULT defaultValue )
-      | AUTO_INCREMENT PRIMARY KEY
+      | IDENTITY '('intLiteral','intLiteral')'
 	)?
     ;
 
@@ -108,7 +108,7 @@ alterTable
 // details
 
 alterSpecification
-    : MODIFY COLUMN?
+    : ALTER COLUMN?
       uid columnDefinition                                          #alterByModifyColumn
     ;
 
@@ -139,8 +139,8 @@ insertStatement
     ;
 
 selectStatement
-    : SELECT selectElements
-      fromClause? whereClause? groupByClause? orderByClause? limitClause?
+    : SELECT topClause? selectElements
+      fromClause? whereClause? groupByClause? orderByClause?
 	;
 
 updateStatement
@@ -230,11 +230,11 @@ groupByItem
     : expression
     ;
 
-limitClause
-    : LIMIT
-    (
+topClause
+    : TOP
+    '('
       limit=intLiteral
-    )
+    ')'
     ;
 
 
@@ -272,11 +272,6 @@ decryptCommand
 	: PRISMADB DECRYPT fullColumnName STATUS?
 	;
 
-registerUserCommand
-	: PRISMADB REGISTER USER
-    user=stringLiteral PASSWORD password=stringLiteral
-	;
-
 
 // Common Clauses
 
@@ -294,13 +289,9 @@ fullColumnName
     : uid dottedId?
     ;
 
-mysqlVariable
-    : GLOBAL_ID
-    ;
-
 uid
     : simpleId
-    | REVERSE_QUOTE_ID
+    | BRACKET_ID
     ;
 
 simpleId
@@ -347,23 +338,21 @@ constant
 
 dataType
     : typeName=(
-      CHAR | VARCHAR | TEXT
+      CHAR | VARCHAR | TEXT | NCHAR | NVARCHAR | NTEXT
       )
       lengthOneDimension?                                           #stringDataType
     | typeName=(
-        TINYINT | SMALLINT | INT | BIGINT | DOUBLE |
-        DATE | TIMESTAMP | DATETIME | BLOB
+        TINYINT | SMALLINT | INT | BIGINT | FLOAT |
+        DATE | DATETIME | UNIQUEIDENTIFIER
       )                                                             #simpleDataType
     | typeName=(
         BINARY | VARBINARY
       )
       lengthOneDimension?                                           #dimensionDataType
-    |  typeName=ENUM
-      '(' stringLiteral (',' stringLiteral)* ')'                    #collectionDataType
     ;
 
 lengthOneDimension
-    : '(' intLiteral ')'
+    : '(' intLiteral ')' | '(' MAX ')'
     ;
 
 lengthTwoDimension
@@ -478,7 +467,6 @@ expressionAtom
     : constant                                                      #constantExpressionAtom
     | fullColumnName                                                #fullColumnNameExpressionAtom
     | functionCall                                                  #functionCallExpressionAtom
-    | mysqlVariable                                                 #mysqlVariableExpressionAtom
     | unaryOperator expressionAtom                                  #unaryExpressionAtom
 	| '(' (expressionAtom) ')'                                      #nestedExpressionAtom
     ;
@@ -505,10 +493,10 @@ mulDivOperator
     ;
 
 keywordsCanBeId
-    : AUTO_INCREMENT | ENCRYPTED | MODIFY
+    : ENCRYPTED
 	| ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
-    | STATUS | REGISTER | USER | PASSWORD ;
+    | STATUS ;
 
 
 

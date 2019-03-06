@@ -1,35 +1,35 @@
 ﻿using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using PrismaDB.QueryAST;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 using System;
 using System.Collections.Generic;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public static class MySqlQueryParser
+    public static class MsSqlQueryParser
     {
         public static List<Query> ParseToAst(String input)
         {
             var inputStream = new AntlrInputStream(input);
-            var sqlLexer = new MySqlLexer(new CaseChangingCharStream(inputStream, true));
+            var sqlLexer = new MsSqlLexer(new CaseChangingCharStream(inputStream, true));
             var tokens = new CommonTokenStream(sqlLexer);
-            var sqlParser = new MySqlParser(tokens);
+            var sqlParser = new MsSqlParser(tokens);
 
-            var visitor = new MySqlVisitor();
+            var visitor = new MsSqlVisitor();
             var res = (List<Query>)visitor.Visit(sqlParser.root());
             return res;
         }
     }
 
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitRoot([NotNull] MySqlParser.RootContext context)
+        public override object VisitRoot([NotNull] MsSqlParser.RootContext context)
         {
             return Visit(context.sqlStatements());
         }
 
-        public override object VisitSqlStatements([NotNull] MySqlParser.SqlStatementsContext context)
+        public override object VisitSqlStatements([NotNull] MsSqlParser.SqlStatementsContext context)
         {
             var queries = new List<Query>();
             foreach (var stmt in context.sqlStatement())

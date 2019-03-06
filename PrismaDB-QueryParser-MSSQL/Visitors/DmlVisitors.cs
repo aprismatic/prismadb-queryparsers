@@ -2,14 +2,14 @@
 using PrismaDB.Commons;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 using System.Collections.Generic;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitInsertStatement([NotNull] MySqlParser.InsertStatementContext context)
+        public override object VisitInsertStatement([NotNull] MsSqlParser.InsertStatementContext context)
         {
             var res = new InsertQuery();
             res.Into = (TableRef)Visit(context.tableName());
@@ -20,7 +20,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSelectStatement([NotNull] MySqlParser.SelectStatementContext context)
+        public override object VisitSelectStatement([NotNull] MsSqlParser.SelectStatementContext context)
         {
             var res = new SelectQuery();
             res.SelectExpressions = (List<Expression>)Visit(context.selectElements());
@@ -36,12 +36,12 @@ namespace PrismaDB.QueryParser.MySQL
                 res.GroupBy = (GroupByClause)Visit(context.groupByClause());
             if (context.orderByClause() != null)
                 res.OrderBy = (OrderByClause)Visit(context.orderByClause());
-            if (context.limitClause() != null)
-                res.Limit = (uint?)Visit(context.limitClause());
+            if (context.topClause() != null)
+                res.Limit = (uint?)Visit(context.topClause());
             return res;
         }
 
-        public override object VisitInsertStatementValue([NotNull] MySqlParser.InsertStatementValueContext context)
+        public override object VisitInsertStatementValue([NotNull] MsSqlParser.InsertStatementValueContext context)
         {
             var res = new List<List<Expression>>();
             foreach (var exps in context.expressions())
@@ -49,7 +49,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitUpdatedElement([NotNull] MySqlParser.UpdatedElementContext context)
+        public override object VisitUpdatedElement([NotNull] MsSqlParser.UpdatedElementContext context)
         {
             var res = new Pair<ColumnRef, Constant>();
             res.First = (ColumnRef)Visit(context.fullColumnName());
@@ -57,7 +57,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSingleDeleteStatement([NotNull] MySqlParser.SingleDeleteStatementContext context)
+        public override object VisitSingleDeleteStatement([NotNull] MsSqlParser.SingleDeleteStatementContext context)
         {
             var res = new DeleteQuery();
             res.DeleteTable = (TableRef)Visit(context.tableName());
@@ -66,7 +66,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSingleUpdateStatement([NotNull] MySqlParser.SingleUpdateStatementContext context)
+        public override object VisitSingleUpdateStatement([NotNull] MsSqlParser.SingleUpdateStatementContext context)
         {
             var res = new UpdateQuery();
             res.UpdateTable = (TableRef)Visit(context.tableName());
@@ -77,7 +77,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitOrderByClause([NotNull] MySqlParser.OrderByClauseContext context)
+        public override object VisitOrderByClause([NotNull] MsSqlParser.OrderByClauseContext context)
         {
             var res = new OrderByClause();
             foreach (var orderByExp in context.orderByExpression())
@@ -85,7 +85,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitOrderByExpression([NotNull] MySqlParser.OrderByExpressionContext context)
+        public override object VisitOrderByExpression([NotNull] MsSqlParser.OrderByExpressionContext context)
         {
             var res = new Pair<ColumnRef, OrderDirection>();
             res.First = (ColumnRef)Visit(context.expression());
@@ -95,7 +95,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitTableSources([NotNull] MySqlParser.TableSourcesContext context)
+        public override object VisitTableSources([NotNull] MsSqlParser.TableSourcesContext context)
         {
             var res = new List<TableRef>();
             foreach (var tableSource in context.tableSourceItem())
@@ -103,7 +103,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitTableSourceItem([NotNull] MySqlParser.TableSourceItemContext context)
+        public override object VisitTableSourceItem([NotNull] MsSqlParser.TableSourceItemContext context)
         {
             var res = (TableRef)Visit(context.tableName());
             if (context.alias != null)
@@ -111,7 +111,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitInnerJoin([NotNull] MySqlParser.InnerJoinContext context)
+        public override object VisitInnerJoin([NotNull] MsSqlParser.InnerJoinContext context)
         {
             var res = new JoinClause();
             res.JoinType = JoinType.INNER;
@@ -127,7 +127,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitOuterJoin([NotNull] MySqlParser.OuterJoinContext context)
+        public override object VisitOuterJoin([NotNull] MsSqlParser.OuterJoinContext context)
         {
             var res = new JoinClause();
             if (context.LEFT() != null)
@@ -144,7 +144,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSelectElements([NotNull] MySqlParser.SelectElementsContext context)
+        public override object VisitSelectElements([NotNull] MsSqlParser.SelectElementsContext context)
         {
             var res = new List<Expression>();
 
@@ -157,12 +157,12 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSelectStarElement([NotNull] MySqlParser.SelectStarElementContext context)
+        public override object VisitSelectStarElement([NotNull] MsSqlParser.SelectStarElementContext context)
         {
             return new AllColumns(((Identifier)Visit(context.uid())).id);
         }
 
-        public override object VisitSelectColumnElement([NotNull] MySqlParser.SelectColumnElementContext context)
+        public override object VisitSelectColumnElement([NotNull] MsSqlParser.SelectColumnElementContext context)
         {
             var res = (ColumnRef)Visit(context.fullColumnName());
             if (context.uid() != null)
@@ -170,7 +170,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSelectFunctionElement([NotNull] MySqlParser.SelectFunctionElementContext context)
+        public override object VisitSelectFunctionElement([NotNull] MsSqlParser.SelectFunctionElementContext context)
         {
             var res = (ScalarFunction)Visit(context.functionCall());
             if (context.uid() != null)
@@ -180,7 +180,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitSelectExpressionElement([NotNull] MySqlParser.SelectExpressionElementContext context)
+        public override object VisitSelectExpressionElement([NotNull] MsSqlParser.SelectExpressionElementContext context)
         {
             var res = (Expression)Visit(context.expression());
             if (context.uid() != null)
@@ -190,7 +190,7 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitFromClause([NotNull] MySqlParser.FromClauseContext context)
+        public override object VisitFromClause([NotNull] MsSqlParser.FromClauseContext context)
         {
             var res = new SelectQuery();
             res.FromTables = (List<TableRef>)Visit(context.tableSources());
@@ -200,12 +200,12 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitWhereClause([NotNull] MySqlParser.WhereClauseContext context)
+        public override object VisitWhereClause([NotNull] MsSqlParser.WhereClauseContext context)
         {
             return ExpressionToCnfWhere(context.whereExpr);
         }
 
-        public override object VisitGroupByClause([NotNull] MySqlParser.GroupByClauseContext context)
+        public override object VisitGroupByClause([NotNull] MsSqlParser.GroupByClauseContext context)
         {
             var res = new GroupByClause();
             foreach (var groupByItem in context.groupByItem())
@@ -213,17 +213,17 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitGroupByItem([NotNull] MySqlParser.GroupByItemContext context)
+        public override object VisitGroupByItem([NotNull] MsSqlParser.GroupByItemContext context)
         {
             return Visit(context.expression());
         }
 
-        public override object VisitLimitClause([NotNull] MySqlParser.LimitClauseContext context)
+        public override object VisitTopClause([NotNull] MsSqlParser.TopClauseContext context)
         {
             return (uint?)((IntConstant)Visit(context.intLiteral())).intvalue;
         }
 
-        public WhereClause ExpressionToCnfWhere(MySqlParser.ExpressionContext context)
+        public WhereClause ExpressionToCnfWhere(MsSqlParser.ExpressionContext context)
         {
             var res = new WhereClause();
             var expr = (Expression)Visit(context);

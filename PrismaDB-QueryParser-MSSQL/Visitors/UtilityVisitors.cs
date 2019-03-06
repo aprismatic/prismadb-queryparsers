@@ -1,23 +1,23 @@
 ﻿using Antlr4.Runtime.Misc;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
-using PrismaDB.QueryParser.MySQL.AntlrGrammer;
+using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
-    public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
+    public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitUseStatement([NotNull] MySqlParser.UseStatementContext context)
+        public override object VisitUseStatement([NotNull] MsSqlParser.UseStatementContext context)
         {
             return new UseStatement((DatabaseRef)Visit(context.databaseName()));
         }
 
-        public override object VisitShowTablesStatement([NotNull] MySqlParser.ShowTablesStatementContext context)
+        public override object VisitShowTablesStatement([NotNull] MsSqlParser.ShowTablesStatementContext context)
         {
             return new ShowTablesQuery();
         }
 
-        public override object VisitShowColumnsStatement([NotNull] MySqlParser.ShowColumnsStatementContext context)
+        public override object VisitShowColumnsStatement([NotNull] MsSqlParser.ShowColumnsStatementContext context)
         {
             return new ShowColumnsQuery((TableRef)Visit(context.tableName()));
         }

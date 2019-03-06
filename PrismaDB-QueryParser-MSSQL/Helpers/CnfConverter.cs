@@ -1,6 +1,6 @@
 ﻿using PrismaDB.QueryAST.DML;
 
-namespace PrismaDB.QueryParser.MySQL
+namespace PrismaDB.QueryParser.MSSQL
 {
     public static class CnfConverter
     {
