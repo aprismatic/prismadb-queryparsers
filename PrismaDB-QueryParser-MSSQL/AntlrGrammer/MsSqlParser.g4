@@ -231,10 +231,11 @@ groupByItem
     ;
 
 topClause
-    : TOP
-    '('
-      limit=intLiteral
-    ')'
+    : TOP 
+      (
+        '(' limit=intLiteral ')'
+        | limit=intLiteral
+      )
     ;
 
 
