@@ -26,6 +26,8 @@ namespace PrismaDB.QueryParser.MSSQL
     {
         public override object VisitRoot([NotNull] MsSqlParser.RootContext context)
         {
+            if (context.sqlStatements() == null)
+                return new List<Query>();
             return Visit(context.sqlStatements());
         }
 
