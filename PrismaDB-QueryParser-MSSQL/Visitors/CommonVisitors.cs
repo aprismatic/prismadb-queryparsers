@@ -257,6 +257,8 @@ namespace PrismaDB.QueryParser.MSSQL
                 return new CountAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
             else if (context.scalarFunctionName().AVG() != null)
                 return new AvgAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
+            else if (context.scalarFunctionName().STDEV() != null)
+                return new StDevAggregationFunction(context.scalarFunctionName().GetText(), parameters: (List<Expression>)Visit(context.functionArgs()));
 
             var res = new ScalarFunction(context.scalarFunctionName().GetText());
             if (context.functionArgs() != null)

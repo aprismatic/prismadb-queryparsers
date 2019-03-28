@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using PrismaDB.QueryAST.DML;
+﻿using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryAST.Result;
+using System;
+using System.Collections.Generic;
 
 namespace PrismaDB.QueryParser.MSSQL
 {

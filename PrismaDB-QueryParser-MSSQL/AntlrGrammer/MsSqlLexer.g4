@@ -143,6 +143,7 @@ MAX:                                 'MAX';
 GETDATE:                             'GETDATE';
 GETUTCDATE:                          'GETUTCDATE';
 DATEDIFF:                            'DATEDIFF';
+STDEV:                               'STDEV';
 
 
 // Common function Keywords

@@ -416,7 +416,7 @@ specificFunction
 
 scalarFunctionName
     : SUM | AVG | ABS | COUNT | MIN | MAX
-    | GETDATE | GETUTCDATE | DATEDIFF
+    | GETDATE | GETUTCDATE | DATEDIFF | STDEV
     ;
 
 functionArgs
