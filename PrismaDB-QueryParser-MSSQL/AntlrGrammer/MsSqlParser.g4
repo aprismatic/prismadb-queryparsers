@@ -188,7 +188,7 @@ tableSources
     ;
 
 tableSourceItem
-    : tableName
+    : (tableName | '(' selectStatement ')')
       (AS? alias=uid)?
     ;
 

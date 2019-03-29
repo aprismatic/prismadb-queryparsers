@@ -28,6 +28,7 @@ namespace PrismaDB.QueryParser.MSSQL
             {
                 var from = (SelectQuery)Visit(context.fromClause());
                 res.FromTables = from.FromTables;
+                res.FromSubQueries = from.FromSubQueries;
                 res.Joins = from.Joins;
             }
             if (context.whereClause() != null)
@@ -97,18 +98,30 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitTableSources([NotNull] MsSqlParser.TableSourcesContext context)
         {
-            var res = new List<TableRef>();
+            var res = new List<object>();
             foreach (var tableSource in context.tableSourceItem())
-                res.Add((TableRef)Visit(tableSource));
+                res.Add(Visit(tableSource));
             return res;
         }
 
         public override object VisitTableSourceItem([NotNull] MsSqlParser.TableSourceItemContext context)
         {
-            var res = (TableRef)Visit(context.tableName());
-            if (context.alias != null)
-                res.Alias = (Identifier)Visit(context.uid());
-            return res;
+            if (context.tableName() != null)
+            {
+                var res = (TableRef)Visit(context.tableName());
+                if (context.alias != null)
+                    res.Alias = (Identifier)Visit(context.uid());
+                return res;
+            }
+            else if (context.selectStatement() != null)
+            {
+                var res = new SelectSubQuery();
+                res.Select = (SelectQuery)Visit(context.selectStatement());
+                if (context.alias != null)
+                    res.Alias = (Identifier)Visit(context.uid());
+                return res;
+            }
+            return null;
         }
 
         public override object VisitInnerJoin([NotNull] MsSqlParser.InnerJoinContext context)
@@ -193,7 +206,13 @@ namespace PrismaDB.QueryParser.MSSQL
         public override object VisitFromClause([NotNull] MsSqlParser.FromClauseContext context)
         {
             var res = new SelectQuery();
-            res.FromTables = (List<TableRef>)Visit(context.tableSources());
+            foreach (var source in (List<object>)Visit(context.tableSources()))
+            {
+                if (source is TableRef tableRef)
+                    res.FromTables.Add(tableRef);
+                else if (source is SelectSubQuery selectSubQuery)
+                    res.FromSubQueries.Add(selectSubQuery);
+            }
             res.Joins = new List<JoinClause>();
             foreach (var joinPart in context.joinPart())
                 res.Joins.Add((JoinClause)Visit(joinPart));
