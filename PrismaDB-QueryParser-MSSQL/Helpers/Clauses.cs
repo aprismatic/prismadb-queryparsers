@@ -15,17 +15,15 @@ namespace PrismaDB.QueryParser.MSSQL
             this.right = right;
         }
 
-        public override object Clone()
-        {
-            return new AndClause((Expression)left.Clone(), (Expression)right.Clone());
-        }
+        public override object Clone() => new AndClause((Expression)left.Clone(), (Expression)right.Clone());
 
-        public override bool Equals(object other) { throw new NotImplementedException(); }
-        public override object Eval(ResultRow r) { throw new NotImplementedException(); }
-        public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
-        public override int GetHashCode() { throw new NotImplementedException(); }
-        public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
-        public override string ToString() { throw new NotImplementedException(); }
+        public override bool Equals(object other) => throw new NotImplementedException();
+        public override object Eval(ResultRow r) => throw new NotImplementedException();
+        public override List<ColumnRef> GetColumns() => throw new NotImplementedException();
+        public override int GetHashCode() => throw new NotImplementedException();
+        public override List<ColumnRef> GetNoCopyColumns() => throw new NotImplementedException();
+        public override bool UpdateChild(Expression child, Expression newChild) => throw new NotImplementedException();
+        public override string ToString() => throw new NotImplementedException();
     }
 
     internal class OrClause : Expression
@@ -38,16 +36,14 @@ namespace PrismaDB.QueryParser.MSSQL
             this.right = right;
         }
 
-        public override object Clone()
-        {
-            return new OrClause((Expression)left.Clone(), (Expression)right.Clone());
-        }
+        public override object Clone() => new OrClause((Expression)left.Clone(), (Expression)right.Clone());
 
-        public override bool Equals(object other) { throw new NotImplementedException(); }
-        public override object Eval(ResultRow r) { throw new NotImplementedException(); }
-        public override List<ColumnRef> GetColumns() { throw new NotImplementedException(); }
-        public override int GetHashCode() { throw new NotImplementedException(); }
-        public override List<ColumnRef> GetNoCopyColumns() { throw new NotImplementedException(); }
-        public override string ToString() { throw new NotImplementedException(); }
+        public override bool Equals(object other) => throw new NotImplementedException();
+        public override object Eval(ResultRow r) => throw new NotImplementedException();
+        public override List<ColumnRef> GetColumns() => throw new NotImplementedException();
+        public override int GetHashCode() => throw new NotImplementedException();
+        public override List<ColumnRef> GetNoCopyColumns() => throw new NotImplementedException();
+        public override bool UpdateChild(Expression child, Expression newChild) => throw new NotImplementedException();
+        public override string ToString() => throw new NotImplementedException();
     }
 }
