@@ -1,9 +1,9 @@
 ﻿using Antlr4.Runtime.Misc;
+using PrismaDB.Commons;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
-using System;
 using System.Collections.Generic;
 
 namespace PrismaDB.QueryParser.MSSQL
@@ -49,7 +49,7 @@ namespace PrismaDB.QueryParser.MSSQL
             else if (context.IDENTITY() != null)
             {
                 if (context.seed.GetText() != "1" || context.increment.GetText() != "1")
-                    throw new ApplicationException("IDENTITY currently only supports seed and increment value of 1");
+                    throw new PrismaParserException("IDENTITY currently only supports seed and increment value of 1.");
                 res.AutoIncrement = true;
             }
             return res;

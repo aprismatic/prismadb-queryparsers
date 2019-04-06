@@ -1,8 +1,8 @@
 ﻿using Antlr4.Runtime.Misc;
-using PrismaDB.Commons;
 using PrismaDB.QueryAST;
 using PrismaDB.QueryAST.DML;
 using PrismaDB.QueryParser.MSSQL.AntlrGrammer;
+using System;
 using System.Collections.Generic;
 
 namespace PrismaDB.QueryParser.MSSQL
@@ -52,10 +52,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitUpdatedElement([NotNull] MsSqlParser.UpdatedElementContext context)
         {
-            var res = new Pair<ColumnRef, Constant>();
-            res.First = (ColumnRef)Visit(context.fullColumnName());
-            res.Second = (Constant)Visit(context.expression());
-            return res;
+            return new Tuple<ColumnRef, Constant>((ColumnRef)Visit(context.fullColumnName()), (Constant)Visit(context.expression()));
         }
 
         public override object VisitSingleDeleteStatement([NotNull] MsSqlParser.SingleDeleteStatementContext context)
@@ -72,7 +69,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var res = new UpdateQuery();
             res.UpdateTable = (TableRef)Visit(context.tableName());
             foreach (var updatedElement in context.updatedElement())
-                res.UpdateExpressions.Add((Pair<ColumnRef, Constant>)Visit(updatedElement));
+                res.UpdateExpressions.Add((Tuple<ColumnRef, Constant>)Visit(updatedElement));
             if (context.expression() != null)
                 res.Where = ExpressionToCnfWhere(context.expression());
             return res;
@@ -82,18 +79,16 @@ namespace PrismaDB.QueryParser.MSSQL
         {
             var res = new OrderByClause();
             foreach (var orderByExp in context.orderByExpression())
-                res.OrderColumns.Add((Pair<ColumnRef, OrderDirection>)Visit(orderByExp));
+                res.OrderColumns.Add((Tuple<ColumnRef, OrderDirection>)Visit(orderByExp));
             return res;
         }
 
         public override object VisitOrderByExpression([NotNull] MsSqlParser.OrderByExpressionContext context)
         {
-            var res = new Pair<ColumnRef, OrderDirection>();
-            res.First = (ColumnRef)Visit(context.expression());
-            res.Second = OrderDirection.ASC;
             if (context.DESC() != null)
-                res.Second = OrderDirection.DESC;
-            return res;
+                return new Tuple<ColumnRef, OrderDirection>((ColumnRef)Visit(context.expression()), OrderDirection.DESC);
+
+            return new Tuple<ColumnRef, OrderDirection>((ColumnRef)Visit(context.expression()), OrderDirection.ASC);
         }
 
         public override object VisitTableSources([NotNull] MsSqlParser.TableSourcesContext context)

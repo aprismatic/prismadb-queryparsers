@@ -318,12 +318,12 @@ namespace ParserTests
             Assert.Equal(new ColumnRef("t", "a"), actual.GroupBy.GetColumns()[0]);
             Assert.Equal(new ColumnRef("b"), actual.GroupBy.GetColumns()[1]);
 
-            Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].First.ColumnName);
-            Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].First.ColumnName);
-            Assert.Equal(new Identifier("c"), actual.OrderBy.OrderColumns[2].First.ColumnName);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[0].Second);
-            Assert.Equal(OrderDirection.DESC, actual.OrderBy.OrderColumns[1].Second);
-            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[2].Second);
+            Assert.Equal(new Identifier("a"), actual.OrderBy.OrderColumns[0].Item1.ColumnName);
+            Assert.Equal(new Identifier("b"), actual.OrderBy.OrderColumns[1].Item1.ColumnName);
+            Assert.Equal(new Identifier("c"), actual.OrderBy.OrderColumns[2].Item1.ColumnName);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[0].Item2);
+            Assert.Equal(OrderDirection.DESC, actual.OrderBy.OrderColumns[1].Item2);
+            Assert.Equal(OrderDirection.ASC, actual.OrderBy.OrderColumns[2].Item2);
         }
 
         [Fact(DisplayName = "Parse USE")]
@@ -497,8 +497,8 @@ namespace ParserTests
             var result = MsSqlQueryParser.ParseToAst(test)[0] as UpdateQuery;
 
             // Assert
-            Assert.IsType<ColumnRef>(result.UpdateExpressions[0].First);
-            Assert.IsType<NullConstant>(result.UpdateExpressions[0].Second);
+            Assert.IsType<ColumnRef>(result.UpdateExpressions[0].Item1);
+            Assert.IsType<NullConstant>(result.UpdateExpressions[0].Item2);
         }
 
         [Fact(DisplayName = "Parse operators")]
