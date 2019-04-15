@@ -168,6 +168,9 @@ namespace PrismaDB.QueryParser.MSSQL
                 case "UNIQUEIDENTIFIER":
                     res.DataType = SqlDataType.MSSQL_UNIQUEIDENTIFIER;
                     break;
+                case "DECIMAL":
+                    res.DataType = SqlDataType.MSSQL_DECIMAL;
+                    break;
             }
             return res;
         }

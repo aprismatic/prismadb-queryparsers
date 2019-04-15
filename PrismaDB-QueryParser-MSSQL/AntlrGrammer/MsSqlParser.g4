@@ -344,7 +344,7 @@ dataType
       lengthOneDimension?                                           #stringDataType
     | typeName=(
         TINYINT | SMALLINT | INT | BIGINT | FLOAT |
-        DATE | DATETIME | UNIQUEIDENTIFIER
+        DATE | DATETIME | UNIQUEIDENTIFIER | DECIMAL
       )                                                             #simpleDataType
     | typeName=(
         BINARY | VARBINARY

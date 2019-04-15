@@ -50,6 +50,7 @@ COLUMN:                              'COLUMN';
 COLUMNS:                             'COLUMNS';
 CREATE:                              'CREATE';
 CROSS:                               'CROSS';
+DECIMAL:                             'DECIMAL';
 DEFAULT:                             'DEFAULT';
 DELETE:                              'DELETE';
 DESC:                                'DESC';
