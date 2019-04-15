@@ -142,6 +142,8 @@ namespace PrismaDB.QueryParser.MSSQL
                 res.JoinType = JoinType.LEFT_OUTER;
             else if (context.RIGHT() != null)
                 res.JoinType = JoinType.RIGHT_OUTER;
+            else if (context.FULL() != null)
+                res.JoinType = JoinType.FULL_OUTER;
             res.JoinTable = (TableRef)Visit(context.tableSourceItem());
             if (context.ON() != null)
             {

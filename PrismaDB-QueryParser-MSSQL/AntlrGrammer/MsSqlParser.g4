@@ -197,7 +197,7 @@ joinPart
       (
         ON expression
       )?                                                            #innerJoin
-    | (LEFT | RIGHT) OUTER? JOIN tableSourceItem
+    | (LEFT | RIGHT | FULL) OUTER? JOIN tableSourceItem
         (
           ON expression
         )                                                           #outerJoin
@@ -344,7 +344,7 @@ dataType
       lengthOneDimension?                                           #stringDataType
     | typeName=(
         TINYINT | SMALLINT | INT | BIGINT | FLOAT |
-        DATE | DATETIME | UNIQUEIDENTIFIER
+        DATE | DATETIME | UNIQUEIDENTIFIER | DECIMAL
       )                                                             #simpleDataType
     | typeName=(
         BINARY | VARBINARY

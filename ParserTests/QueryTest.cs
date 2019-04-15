@@ -268,7 +268,7 @@ namespace ParserTests
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
             Assert.Equal(3, actual.Values.Count);
             Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
-            Assert.Equal(12.345m, (actual.Values[0][1] as FloatingPointConstant)?.floatvalue);
+            Assert.Equal(12.345m, (actual.Values[0][1] as DecimalConstant)?.decimalvalue);
             Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
             Assert.Equal(3147483647, (actual.Values[1][2] as IntConstant)?.intvalue);
             Assert.Equal("  ", (actual.Values[1][3] as StringConstant)?.strvalue);
