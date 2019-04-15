@@ -57,6 +57,7 @@ DROP:                                'DROP';
 ESCAPE:                              'ESCAPE';
 FOR:                                 'FOR';
 FROM:                                'FROM';
+FULL:                                'FULL';
 GROUP:                               'GROUP';
 IDENTITY:                            'IDENTITY';
 IN:                                  'IN';
