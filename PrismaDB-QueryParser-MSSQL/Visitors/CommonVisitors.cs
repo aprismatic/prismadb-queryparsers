@@ -263,6 +263,8 @@ namespace PrismaDB.QueryParser.MSSQL
                 res = new AvgAggregationFunction(context.scalarFunctionName().GetText());
             else if (context.scalarFunctionName().STDEV() != null)
                 res = new StDevAggregationFunction(context.scalarFunctionName().GetText());
+            else if (context.scalarFunctionName().LINREG() != null)
+                res = new LinRegFunction(context.scalarFunctionName().GetText());
             else
                 res = new ScalarFunction(context.scalarFunctionName().GetText());
 

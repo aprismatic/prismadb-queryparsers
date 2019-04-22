@@ -146,7 +146,7 @@ GETDATE:                             'GETDATE';
 GETUTCDATE:                          'GETUTCDATE';
 DATEDIFF:                            'DATEDIFF';
 STDEV:                               'STDEV';
-
+LINREG:                              'LINREG';
 
 // Common function Keywords
 
