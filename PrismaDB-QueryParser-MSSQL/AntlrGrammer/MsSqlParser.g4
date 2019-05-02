@@ -184,23 +184,24 @@ orderByExpression
     ;
 
 tableSources
-    : tableSourceItem (',' tableSourceItem)*
+    : tableSource (',' tableSource)*
+    ;
+
+tableSource
+    : tableSourceItem joinPart*
     ;
 
 tableSourceItem
-    : (tableName | '(' selectStatement ')')
-      (AS? alias=uid)?
+    : tableName (AS? alias=uid)?                                    #atomTableItem
+    | '(' selectStatement ')'
+      AS? alias=uid                                                 #subqueryTableItem
     ;
 
 joinPart
     : (INNER | CROSS)? JOIN tableSourceItem
-      (
-        ON expression
-      )?                                                            #innerJoin
+        (ON expression)?                                            #innerJoin
     | (LEFT | RIGHT | FULL) OUTER? JOIN tableSourceItem
-        (
-          ON expression
-        )                                                           #outerJoin
+        (ON expression)                                             #outerJoin
     ;
 
 selectElements
@@ -215,7 +216,7 @@ selectElement
     ;
 
 fromClause
-    : FROM tableSources joinPart*
+    : FROM tableSources
     ;
 
 whereClause

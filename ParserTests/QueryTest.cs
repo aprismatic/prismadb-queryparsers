@@ -370,37 +370,37 @@ namespace ParserTests
                 var actual = (SelectQuery)result[0];
                 Assert.Equal(new ColumnRef("tt1", "a", "abc"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1", AliasName: "table1"), actual.FromTables[0]);
-                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Equal(new ColumnRef("table1", "c"), actual.Joins[0].FirstColumn);
-                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
-                Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
+                Assert.Equal(new TableRef("tt1", AliasName: "table1"), ((TableSource)actual.From.Sources[0].FirstTable).Table);
+                Assert.Equal(new TableRef("tt2"), ((TableSource)actual.From.Sources[0].JoinedTables[0].SecondTable).Table);
+                Assert.Equal(new ColumnRef("table1", "c"), actual.From.Sources[0].JoinedTables[0].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.From.Sources[0].JoinedTables[0].SecondColumn);
+                Assert.Equal(JoinType.INNER, actual.From.Sources[0].JoinedTables[0].JoinType);
             }
             {
                 var actual = (SelectQuery)result[1];
                 Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
-                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Equal(new ColumnRef("tt1", "c"), actual.Joins[0].FirstColumn);
-                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[0].SecondColumn);
+                Assert.Equal(new TableRef("tt1"), ((TableSource)actual.From.Sources[0].FirstTable).Table);
+                Assert.Equal(new TableRef("tt2"), ((TableSource)actual.From.Sources[0].JoinedTables[0].SecondTable).Table);
+                Assert.Equal(new ColumnRef("tt1", "c"), actual.From.Sources[0].JoinedTables[0].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.From.Sources[0].JoinedTables[0].SecondColumn);
                 Assert.Equal(new ColumnRef("tt1", "a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
                 Assert.Equal(new IntConstant(123), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
-                Assert.Equal(JoinType.INNER, actual.Joins[0].JoinType);
+                Assert.Equal(JoinType.INNER, actual.From.Sources[0].JoinedTables[0].JoinType);
             }
             {
                 var actual = (SelectQuery)result[2];
                 Assert.Equal(new ColumnRef("tt1", "a"), actual.SelectExpressions[0]);
                 Assert.Equal(new ColumnRef("tt2", "b"), actual.SelectExpressions[1]);
-                Assert.Equal(new TableRef("tt1"), actual.FromTables[0]);
-                Assert.Equal(new TableRef("tt2"), actual.Joins[0].JoinTable);
-                Assert.Empty(actual.Joins[0].GetColumns());
-                Assert.Equal(JoinType.CROSS, actual.Joins[0].JoinType);
-                Assert.Equal(new TableRef("tt3"), actual.Joins[1].JoinTable);
-                Assert.Equal(new ColumnRef("tt3", "c"), actual.Joins[1].FirstColumn);
-                Assert.Equal(new ColumnRef("tt2", "c"), actual.Joins[1].SecondColumn);
-                Assert.Equal(2, actual.Joins[1].GetColumns().Count);
-                Assert.Equal(JoinType.LEFT_OUTER, actual.Joins[1].JoinType);
+                Assert.Equal(new TableRef("tt1"), ((TableSource)actual.From.Sources[0].FirstTable).Table);
+                Assert.Equal(new TableRef("tt2"), ((TableSource)actual.From.Sources[0].JoinedTables[0].SecondTable).Table);
+                Assert.Empty(actual.From.Sources[0].JoinedTables[0].GetColumns());
+                Assert.Equal(JoinType.CROSS, actual.From.Sources[0].JoinedTables[0].JoinType);
+                Assert.Equal(new TableRef("tt3"), ((TableSource)actual.From.Sources[0].JoinedTables[1].SecondTable).Table);
+                Assert.Equal(new ColumnRef("tt3", "c"), actual.From.Sources[0].JoinedTables[1].FirstColumn);
+                Assert.Equal(new ColumnRef("tt2", "c"), actual.From.Sources[0].JoinedTables[1].SecondColumn);
+                Assert.Equal(2, actual.From.Sources[0].JoinedTables[1].GetColumns().Count);
+                Assert.Equal(JoinType.LEFT_OUTER, actual.From.Sources[0].JoinedTables[1].JoinType);
             }
         }
 
@@ -567,21 +567,22 @@ namespace ParserTests
                        "SELECT a, b, c FROM ss, (SELECT z FROM tt) AS t, uu as u;";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var results = MsSqlQueryParser.ParseToAst(test);
 
-            Assert.Single(((SelectQuery)result[0]).FromSubQueries);
-            Assert.Equal("t", ((SelectQuery)result[0]).FromSubQueries[0].Alias.id);
-            Assert.Equal("tt", ((SelectQuery)result[0]).FromSubQueries[0].Select.FromTables[0].Table.id);
-            Assert.Single(((SelectQuery)result[0]).FromSubQueries[0].Select.SelectExpressions);
+            var result1 = results[0] as SelectQuery;
+            Assert.Single(result1.From.Sources);
+            Assert.Equal("t", ((SelectSubQuery)result1.From.Sources[0].FirstTable).Alias.id);
+            Assert.Equal("tt", ((TableSource)((SelectSubQuery)result1.From.Sources[0].FirstTable).Select.From.Sources[0].FirstTable).Table.Table.id);
+            Assert.Single(((SelectSubQuery)result1.From.Sources[0].FirstTable).Select.SelectExpressions);
 
-            Assert.Single(((SelectQuery)result[1]).FromSubQueries);
-            Assert.Equal(2, ((SelectQuery)result[1]).FromTables.Count);
-            Assert.Equal("t", ((SelectQuery)result[1]).FromSubQueries[0].Alias.id);
-            Assert.Equal("tt", ((SelectQuery)result[1]).FromSubQueries[0].Select.FromTables[0].Table.id);
-            Assert.Single(((SelectQuery)result[1]).FromSubQueries[0].Select.SelectExpressions);
-            Assert.Equal("ss", ((SelectQuery)result[1]).FromTables[0].Table.id);
-            Assert.Equal("uu", ((SelectQuery)result[1]).FromTables[1].Table.id);
-            Assert.Equal("u", ((SelectQuery)result[1]).FromTables[1].Alias.id);
+            var result2 = results[1] as SelectQuery;
+            Assert.Equal(3, result2.From.Sources.Count);
+            Assert.Equal("t", ((SelectSubQuery)result2.From.Sources[1].FirstTable).Alias.id);
+            Assert.Equal("tt", ((TableSource)((SelectSubQuery)result2.From.Sources[1].FirstTable).Select.From.Sources[0].FirstTable).Table.Table.id);
+            Assert.Single(((SelectSubQuery)result2.From.Sources[1].FirstTable).Select.SelectExpressions);
+            Assert.Equal("ss", ((TableSource)result2.From.Sources[0].FirstTable).Table.Table.id);
+            Assert.Equal("uu", ((TableSource)result2.From.Sources[2].FirstTable).Table.Table.id);
+            Assert.Equal("u", ((TableSource)result2.From.Sources[2].FirstTable).Table.Alias.id);
         }
     }
 }

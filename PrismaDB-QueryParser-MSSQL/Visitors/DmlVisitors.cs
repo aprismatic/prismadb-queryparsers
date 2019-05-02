@@ -25,12 +25,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var res = new SelectQuery();
             res.SelectExpressions = (List<Expression>)Visit(context.selectElements());
             if (context.fromClause() != null)
-            {
-                var from = (SelectQuery)Visit(context.fromClause());
-                res.FromTables = from.FromTables;
-                res.FromSubQueries = from.FromSubQueries;
-                res.Joins = from.Joins;
-            }
+                res.From = (FromClause)Visit(context.fromClause());
             if (context.whereClause() != null)
                 res.Where = (WhereClause)Visit(context.whereClause());
             if (context.groupByClause() != null)
@@ -93,39 +88,45 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitTableSources([NotNull] MsSqlParser.TableSourcesContext context)
         {
-            var res = new List<object>();
-            foreach (var tableSource in context.tableSourceItem())
-                res.Add(Visit(tableSource));
+            var res = new List<FromSource>();
+            foreach (var tableSource in context.tableSource())
+                res.Add((FromSource)Visit(tableSource));
             return res;
         }
 
-        public override object VisitTableSourceItem([NotNull] MsSqlParser.TableSourceItemContext context)
+        public override object VisitTableSource([NotNull] MsSqlParser.TableSourceContext context)
         {
-            if (context.tableName() != null)
-            {
-                var res = (TableRef)Visit(context.tableName());
-                if (context.alias != null)
-                    res.Alias = (Identifier)Visit(context.uid());
-                return res;
-            }
-            else if (context.selectStatement() != null)
-            {
-                var res = new SelectSubQuery();
-                res.Select = (SelectQuery)Visit(context.selectStatement());
-                if (context.alias != null)
-                    res.Alias = (Identifier)Visit(context.uid());
-                return res;
-            }
-            return null;
+            var res = new FromSource();
+            res.FirstTable = (SingleTable)Visit(context.tableSourceItem());
+            foreach (var joinedTable in context.joinPart())
+                res.JoinedTables.Add((JoinedTable)Visit(joinedTable));
+            return res;
+        }
+
+        public override object VisitAtomTableItem([NotNull] MsSqlParser.AtomTableItemContext context)
+        {
+            var res = new TableSource();
+            res.Table = (TableRef)Visit(context.tableName());
+            if (context.alias != null)
+                res.Table.Alias = (Identifier)Visit(context.alias);
+            return res;
+        }
+
+        public override object VisitSubqueryTableItem([NotNull] MsSqlParser.SubqueryTableItemContext context)
+        {
+            var res = new SelectSubQuery();
+            res.Select = (SelectQuery)Visit(context.selectStatement());
+            res.Alias = (Identifier)Visit(context.alias);
+            return res;
         }
 
         public override object VisitInnerJoin([NotNull] MsSqlParser.InnerJoinContext context)
         {
-            var res = new JoinClause();
+            var res = new JoinedTable();
             res.JoinType = JoinType.INNER;
             if (context.CROSS() != null)
                 res.JoinType = JoinType.CROSS;
-            res.JoinTable = (TableRef)Visit(context.tableSourceItem());
+            res.SecondTable = (SingleTable)Visit(context.tableSourceItem());
             if (context.ON() != null)
             {
                 var exp = (BooleanEquals)Visit(context.expression());
@@ -137,14 +138,14 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitOuterJoin([NotNull] MsSqlParser.OuterJoinContext context)
         {
-            var res = new JoinClause();
+            var res = new JoinedTable();
             if (context.LEFT() != null)
                 res.JoinType = JoinType.LEFT_OUTER;
             else if (context.RIGHT() != null)
                 res.JoinType = JoinType.RIGHT_OUTER;
             else if (context.FULL() != null)
                 res.JoinType = JoinType.FULL_OUTER;
-            res.JoinTable = (TableRef)Visit(context.tableSourceItem());
+            res.SecondTable = (SingleTable)Visit(context.tableSourceItem());
             if (context.ON() != null)
             {
                 var exp = (BooleanEquals)Visit(context.expression());
@@ -202,17 +203,8 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitFromClause([NotNull] MsSqlParser.FromClauseContext context)
         {
-            var res = new SelectQuery();
-            foreach (var source in (List<object>)Visit(context.tableSources()))
-            {
-                if (source is TableRef tableRef)
-                    res.FromTables.Add(tableRef);
-                else if (source is SelectSubQuery selectSubQuery)
-                    res.FromSubQueries.Add(selectSubQuery);
-            }
-            res.Joins = new List<JoinClause>();
-            foreach (var joinPart in context.joinPart())
-                res.Joins.Add((JoinClause)Visit(joinPart));
+            var res = new FromClause();
+            res.Sources = (List<FromSource>)Visit(context.tableSources());
             return res;
         }
 
