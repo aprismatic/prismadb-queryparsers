@@ -274,6 +274,10 @@ decryptCommand
     : PRISMADB DECRYPT fullColumnName STATUS?
     ;
 
+rebalanceOpetreeCommand
+    : PRISMADB REBALANCE OPETREE
+    ;
+
 
 // Common Clauses
 

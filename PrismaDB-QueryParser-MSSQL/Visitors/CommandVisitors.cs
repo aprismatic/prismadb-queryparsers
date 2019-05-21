@@ -41,5 +41,10 @@ namespace PrismaDB.QueryParser.MSSQL
                 res.StatusCheck = true;
             return res;
         }
+
+        public override object VisitRebalanceOpetreeCommand([NotNull] MsSqlParser.RebalanceOpetreeCommandContext context)
+        {
+            return new RebalanceOpetreeCommand();
+        }
     }
 }

@@ -132,6 +132,8 @@ KEYS:                                'KEYS';
 ENCRYPT:                             'ENCRYPT';
 DECRYPT:                             'DECRYPT';
 STATUS:                              'STATUS';
+REBALANCE:                           'REBALANCE';
+OPETREE:                             'OPETREE';
 
 
 // Common function names
