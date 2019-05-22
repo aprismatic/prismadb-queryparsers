@@ -89,6 +89,7 @@ UPDATE:                              'UPDATE';
 USE:                                 'USE';
 VALUES:                              'VALUES';
 WHERE:                               'WHERE';
+WITH:                                'WITH';
 
 
 // DATA TYPE Keywords
