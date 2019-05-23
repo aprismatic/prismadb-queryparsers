@@ -94,6 +94,7 @@ columnDefinition
       ( DEFAULT defaultValue )
       | IDENTITY '(' seed=intLiteral ',' increment=intLiteral ')'
     )?
+    ( PRIMARY KEY )?
     ;
 
 

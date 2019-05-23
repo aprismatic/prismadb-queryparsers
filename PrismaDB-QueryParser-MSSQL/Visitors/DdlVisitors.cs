@@ -52,6 +52,8 @@ namespace PrismaDB.QueryParser.MSSQL
                     throw new PrismaParserException("IDENTITY currently only supports seed and increment value of 1.");
                 res.AutoIncrement = true;
             }
+            if (context.PRIMARY() != null)
+                res.PrimaryKey = true;
             return res;
         }
 
