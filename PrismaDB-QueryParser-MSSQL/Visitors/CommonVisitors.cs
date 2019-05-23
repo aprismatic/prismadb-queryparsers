@@ -355,19 +355,11 @@ namespace PrismaDB.QueryParser.MSSQL
                 case ">":
                     return new BooleanGreaterThan((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "<":
-                    return new BooleanGreaterThan((Expression)Visit(context.right), (Expression)Visit(context.left));
+                    return new BooleanLessThan((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case ">=":
-                    {
-                        var exprLeft = new BooleanGreaterThan((Expression)Visit(context.left), (Expression)Visit(context.right));
-                        var exprRight = new BooleanEquals((Expression)Visit(context.left), (Expression)Visit(context.right));
-                        return new OrClause(exprLeft, exprRight);
-                    }
+                    return new BooleanGreaterThanEquals((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "<=":
-                    {
-                        var exprLeft = new BooleanGreaterThan((Expression)Visit(context.right), (Expression)Visit(context.left));
-                        var exprRight = new BooleanEquals((Expression)Visit(context.right), (Expression)Visit(context.left));
-                        return new OrClause(exprLeft, exprRight);
-                    }
+                    return new BooleanLessThanEquals((Expression)Visit(context.left), (Expression)Visit(context.right));
                 case "<>":
                 case "!=":
                     return new BooleanEquals((Expression)Visit(context.left), (Expression)Visit(context.right), true);

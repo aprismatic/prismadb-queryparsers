@@ -280,6 +280,7 @@ rebalanceOpetreeCommand
       (
         WITH VALUES '(' constants ')'
       )?
+	  STATUS?
     ;
 
 
