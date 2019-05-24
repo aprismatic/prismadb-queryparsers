@@ -110,6 +110,7 @@ BINARY:                              'BINARY';
 VARBINARY:                           'VARBINARY';
 TEXT:                                'TEXT';
 NTEXT:                               'NTEXT';
+IMAGE:                               'IMAGE';
 UNIQUEIDENTIFIER:                    'UNIQUEIDENTIFIER';
 
 

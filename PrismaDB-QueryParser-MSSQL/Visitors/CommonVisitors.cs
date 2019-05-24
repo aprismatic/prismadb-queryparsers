@@ -171,6 +171,9 @@ namespace PrismaDB.QueryParser.MSSQL
                 case "DECIMAL":
                     res.DataType = SqlDataType.MSSQL_DECIMAL;
                     break;
+                case "IMAGE":
+                    res.DataType = SqlDataType.MSSQL_IMAGE;
+                    break;
             }
             return res;
         }
