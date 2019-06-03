@@ -58,7 +58,7 @@ dmlStatement
 
 dclStatement
     : exportSettingsCommand | updateKeysCommand | encryptCommand
-    | decryptCommand | rebalanceOpetreeCommand
+    | decryptCommand | rebalanceOpetreeCommand | saveOpetreeCommand
     ;
 
 utilityStatement
@@ -281,6 +281,10 @@ rebalanceOpetreeCommand
         WITH VALUES '(' constants ')'
       )?
 	  STATUS?
+    ;
+
+saveOpetreeCommand
+    : PRISMADB SAVE OPETREE
     ;
 
 
