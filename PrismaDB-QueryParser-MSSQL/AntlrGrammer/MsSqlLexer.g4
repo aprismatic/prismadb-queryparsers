@@ -62,6 +62,7 @@ FULL:                                'FULL';
 GROUP:                               'GROUP';
 IDENTITY:                            'IDENTITY';
 IN:                                  'IN';
+INDEX:                               'INDEX';
 INNER:                               'INNER';
 INSERT:                              'INSERT';
 INTO:                                'INTO';

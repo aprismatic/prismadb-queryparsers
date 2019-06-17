@@ -18,6 +18,16 @@ namespace PrismaDB.QueryParser.MSSQL
             return res;
         }
 
+        public override object VisitCreateIndex([NotNull] MsSqlParser.CreateIndexContext context)
+        {
+            var res = new CreateIndexQuery();
+            res.Name = (Identifier)Visit(context.uid());
+            res.OnTable = (TableRef)Visit(context.tableName());
+            foreach (var col in context.fullColumnName())
+                res.OnColumns.Add((ColumnRef)Visit(col));
+            return res;
+        }
+
         public override object VisitCreateDefinitions([NotNull] MsSqlParser.CreateDefinitionsContext context)
         {
             var res = new List<ColumnDefinition>();
