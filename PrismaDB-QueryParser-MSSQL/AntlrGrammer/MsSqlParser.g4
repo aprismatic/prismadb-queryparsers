@@ -78,7 +78,7 @@ createTable
 
 createIndex
     : CREATE INDEX
-      indexName ON tableName
+      uid ON tableName
       '(' fullColumnName (',' fullColumnName)* ')'
     ;
 
@@ -303,10 +303,6 @@ databaseName
     ;
 
 tableName
-    : uid
-    ;
-
-indexName
     : uid
     ;
 
