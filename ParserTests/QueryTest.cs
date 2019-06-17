@@ -161,6 +161,26 @@ namespace ParserTests
             Assert.True(actual.ColumnDefinitions[6].Nullable);
         }
 
+        [Fact(DisplayName = "Parse CREATE INDEX")]
+        public void Parse_CreateIndex()
+        {
+            // Setup
+            var test = "CREATE INDEX i1 ON TT (a, b, c)";
+
+            // Act
+            var result = MsSqlQueryParser.ParseToAst(test);
+
+            // Assert
+            var actual = (CreateIndexQuery)result[0];
+            Assert.Equal(IndexModifier.DEFAULT, actual.Modifier);
+            Assert.Equal(IndexType.DEFAULT, actual.Type);
+            Assert.Equal(new TableRef("TT"), actual.OnTable);
+            Assert.Equal(new Identifier("i1"), actual.Name);
+            Assert.Equal(new ColumnRef("a"), actual.OnColumns[0]);
+            Assert.Equal(new ColumnRef("b"), actual.OnColumns[1]);
+            Assert.Equal(new ColumnRef("c"), actual.OnColumns[2]);
+        }
+
         [Fact(DisplayName = "Parse Commands")]
         public void Parse_Commands()
         {
