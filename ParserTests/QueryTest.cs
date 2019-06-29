@@ -190,9 +190,12 @@ namespace ParserTests
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
-                       "PRISMADB DECRYPT tt.col1 STATUS;" + 
+                       "PRISMADB DECRYPT tt.col1 STATUS;" +
                        "PRISMADB REBALANCE OPETREE;" +
-                       "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);";
+                       "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);" +
+                       "PRISMADB SAVE OPETREE;" +
+                       "PRISMADB LOAD OPETREE;" +
+                       "PRISMADB LOAD SCHEMA;";
 
             // Act 
             var result = MsSqlQueryParser.ParseToAst(test);
@@ -212,6 +215,9 @@ namespace ParserTests
             Assert.True(((DecryptColumnCommand)result[5]).StatusCheck);
             Assert.Empty(((RebalanceOpetreeCommand)result[6]).WithValues);
             Assert.Equal(2, ((RebalanceOpetreeCommand)result[7]).WithValues.Count);
+            Assert.IsType<SaveOpetreeCommand>(result[8]);
+            Assert.IsType<LoadOpetreeCommand>(result[9]);
+            Assert.IsType<LoadSchemaCommand>(result[10]);
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]
