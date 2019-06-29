@@ -57,5 +57,15 @@ namespace PrismaDB.QueryParser.MSSQL
         {
             return new SaveOpetreeCommand();
         }
+
+        public override object VisitLoadOpetreeCommand([NotNull] MsSqlParser.LoadOpetreeCommandContext context)
+        {
+            return new LoadOpetreeCommand();
+        }
+
+        public override object VisitLoadSchemaCommand([NotNull] MsSqlParser.LoadSchemaCommandContext context)
+        {
+            return new LoadSchemaCommand();
+        }
     }
 }

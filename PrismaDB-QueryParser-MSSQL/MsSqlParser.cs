@@ -25,7 +25,7 @@ namespace PrismaDB.QueryParser.MSSQL
             }
             catch (Exception ex) when (!(ex is PrismaParserException))
             {
-                throw new PrismaParserException("Error occured while parsing query.", ex);
+                throw new PrismaParserException("Error occurred while parsing query.", ex);
             }
         }
     }
