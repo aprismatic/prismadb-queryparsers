@@ -185,7 +185,7 @@ namespace ParserTests
         public void Parse_Commands()
         {
             // Setup 
-            var test = "PRISMADB EXPORT SETTINGS TO '/home/user/settings.json';" +
+            var test = "PRISMADB EXPORT KEYS TO '/home/user/settings.json';" +
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
@@ -201,7 +201,7 @@ namespace ParserTests
             var result = MsSqlQueryParser.ParseToAst(test);
 
             // Assert 
-            Assert.Equal("/home/user/settings.json", ((ExportSettingsCommand)result[0]).FileUri.strvalue);
+            Assert.Equal("/home/user/settings.json", ((ExportKeysCommand)result[0]).FileUri.strvalue);
             Assert.Equal(typeof(UpdateKeysCommand), result[1].GetType());
             Assert.False(((UpdateKeysCommand)result[1]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[2]).Column);

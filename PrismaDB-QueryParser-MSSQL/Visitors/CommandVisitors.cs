@@ -9,9 +9,9 @@ namespace PrismaDB.QueryParser.MSSQL
 {
     public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitExportSettingsCommand([NotNull] MsSqlParser.ExportSettingsCommandContext context)
+        public override object VisitExportKeysCommand([NotNull] MsSqlParser.ExportKeysCommandContext context)
         {
-            return new ExportSettingsCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            return new ExportKeysCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
         public override object VisitUpdateKeysCommand([NotNull] MsSqlParser.UpdateKeysCommandContext context)
@@ -66,6 +66,16 @@ namespace PrismaDB.QueryParser.MSSQL
         public override object VisitLoadSchemaCommand([NotNull] MsSqlParser.LoadSchemaCommandContext context)
         {
             return new LoadSchemaCommand();
+        }
+
+        public override object VisitSaveSettingsCommand([NotNull] MsSqlParser.SaveSettingsCommandContext context)
+        {
+            return new SaveSettingsCommand();
+        }
+
+        public override object VisitLoadSettingsCommand([NotNull] MsSqlParser.LoadSettingsCommandContext context)
+        {
+            return new LoadSettingsCommand();
         }
     }
 }
