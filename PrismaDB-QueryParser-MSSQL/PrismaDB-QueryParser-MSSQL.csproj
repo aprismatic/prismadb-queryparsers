@@ -18,7 +18,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime" Version="4.6.6" />
-    <PackageReference Include="PrismaDB-QueryAST" Version="0.3.1.312" />
+    <PackageReference Include="PrismaDB-QueryAST" Version="0.3.1.316" />
   </ItemGroup>
   <ItemGroup>
     <None Update="AntlrMySqlLexer.g4">
