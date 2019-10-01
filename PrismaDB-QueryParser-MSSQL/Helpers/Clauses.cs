@@ -22,6 +22,7 @@ namespace PrismaDB.QueryParser.MSSQL
         public override List<ColumnRef> GetColumns() => throw new NotImplementedException();
         public override int GetHashCode() => throw new NotImplementedException();
         public override bool UpdateChild(Expression child, Expression newChild) => throw new NotImplementedException();
+        public override List<ConstantContainer> GetConstants() => throw new NotImplementedException();
         public override string ToString() => throw new NotImplementedException();
     }
 
@@ -42,6 +43,7 @@ namespace PrismaDB.QueryParser.MSSQL
         public override List<ColumnRef> GetColumns() => throw new NotImplementedException();
         public override int GetHashCode() => throw new NotImplementedException();
         public override bool UpdateChild(Expression child, Expression newChild) => throw new NotImplementedException();
+        public override List<ConstantContainer> GetConstants() => throw new NotImplementedException();
         public override string ToString() => throw new NotImplementedException();
     }
 }

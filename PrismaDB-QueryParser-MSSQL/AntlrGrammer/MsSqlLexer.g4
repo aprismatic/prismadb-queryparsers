@@ -205,7 +205,7 @@ HEXADECIMAL_LITERAL:                 'X' '\'' (HEX_DIGIT HEX_DIGIT)+ '\''
                                      | '0X' HEX_DIGIT+;
 NULL_SPEC_LITERAL:                   '\\' 'N';
 
-
+PARAMETER:                           '@' ID_LITERAL;
 
 
 // Hack for dotID

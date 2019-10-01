@@ -47,7 +47,7 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitUpdatedElement([NotNull] MsSqlParser.UpdatedElementContext context)
         {
-            return new Tuple<ColumnRef, Constant>((ColumnRef)Visit(context.fullColumnName()), (Constant)Visit(context.expression()));
+            return new Tuple<ColumnRef, ConstantContainer>((ColumnRef)Visit(context.fullColumnName()), (ConstantContainer)Visit(context.expression()));
         }
 
         public override object VisitSingleDeleteStatement([NotNull] MsSqlParser.SingleDeleteStatementContext context)
@@ -64,7 +64,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var res = new UpdateQuery();
             res.UpdateTable = (TableRef)Visit(context.tableName());
             foreach (var updatedElement in context.updatedElement())
-                res.UpdateExpressions.Add((Tuple<ColumnRef, Constant>)Visit(updatedElement));
+                res.UpdateExpressions.Add((Tuple<ColumnRef, ConstantContainer>)Visit(updatedElement));
             if (context.expression() != null)
                 res.Where = ExpressionToCnfWhere(context.expression());
             return res;
