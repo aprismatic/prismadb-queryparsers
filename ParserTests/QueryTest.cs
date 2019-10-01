@@ -263,9 +263,8 @@ namespace ParserTests
             Assert.Equal(new Identifier("TEST"), ((ScalarFunction)actual.SelectExpressions[1]).FunctionName);
             Assert.Equal(new Identifier("TEST('string',12)"),
                 ((ScalarFunction)actual.SelectExpressions[1]).Alias);
-            Assert.Equal("string",
-                (((ScalarFunction)actual.SelectExpressions[1]).Parameters[0] as StringConstant)?.strvalue);
-            Assert.Equal(12, (((ScalarFunction)actual.SelectExpressions[1]).Parameters[1] as IntConstant)?.intvalue);
+            Assert.Equal(new ConstantContainer("string"), ((ScalarFunction)actual.SelectExpressions[1]).Parameters[0]);
+            Assert.Equal(new ConstantContainer(12), ((ScalarFunction)actual.SelectExpressions[1]).Parameters[1]);
 
             Assert.Equal((uint)1, actual.Limit);
         }
@@ -299,15 +298,15 @@ namespace ParserTests
             Assert.Equal(new Identifier("col3"), actual.Columns[2].ColumnName);
             Assert.Equal(new Identifier("col4"), actual.Columns[3].ColumnName);
             Assert.Equal(3, actual.Values.Count);
-            Assert.Equal(-1, (actual.Values[0][0] as IntConstant)?.intvalue);
-            Assert.Equal(12.345m, (actual.Values[0][1] as DecimalConstant)?.decimalvalue);
-            Assert.Equal(50, (actual.Values[1][1] as IntConstant)?.intvalue);
-            Assert.Equal(3147483647, (actual.Values[1][2] as IntConstant)?.intvalue);
-            Assert.Equal("  ", (actual.Values[1][3] as StringConstant)?.strvalue);
-            Assert.Equal("&", (actual.Values[1][4] as StringConstant)?.strvalue);
-            Assert.Equal(typeof(BinaryConstant), actual.Values[2][0].GetType());
-            Assert.Equal(new byte[] { 0x42, 0x02 }, (actual.Values[2][1] as BinaryConstant)?.binvalue);
-            Assert.Equal(new byte[] { 0xff, 0xff }, (actual.Values[2][2] as BinaryConstant)?.binvalue);
+            Assert.Equal(new ConstantContainer(-1), actual.Values[0][0]);
+            Assert.Equal(new ConstantContainer(12.345m), actual.Values[0][1]);
+            Assert.Equal(new ConstantContainer(50), actual.Values[1][1]);
+            Assert.Equal(new ConstantContainer((long)3147483647), actual.Values[1][2]);
+            Assert.Equal(new ConstantContainer("  "), actual.Values[1][3]);
+            Assert.Equal(new ConstantContainer("&"), actual.Values[1][4]);
+            Assert.Equal(typeof(BinaryConstant), ((ConstantContainer)actual.Values[2][0]).constant.GetType());
+            Assert.Equal(new ConstantContainer(new byte[] { 0x42, 0x02 }), actual.Values[2][1]);
+            Assert.Equal(new ConstantContainer(new byte[] { 0xff, 0xff }), actual.Values[2][2]);
         }
 
         [Fact(DisplayName = "Parse SELECT")]
@@ -333,12 +332,12 @@ namespace ParserTests
             Assert.Equal(new ColumnRef("a"), ((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).right);
             Assert.False(((BooleanGreaterThan)actual.Where.CNF.AND[1].OR[0]).NOT);
             Assert.Equal(new ColumnRef("c"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).Column);
-            Assert.Equal(new StringConstant("abc"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[0]);
-            Assert.Equal(new StringConstant("def"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[1]);
+            Assert.Equal(new ConstantContainer("abc"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[0]);
+            Assert.Equal(new ConstantContainer("def"), ((BooleanIn)actual.Where.CNF.AND[2].OR[0]).InValues[1]);
             Assert.False(((BooleanIn)actual.Where.CNF.AND[2].OR[0]).NOT);
             Assert.Equal(new ColumnRef("d"), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).Column);
-            Assert.Equal(new IntConstant(123), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[0]);
-            Assert.Equal(new IntConstant(456), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[1]);
+            Assert.Equal(new ConstantContainer(123), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[0]);
+            Assert.Equal(new ConstantContainer(456), ((BooleanIn)actual.Where.CNF.AND[3].OR[0]).InValues[1]);
             Assert.True(((BooleanIn)actual.Where.CNF.AND[3].OR[0]).NOT);
 
             Assert.Equal(new ColumnRef("t", "a"), actual.GroupBy.GetColumns()[0]);
@@ -411,7 +410,7 @@ namespace ParserTests
                 Assert.Equal(new ColumnRef("tt1", "c"), actual.From.Sources[0].JoinedTables[0].FirstColumn);
                 Assert.Equal(new ColumnRef("tt2", "c"), actual.From.Sources[0].JoinedTables[0].SecondColumn);
                 Assert.Equal(new ColumnRef("tt1", "a"), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).left);
-                Assert.Equal(new IntConstant(123), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
+                Assert.Equal(new ConstantContainer(123), ((BooleanEquals)actual.Where.CNF.AND[0].OR[0]).right);
                 Assert.Equal(JoinType.INNER, actual.From.Sources[0].JoinedTables[0].JoinType);
             }
             {
@@ -464,14 +463,14 @@ namespace ParserTests
 
             // Assert
             Assert.IsType<SelectQuery>(result1);
-            Assert.IsType<NullConstant>(((SelectQuery)result1).SelectExpressions[0]);
+            Assert.IsType<NullConstant>(((ConstantContainer)((SelectQuery)result1).SelectExpressions[0]).constant);
 
             // Act
             var result2 = MsSqlQueryParser.ParseToAst(test2)[0];
 
             // Assert
             Assert.IsType<InsertQuery>(result2);
-            Assert.IsType<NullConstant>(((InsertQuery)result2).Values[0][0]);
+            Assert.IsType<NullConstant>(((ConstantContainer)((InsertQuery)result2).Values[0][0]).constant);
 
             // Act
             var result3 = MsSqlQueryParser.ParseToAst(test3)[0];
@@ -524,7 +523,7 @@ namespace ParserTests
 
             // Assert
             Assert.IsType<ColumnRef>(result.UpdateExpressions[0].Item1);
-            Assert.IsType<NullConstant>(result.UpdateExpressions[0].Item2);
+            Assert.IsType<NullConstant>(result.UpdateExpressions[0].Item2.constant);
         }
 
         [Fact(DisplayName = "Parse operators")]
@@ -559,11 +558,11 @@ namespace ParserTests
             // Assert
             Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
             Assert.False(((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).NOT);
-            Assert.Equal("abc%", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+            Assert.Equal(new ConstantContainer("abc%"), ((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).SearchValue);
             Assert.Null(((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).EscapeChar);
 
             Assert.True(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).NOT);
-            Assert.Equal("a_34", (((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).SearchValue.strvalue));
+            Assert.Equal(new ConstantContainer("a_34"), ((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).SearchValue);
             Assert.Null(((BooleanLike)((SelectQuery)result[1]).Where.CNF.AND[0].OR[0]).EscapeChar);
 
             Assert.Equal('!', (((BooleanLike)((SelectQuery)result[2]).Where.CNF.AND[0].OR[0]).EscapeChar));
@@ -609,6 +608,39 @@ namespace ParserTests
             Assert.Equal("ss", ((TableSource)result2.From.Sources[0].FirstTable).Table.Table.id);
             Assert.Equal("uu", ((TableSource)result2.From.Sources[2].FirstTable).Table.Table.id);
             Assert.Equal("u", ((TableSource)result2.From.Sources[2].FirstTable).Table.Alias.id);
+        }
+
+        [Fact(DisplayName = "Parse Prepared Statement")]
+        public void Parse_PreparedStatement()
+        {
+            // Setup
+            var test = "INSERT INTO testtable (a, b, c, d) VALUES (@a, @b, @c, @d), (@e, @f, @g, @h)";
+
+            // Act
+            var results = MsSqlQueryParser.ParseToAst(test);
+
+            var result = results[0] as InsertQuery;
+            Assert.Equal(8, result.GetConstants().Count);
+            Assert.Equal(new PlaceholderConstant("@a"), result.GetConstants()[0].constant);
+            Assert.Equal(new PlaceholderConstant("@b"), result.GetConstants()[1].constant);
+            Assert.Equal(new PlaceholderConstant("@c"), result.GetConstants()[2].constant);
+            Assert.Equal(new PlaceholderConstant("@d"), result.GetConstants()[3].constant);
+            Assert.Equal(new PlaceholderConstant("@e"), result.GetConstants()[4].constant);
+            Assert.Equal(new PlaceholderConstant("@f"), result.GetConstants()[5].constant);
+            Assert.Equal(new PlaceholderConstant("@g"), result.GetConstants()[6].constant);
+            Assert.Equal(new PlaceholderConstant("@h"), result.GetConstants()[7].constant);
+
+            Assert.Equal(2, result.Values.Count);
+            Assert.Equal(4, result.Values[0].Count);
+            Assert.Equal(4, result.Values[1].Count);
+            Assert.Equal(new ConstantContainer(label: "@a"), result.Values[0][0]);
+            Assert.Equal(new ConstantContainer(label: "@b"), result.Values[0][1]);
+            Assert.Equal(new ConstantContainer(label: "@c"), result.Values[0][2]);
+            Assert.Equal(new ConstantContainer(label: "@d"), result.Values[0][3]);
+            Assert.Equal(new ConstantContainer(label: "@e"), result.Values[1][0]);
+            Assert.Equal(new ConstantContainer(label: "@f"), result.Values[1][1]);
+            Assert.Equal(new ConstantContainer(label: "@g"), result.Values[1][2]);
+            Assert.Equal(new ConstantContainer(label: "@h"), result.Values[1][3]);
         }
     }
 }

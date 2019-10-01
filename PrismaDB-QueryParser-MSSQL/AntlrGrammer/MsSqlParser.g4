@@ -367,6 +367,10 @@ hexadecimalLiteral
     : HEXADECIMAL_LITERAL
     ;
 
+parameter
+    : PARAMETER
+    ;
+
 nullNotnull
     : NOT? (NULL_LITERAL | NULL_SPEC_LITERAL)
     ;
@@ -375,6 +379,7 @@ constant
     : intLiteral | stringLiteral
     | decimalLiteral | hexadecimalLiteral
     | nullLiteral=(NULL_LITERAL | NULL_SPEC_LITERAL)
+    | parameter
     ;
 
 

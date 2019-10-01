@@ -92,6 +92,11 @@ namespace PrismaDB.QueryParser.MSSQL
             return new BinaryConstant(bytes);
         }
 
+        public override object VisitParameter([NotNull] MsSqlParser.ParameterContext context)
+        {
+            return new PlaceholderConstant(label: context.PARAMETER().GetText());
+        }
+
         public override object VisitNullNotnull([NotNull] MsSqlParser.NullNotnullContext context)
         {
             if (context.NOT() == null)
@@ -102,9 +107,9 @@ namespace PrismaDB.QueryParser.MSSQL
         public override object VisitConstant([NotNull] MsSqlParser.ConstantContext context)
         {
             if (context.nullLiteral != null)
-                return new NullConstant();
+                return new ConstantContainer(new NullConstant());
             else
-                return base.VisitConstant(context);
+                return new ConstantContainer(base.VisitConstant(context));
         }
         #endregion
 
@@ -233,9 +238,9 @@ namespace PrismaDB.QueryParser.MSSQL
 
         public override object VisitConstants([NotNull] MsSqlParser.ConstantsContext context)
         {
-            var res = new List<Constant>();
+            var res = new List<ConstantContainer>();
             foreach (var constant in context.constant())
-                res.Add((Constant)Visit(constant));
+                res.Add((ConstantContainer)Visit(constant));
             return res;
         }
         #endregion
@@ -338,7 +343,7 @@ namespace PrismaDB.QueryParser.MSSQL
             var res = new BooleanIn();
             res.Column = (ColumnRef)Visit(context.predicate());
             foreach (var exp in (List<Expression>)Visit(context.expressions()))
-                res.AddChild((Constant)exp);
+                res.AddChild((ConstantContainer)exp);
             if (context.NOT() != null)
                 res.NOT = true;
             return res;
@@ -375,7 +380,7 @@ namespace PrismaDB.QueryParser.MSSQL
         {
             var res = new BooleanLike();
             res.Column = (ColumnRef)Visit(context.predicate()[0]);
-            res.SearchValue = (StringConstant)Visit(context.predicate()[1]);
+            res.SearchValue = (ConstantContainer)Visit(context.predicate()[1]);
             if (context.NOT() != null)
                 res.NOT = true;
             if (context.stringLiteral() != null)
