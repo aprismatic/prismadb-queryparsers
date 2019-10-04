@@ -22,7 +22,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="PrismaDB-QueryAST" Version="0.3.2.323" />
+    <PackageReference Include="PrismaDB-QueryAST" Version="0.3.2.324" />
   </ItemGroup>
   <ItemGroup>
     <None Update="AntlrMySqlLexer.g4">
