@@ -60,7 +60,7 @@ dclStatement
     : exportKeysCommand | updateKeysCommand | encryptCommand
     | decryptCommand | rebalanceOpetreeCommand | saveOpetreeCommand
     | loadOpetreeCommand | loadSchemaCommand | saveSettingsCommand
-    | loadSettingsCommand | bypassCommand
+    | loadSettingsCommand | bypassCommand | refreshLicenseCommand
     ;
 
 utilityStatement
@@ -314,6 +314,10 @@ loadSettingsCommand
 bypassCommand
     : PRISMADB BYPASS
 	  (ddlStatement | dmlStatement)
+    ;
+
+refreshLicenseCommand
+    : PRISMADB REFRESH LICENSE
     ;
 
 

@@ -11,6 +11,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PrismaDB-QueryParser-MSSQL\PrismaDB-QueryParser-MSSQL.csproj" />
+    <ProjectReference Include="..\..\src\PrismaDB.QueryParser.MSSQL\PrismaDB.QueryParser.MSSQL.csproj" />
   </ItemGroup>
 </Project>

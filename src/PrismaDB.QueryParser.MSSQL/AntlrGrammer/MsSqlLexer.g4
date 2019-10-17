@@ -141,6 +141,8 @@ OPETREE:                             'OPETREE';
 LOAD:                                'LOAD';
 SCHEMA:                              'SCHEMA';
 BYPASS:                              'BYPASS';
+LICENSE:                             'LICENSE';
+REFRESH:                             'REFRESH';
 
 
 // Common function names

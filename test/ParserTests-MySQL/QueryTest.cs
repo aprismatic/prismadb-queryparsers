@@ -2,7 +2,7 @@
 using PrismaDB.QueryAST.DCL;
 using PrismaDB.QueryAST.DDL;
 using PrismaDB.QueryAST.DML;
-using PrismaDB.QueryParser.MSSQL;
+using PrismaDB.QueryParser.MySQL;
 using Xunit;
 
 namespace ParserTests
@@ -14,10 +14,10 @@ namespace ParserTests
         {
             // Setup
             var test = "ALTER TABLE table1 " +
-                       "ALTER COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
+                       "MODIFY COLUMN col1 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (AlterTableQuery)result[0];
@@ -26,7 +26,7 @@ namespace ParserTests
             Assert.Equal(AlterType.MODIFY, actual.AlterType);
 
             Assert.Equal(new Identifier("col1"), actual.AlteredColumns[0].ColumnDefinition.ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.AlteredColumns[0].ColumnDefinition.DataType);
+            Assert.Equal(SqlDataType.MySQL_TEXT, actual.AlteredColumns[0].ColumnDefinition.DataType);
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Store & actual.AlteredColumns[0].ColumnDefinition.EncryptionFlags);
             Assert.NotEqual(ColumnEncryptionFlags.None,
@@ -48,7 +48,7 @@ namespace ParserTests
                        "(col1 DATETIME NOT NULL)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -56,10 +56,41 @@ namespace ParserTests
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
             Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_DATETIME, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MySQL_DATETIME, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Null(actual.ColumnDefinitions[0].Length);
+        }
+
+        [Fact(DisplayName = "Parse NULLs")]
+        public void Parse_NULLExpressions()
+        {
+            // Setup
+            var test1 = "SELECT NULL";
+            var test2 = "INSERT INTO tbl1 ( col1 ) VALUES ( NULL )";
+            var test3 = "SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL";
+
+            // Act
+            var result1 = MySqlQueryParser.ParseToAst(test1)[0];
+
+            // Assert
+            Assert.IsType<SelectQuery>(result1);
+            Assert.IsType<NullConstant>(((ConstantContainer)((SelectQuery)result1).SelectExpressions[0]).constant);
+
+            // Act
+            var result2 = MySqlQueryParser.ParseToAst(test2)[0];
+
+            // Assert
+            Assert.IsType<InsertQuery>(result2);
+            Assert.IsType<NullConstant>(((ConstantContainer)((InsertQuery)result2).Values[0][0]).constant);
+
+            // Act
+            var result3 = MySqlQueryParser.ParseToAst(test3)[0];
+
+            // Assert
+            Assert.IsType<SelectQuery>(result3);
+            Assert.True(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[0].OR[0]).NOT);
+            Assert.False(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[1].OR[0]).NOT);
         }
 
         [Fact(DisplayName = "Parse CREATE TABLE w\\TEXT")]
@@ -71,7 +102,7 @@ namespace ParserTests
                        "col2 TEXT ENCRYPTED FOR (STORE, SEARCH) NULL)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
@@ -79,13 +110,13 @@ namespace ParserTests
             Assert.Equal(new TableRef("table1"), actual.TableName);
 
             Assert.Equal(new Identifier("col1"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MySQL_TEXT, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[0].Nullable);
             Assert.Null(actual.ColumnDefinitions[0].Length);
 
             Assert.Equal(new Identifier("col2"), actual.ColumnDefinitions[1].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(SqlDataType.MySQL_TEXT, actual.ColumnDefinitions[1].DataType);
             Assert.NotEqual(ColumnEncryptionFlags.None,
                 ColumnEncryptionFlags.Store & actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.NotEqual(ColumnEncryptionFlags.None,
@@ -103,62 +134,68 @@ namespace ParserTests
         {
             // Setup
             var test = "CREATE TABLE ttt " +
-                       "(aaa INT ENCRYPTED FOR (ADDITION, MULTIPLICATION) NOT NULL IDENTITY(1,1), " +
-                       "[bbb] BIGINT NULL, " +
+                       "(aaa INT ENCRYPTED FOR (ADDITION, MULTIPLICATION) NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                       "`bbb` BIGINT NULL, " +
                        "ccc VARCHAR(80) NOT NULL, " +
-                       "ddd VARCHAR(MAX) ENCRYPTED FOR (STORE, SEARCH), " +
+                       "ddd VARCHAR(20) ENCRYPTED FOR (STORE, SEARCH), " +
                        "eee TEXT NULL, " +
                        "fff TEXT ENCRYPTED NULL, " +
-                       "ggg FLOAT," +
-                       "hhh DATETIME ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
-
+                       "ggg DOUBLE, " +
+                       "hhh ENUM('ABC', 'def') ENCRYPTED NULL, " +
+                       "iii TIMESTAMP ENCRYPTED DEFAULT CURRENT_TIMESTAMP" + ")";
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateTableQuery)result[0];
 
             Assert.Equal(new TableRef("ttt"), actual.TableName);
             Assert.Equal(new Identifier("aaa"), actual.ColumnDefinitions[0].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_INT, actual.ColumnDefinitions[0].DataType);
+            Assert.Equal(SqlDataType.MySQL_INT, actual.ColumnDefinitions[0].DataType);
             Assert.Equal(ColumnEncryptionFlags.Addition | ColumnEncryptionFlags.Multiplication,
                 actual.ColumnDefinitions[0].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[0].AutoIncrement);
             Assert.False(actual.ColumnDefinitions[0].Nullable);
             Assert.Equal(new Identifier("bbb"), actual.ColumnDefinitions[1].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_BIGINT, actual.ColumnDefinitions[1].DataType);
+            Assert.Equal(SqlDataType.MySQL_BIGINT, actual.ColumnDefinitions[1].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[1].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[1].Nullable);
             Assert.False(actual.ColumnDefinitions[1].AutoIncrement);
             Assert.Equal(new Identifier("ccc"), actual.ColumnDefinitions[2].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_VARCHAR, actual.ColumnDefinitions[2].DataType);
+            Assert.Equal(SqlDataType.MySQL_VARCHAR, actual.ColumnDefinitions[2].DataType);
             Assert.Equal(80, actual.ColumnDefinitions[2].Length);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[2].EncryptionFlags);
             Assert.False(actual.ColumnDefinitions[2].Nullable);
             Assert.Equal(new Identifier("ddd"), actual.ColumnDefinitions[3].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_VARCHAR, actual.ColumnDefinitions[3].DataType);
-            Assert.Equal(-1, actual.ColumnDefinitions[3].Length);
+            Assert.Equal(SqlDataType.MySQL_VARCHAR, actual.ColumnDefinitions[3].DataType);
+            Assert.Equal(20, actual.ColumnDefinitions[3].Length);
             Assert.Equal(ColumnEncryptionFlags.Store | ColumnEncryptionFlags.Search,
                 actual.ColumnDefinitions[3].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[3].Nullable);
             Assert.Equal(new Identifier("eee"), actual.ColumnDefinitions[4].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[4].DataType);
+            Assert.Equal(SqlDataType.MySQL_TEXT, actual.ColumnDefinitions[4].DataType);
             Assert.True(actual.ColumnDefinitions[4].Nullable);
             Assert.Equal(new Identifier("fff"), actual.ColumnDefinitions[5].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_TEXT, actual.ColumnDefinitions[5].DataType);
+            Assert.Equal(SqlDataType.MySQL_TEXT, actual.ColumnDefinitions[5].DataType);
             Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[5].EncryptionFlags);
             Assert.True(actual.ColumnDefinitions[5].Nullable);
             Assert.Equal(new Identifier("ggg"), actual.ColumnDefinitions[6].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_FLOAT, actual.ColumnDefinitions[6].DataType);
+            Assert.Equal(SqlDataType.MySQL_DOUBLE, actual.ColumnDefinitions[6].DataType);
             Assert.Equal(ColumnEncryptionFlags.None, actual.ColumnDefinitions[6].EncryptionFlags);
-            Assert.Null(actual.ColumnDefinitions[6].DefaultValue);
-            Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
-            Assert.Equal(SqlDataType.MSSQL_DATETIME, actual.ColumnDefinitions[7].DataType);
-            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
-            Assert.Equal(new Identifier("CURRENT_TIMESTAMP"),
-                ((ScalarFunction)actual.ColumnDefinitions[7].DefaultValue).FunctionName);
-            Assert.True(actual.ColumnDefinitions[7].Nullable);
             Assert.True(actual.ColumnDefinitions[6].Nullable);
+            Assert.Equal(new Identifier("hhh"), actual.ColumnDefinitions[7].ColumnName);
+            Assert.Equal(SqlDataType.MySQL_ENUM, actual.ColumnDefinitions[7].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[7].EncryptionFlags);
+            Assert.True(actual.ColumnDefinitions[7].Nullable);
+            Assert.Null(actual.ColumnDefinitions[7].DefaultValue);
+            Assert.Equal(new Identifier("iii"), actual.ColumnDefinitions[8].ColumnName);
+            Assert.Equal(SqlDataType.MySQL_TIMESTAMP, actual.ColumnDefinitions[8].DataType);
+            Assert.Equal(ColumnEncryptionFlags.Store, actual.ColumnDefinitions[8].EncryptionFlags);
+            Assert.Equal(new Identifier("CURRENT_TIMESTAMP"),
+                ((ScalarFunction)actual.ColumnDefinitions[8].DefaultValue).FunctionName);
+            Assert.True(actual.ColumnDefinitions[7].Nullable);
+            Assert.Equal(new StringConstant("ABC"), actual.ColumnDefinitions[7].EnumValues[0]);
+            Assert.Equal(new StringConstant("def"), actual.ColumnDefinitions[7].EnumValues[1]);
         }
 
         [Fact(DisplayName = "Parse CREATE INDEX")]
@@ -168,7 +205,7 @@ namespace ParserTests
             var test = "CREATE INDEX i1 ON TT (a, b, c)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (CreateIndexQuery)result[0];
@@ -186,6 +223,7 @@ namespace ParserTests
         {
             // Setup 
             var test = "PRISMADB EXPORT KEYS TO '/home/user/settings.json';" +
+                       "PRISMADB REGISTER USER 'sherlock' PASSWORD '@22!B';" +
                        "PRISMADB UPDATE KEYS;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
@@ -196,40 +234,44 @@ namespace ParserTests
                        "PRISMADB SAVE OPETREE;" +
                        "PRISMADB LOAD OPETREE;" +
                        "PRISMADB LOAD SCHEMA;" +
-                       "PRISMADB BYPASS SELECT * FROM tt;";
+                       "PRISMADB BYPASS SELECT * FROM tt;" +
+                       "PRISMADB REFRESH LICENSE;";
 
             // Act 
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert 
             Assert.Equal("/home/user/settings.json", ((ExportKeysCommand)result[0]).FileUri.strvalue);
-            Assert.Equal(typeof(UpdateKeysCommand), result[1].GetType());
-            Assert.False(((UpdateKeysCommand)result[1]).StatusCheck);
-            Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[2]).Column);
-            Assert.False(((DecryptColumnCommand)result[2]).StatusCheck);
-            Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[3]).Column);
-            Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[3]).EncryptionFlags);
-            Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
-            Assert.True(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
-            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
-            Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
-            Assert.True(((DecryptColumnCommand)result[5]).StatusCheck);
-            Assert.Empty(((RebalanceOpetreeCommand)result[6]).WithValues);
-            Assert.Equal(2, ((RebalanceOpetreeCommand)result[7]).WithValues.Count);
-            Assert.IsType<SaveOpetreeCommand>(result[8]);
-            Assert.IsType<LoadOpetreeCommand>(result[9]);
-            Assert.IsType<LoadSchemaCommand>(result[10]);
-            Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[11]).Query).GetTables()[0]);
+            Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
+            Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
+            Assert.Equal(typeof(UpdateKeysCommand), result[2].GetType());
+            Assert.False(((UpdateKeysCommand)result[2]).StatusCheck);
+            Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[3]).Column);
+            Assert.False(((DecryptColumnCommand)result[3]).StatusCheck);
+            Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[4]).Column);
+            Assert.Equal(ColumnEncryptionFlags.Store, ((EncryptColumnCommand)result[4]).EncryptionFlags);
+            Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Store));
+            Assert.True(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Search));
+            Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
+            Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
+            Assert.True(((DecryptColumnCommand)result[6]).StatusCheck);
+            Assert.Empty(((RebalanceOpetreeCommand)result[7]).WithValues);
+            Assert.Equal(2, ((RebalanceOpetreeCommand)result[8]).WithValues.Count);
+            Assert.IsType<SaveOpetreeCommand>(result[9]);
+            Assert.IsType<LoadOpetreeCommand>(result[10]);
+            Assert.IsType<LoadSchemaCommand>(result[11]);
+            Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[12]).Query).GetTables()[0]);
+            Assert.IsType<RefreshLicenseCommand>(result[13]);
         }
 
-        [Fact(DisplayName = "Parse functions in SELECT")]
+        [Fact(DisplayName = "Parse SELECT w\\functions")]
         public void Parse_Function()
         {
             // Setup
             var test = "SELECT CONNECTION_ID()";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -237,18 +279,16 @@ namespace ParserTests
             Assert.Equal(new Identifier("CONNECTION_ID"), ((ScalarFunction)actual.SelectExpressions[0]).FunctionName);
             Assert.Equal(new Identifier("CONNECTION_ID()"), ((ScalarFunction)actual.SelectExpressions[0]).Alias);
             Assert.Empty(((ScalarFunction)actual.SelectExpressions[0]).Parameters);
-
-            Assert.Null(actual.Limit);
         }
 
-        [Fact(DisplayName = "Parse functions w\\params in SELECT")]
+        [Fact(DisplayName = "Parse SELECT w\\functions w\\params")]
         public void Parse_FunctionWithParams()
         {
             // Setup
-            var test = "SELECT TOP(1) COUNT(tt.col1) AS Num, TEST('string',12)";
+            var test = "SELECT COUNT(tt.col1) AS Num, TEST('string',12)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -265,8 +305,6 @@ namespace ParserTests
                 ((ScalarFunction)actual.SelectExpressions[1]).Alias);
             Assert.Equal(new ConstantContainer("string"), ((ScalarFunction)actual.SelectExpressions[1]).Parameters[0]);
             Assert.Equal(new ConstantContainer(12), ((ScalarFunction)actual.SelectExpressions[1]).Parameters[1]);
-
-            Assert.Equal((uint)1, actual.Limit);
         }
 
         [Fact(DisplayName = "Parse INSERT INTO")]
@@ -274,8 +312,8 @@ namespace ParserTests
         {
             // Setup
             var test =
-                "INSERT INTO [tt1] (col1, col2, [col3], [col4]) " +
-                "VALUES ( -1, 12.345 , 'hey', 'hi' ), " +
+                "INSERT INTO `tt1` (col1, col2, `col3`, `col4`) " +
+                "VALUES ( -1, 12.345 , 'hey', \"hi\" ), " +
                 "(0,050, 3147483647, '  ', '&'), " +
                 "(0xdec2976ac4fc39864683a83f7b9876f4b2cbc65b0b6ede9e74e9" +
                 "cb918fda451597b0dffd6198943aef879acc3cdf426c61849299b7b" +
@@ -287,7 +325,7 @@ namespace ParserTests
                 "14ecc35bb8f37b8ece, 0x4202, 0xffff)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (InsertQuery)result[0];
@@ -316,7 +354,7 @@ namespace ParserTests
             var test = "SELECT (a+b)*(a+b), ((a+b)*(a+b)), (((a+b)*(a+b))) FROM t WHERE (a <= b) AND (t.b > a) AND c IN ('abc', 'def') AND d NOT IN (123, 456) GROUP BY t.a, b ORDER BY a ASC, b DESC, c";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (SelectQuery)result[0];
@@ -358,7 +396,7 @@ namespace ParserTests
             var test = "USE ThisDB";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (UseStatement)result[0];
@@ -372,11 +410,34 @@ namespace ParserTests
             var test = "DROP TABLE tt";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             var actual = (DropTableQuery)result[0];
             Assert.Equal(new TableRef("tt"), actual.TableName);
+        }
+
+        [Fact(DisplayName = "Parse variables")]
+        public void Parse_Variables()
+        {
+            // Setup
+            var test = "select @@version_comment limit 1; " +
+                       "select @@`version_comment`";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            // Assert
+            {
+                var actual = (SelectQuery)result[0];
+                Assert.Equal(new MySqlVariable("version_comment", "@@version_comment"), actual.SelectExpressions[0]);
+                Assert.Equal((uint)1, actual.Limit);
+            }
+            {
+                var actual = (SelectQuery)result[1];
+                Assert.Equal(new MySqlVariable("version_comment", "@@`version_comment`"), actual.SelectExpressions[0]);
+                Assert.Null(actual.Limit);
+            }
         }
 
         [Fact(DisplayName = "Parse JOIN")]
@@ -388,7 +449,7 @@ namespace ParserTests
                        "select tt1.a, tt2.b FROM tt1 CROSS JOIN tt2 LEFT OUTER JOIN tt3 ON tt3.c=tt2.c;";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             {
@@ -437,7 +498,7 @@ namespace ParserTests
                        "select t1.* from t1; ";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             {
@@ -450,45 +511,14 @@ namespace ParserTests
             }
         }
 
-        [Fact(DisplayName = "Parse NULLs")]
-        public void Parse_NULLExpressions()
-        {
-            // Setup
-            var test1 = "SELECT NULL";
-            var test2 = "INSERT INTO tbl1 ( col1 ) VALUES ( NULL )";
-            var test3 = "SELECT * FROM tbl1 WHERE col1 IS NOT NULL AND col2 IS NULL";
-
-            // Act
-            var result1 = MsSqlQueryParser.ParseToAst(test1)[0];
-
-            // Assert
-            Assert.IsType<SelectQuery>(result1);
-            Assert.IsType<NullConstant>(((ConstantContainer)((SelectQuery)result1).SelectExpressions[0]).constant);
-
-            // Act
-            var result2 = MsSqlQueryParser.ParseToAst(test2)[0];
-
-            // Assert
-            Assert.IsType<InsertQuery>(result2);
-            Assert.IsType<NullConstant>(((ConstantContainer)((InsertQuery)result2).Values[0][0]).constant);
-
-            // Act
-            var result3 = MsSqlQueryParser.ParseToAst(test3)[0];
-
-            // Assert
-            Assert.IsType<SelectQuery>(result3);
-            Assert.True(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[0].OR[0]).NOT);
-            Assert.False(((BooleanIsNull)((SelectQuery)result3).Where.CNF.AND[1].OR[0]).NOT);
-        }
-
         [Fact(DisplayName = "Parse known functions")]
         public void Parse_KnownFuncs()
         {
             // Setup
-            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3), STDEV(col4)";
+            var test = "SELECT RandomFunc(), SuM(col1), CoUNt(col2), coUNT(*), avg (col3), NOW(), STDDEV_SAMP(col4)";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test)[0] as SelectQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.IsType<ScalarFunction>(result.SelectExpressions[0]);
@@ -508,8 +538,10 @@ namespace ParserTests
             Assert.IsType<AvgAggregationFunction>(result.SelectExpressions[4]);
             Assert.IsType<ColumnRef>((result.SelectExpressions[4] as ScalarFunction).Parameters[0]);
 
-            Assert.IsType<StDevAggregationFunction>(result.SelectExpressions[5]);
-            Assert.IsType<ColumnRef>((result.SelectExpressions[5] as ScalarFunction).Parameters[0]);
+            Assert.IsType<ScalarFunction>(result.SelectExpressions[5]);
+
+            Assert.IsType<StDevAggregationFunction>(result.SelectExpressions[6]);
+            Assert.IsType<ColumnRef>((result.SelectExpressions[6] as ScalarFunction).Parameters[0]);
         }
 
         [Fact(DisplayName = "Parse UPDATE")]
@@ -519,7 +551,7 @@ namespace ParserTests
             var test = "UPDATE tt SET a = NULL WHERE b = 'abc'; ";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test)[0] as UpdateQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as UpdateQuery;
 
             // Assert
             Assert.IsType<ColumnRef>(result.UpdateExpressions[0].Item1);
@@ -534,7 +566,7 @@ namespace ParserTests
                          FROM   numerictable";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test)[0] as SelectQuery;
+            var result = MySqlQueryParser.ParseToAst(test)[0] as SelectQuery;
 
             // Assert
             Assert.Equal(4, result.SelectExpressions.Count);
@@ -553,7 +585,7 @@ namespace ParserTests
                        "SELECT * FROM TT WHERE a LIKE 'abc%' ESCAPE '!'; ";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             Assert.Equal("a", (((BooleanLike)((SelectQuery)result[0]).Where.CNF.AND[0].OR[0]).Column.ColumnName.id));
@@ -573,15 +605,149 @@ namespace ParserTests
         {
             // Setup
             var test = "SHOW TABLES;" +
-                       "SHOW COLUMNS FROM [abc];";
+                       "SHOW COLUMNS FROM abc;";
 
             // Act
-            var result = MsSqlQueryParser.ParseToAst(test);
+            var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert
             Assert.True(result[0] is ShowTablesQuery);
 
             Assert.Equal(new TableRef("abc"), ((ShowColumnsQuery)result[1]).TableName);
+        }
+
+        [Fact(DisplayName = "Parse escaped")]
+        public void Parse_Escaped()
+        {
+            // Setup 1
+            // % and _ are automatically escaped outside of pattern-matching context; meaning that any \ before a % and _ is treated literally
+            var test1 = "INSERT INTO TestTable (a, b, c, d, e, f, g, h, i, j, k, l) VALUES (" +
+                        "'ascii_null_\\0 foo\\0foo'," +
+                        "'single_quote_\\' '''," +
+                        "'double_quote1_\" \\\"'," +
+                        "\"double_quote2_\\\" \"\"\"," +
+                        "'backspace_\\b'," +
+                        "'newline_\\n'," +
+                        "'carriage_return_\\r'," +
+                        "'tab_\\t'," +
+                        "'ascii_26_\\Z'," +
+                        "'backslash_\\\\'," +
+                        "'percentage_% \\%'," +
+                        "'underscore_ \\_'" +
+                        ")";
+
+            // Act 1
+            var result1 = MySqlQueryParser.ParseToAst(test1);
+
+            // Assert 1
+            Assert.Equal(new ConstantContainer("ascii_null_\0 foo\0foo"), ((InsertQuery)result1[0]).Values[0][0]);
+            Assert.Equal(new ConstantContainer("single_quote_' '"), ((InsertQuery)result1[0]).Values[0][1]);
+            Assert.Equal(new ConstantContainer("double_quote1_\" \""), ((InsertQuery)result1[0]).Values[0][2]); // sql: \"
+            Assert.Equal(new ConstantContainer("double_quote2_\" \""), ((InsertQuery)result1[0]).Values[0][3]);
+            Assert.Equal(new ConstantContainer("backspace_\b"), ((InsertQuery)result1[0]).Values[0][4]);
+            Assert.Equal(new ConstantContainer("newline_\n"), ((InsertQuery)result1[0]).Values[0][5]);
+            Assert.Equal(new ConstantContainer("carriage_return_\r"), ((InsertQuery)result1[0]).Values[0][6]);
+            Assert.Equal(new ConstantContainer("tab_\t"), ((InsertQuery)result1[0]).Values[0][7]);
+            Assert.Equal(new ConstantContainer("ascii_26_\x1A"), ((InsertQuery)result1[0]).Values[0][8]);
+            Assert.Equal(new ConstantContainer("backslash_\\"), ((InsertQuery)result1[0]).Values[0][9]);
+            Assert.Equal(new ConstantContainer("percentage_% \\%"), ((InsertQuery)result1[0]).Values[0][10]);
+            Assert.Equal(new ConstantContainer("underscore_ \\_"), ((InsertQuery)result1[0]).Values[0][11]);
+
+            // Setup 2
+            var test2 = "INSERT INTO TT1 (a, b, c, d, e) VALUES " +
+                        "('I\\'m', '\\\"escaped\"', \"\"\"and\", '''me ''too')";
+            // Act 2
+            var result2 = MySqlQueryParser.ParseToAst(test2);
+
+            // Assert 2
+            Assert.Equal(new ConstantContainer("I'm"), ((InsertQuery)result2[0]).Values[0][0]);
+            Assert.Equal(new ConstantContainer("\"escaped\""), ((InsertQuery)result2[0]).Values[0][1]);
+            Assert.Equal(new ConstantContainer("\"and"), ((InsertQuery)result2[0]).Values[0][2]);
+            Assert.Equal(new ConstantContainer("'me 'too"), ((InsertQuery)result2[0]).Values[0][3]);
+
+            // Setup 3
+            // use wxy as most unambigious character range without escape character usages. the rest are used as SQL, C# or ASCII escape chars
+            var test3 = "INSERT INTO TestTable(a,b,c,d) VALUES (" +
+                        "'mixed_\\b\\0\\t\\r\\n\\\n \\\\w \\x \\y'," +
+                        "'order_of_replacement_1_\\ \\n \\\n \\\\n \\\\\n \\\\\\n \\\\\\\n \\\\\\\\n'," +
+                        "'order_of_replacement_2_\\\r \\\t \\\\\\n \\\\\\\\\\\\\\\\\\b \\\\n\\\\r'," +
+                        "'all_single_enclosed_\\0 \\\\\\\\ \\' '' \\t \\\" \\\\Z \\Z \\r\\n\\b \\\'\'\''," +
+                        "\"all_double_enclosed_\\0 \\\\\\\\ \\' \\t \\\\\"\" \\\\Z \\Z \"\"\"\" \\r\\n\\b \\\"\"\"\"" +
+                        ")";
+
+            // Act 3
+            var result3 = MySqlQueryParser.ParseToAst(test3);
+
+            // Assert 3
+            Assert.Equal(new ConstantContainer("mixed_\b\0\t\r\n\n \\w x y"), ((InsertQuery)result3[0]).Values[0][0]);
+            Assert.Equal(new ConstantContainer("order_of_replacement_1_ \n \n \\n \\\n \\\n \\\n \\\\n"), ((InsertQuery)result3[0]).Values[0][1]);
+            Assert.Equal(new ConstantContainer("order_of_replacement_2_\r \t \\\n \\\\\\\\\b \\n\\r"), ((InsertQuery)result3[0]).Values[0][2]);
+            Assert.Equal(new ConstantContainer("all_single_enclosed_\0 \\\\ \' \' \t \" \\Z \x1A \r\n\b \'\'"), ((InsertQuery)result3[0]).Values[0][3]);
+            Assert.Equal(new ConstantContainer("all_double_enclosed_\0 \\\\ \' \t \\\" \\Z \x1A \"\" \r\n\b \"\""), ((InsertQuery)result3[0]).Values[0][4]);
+        }
+
+        [Fact(DisplayName = "Parse order of operations")]
+        public void Parse_OrderOfOperations()
+        {
+            // Setup
+            var test = "SELECT ( a + b ) + ( c + d ) ;" +
+                       "SELECT ( ( a + b ) + ( c + d ) ) ;" +
+                       "SELECT a + ( b + c ) ;" +
+                       "SELECT ( a + b ) + c ;" +
+                       "SELECT a + b + c ;" +
+                       "SELECT a * b + c ;" +
+                       "SELECT a + b * c ; " +
+                       "SELECT ( a + b ) * c ; " +
+                       "SELECT ( a + b ) * ( c - d ) ; " +
+                       "SELECT ( ( ( a + ( ( b * c ) ) ) / d ) ); ";
+
+            // Act
+            var result = MySqlQueryParser.ParseToAst(test);
+
+            // Assert
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[0]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[1]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[2]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[3]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[4]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Addition)((SelectQuery)result[5]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((Addition)((SelectQuery)result[6]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((SelectQuery)result[7]).SelectExpressions[0]).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Addition)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).left).right).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Subtraction)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).right).left).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Subtraction)((Multiplication)((SelectQuery)result[8]).SelectExpressions[0]).right).right).ColumnName.id);
+
+            Assert.Equal("a", ((ColumnRef)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).left).ColumnName.id);
+            Assert.Equal("b", ((ColumnRef)((Multiplication)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).right).left).ColumnName.id);
+            Assert.Equal("c", ((ColumnRef)((Multiplication)((Addition)((Division)((SelectQuery)result[9]).SelectExpressions[0]).left).right).right).ColumnName.id);
+            Assert.Equal("d", ((ColumnRef)((Division)((SelectQuery)result[9]).SelectExpressions[0]).right).ColumnName.id);
         }
 
         [Fact(DisplayName = "Parse SELECT sub query")]
@@ -592,7 +758,7 @@ namespace ParserTests
                        "SELECT a, b, c FROM ss, (SELECT z FROM tt) AS t, uu as u;";
 
             // Act
-            var results = MsSqlQueryParser.ParseToAst(test);
+            var results = MySqlQueryParser.ParseToAst(test);
 
             var result1 = results[0] as SelectQuery;
             Assert.Single(result1.From.Sources);
@@ -608,39 +774,6 @@ namespace ParserTests
             Assert.Equal("ss", ((TableSource)result2.From.Sources[0].FirstTable).Table.Table.id);
             Assert.Equal("uu", ((TableSource)result2.From.Sources[2].FirstTable).Table.Table.id);
             Assert.Equal("u", ((TableSource)result2.From.Sources[2].FirstTable).Table.Alias.id);
-        }
-
-        [Fact(DisplayName = "Parse Prepared Statement")]
-        public void Parse_PreparedStatement()
-        {
-            // Setup
-            var test = "INSERT INTO testtable (a, b, c, d) VALUES (@a, @b, @c, @d), (@e, @f, @g, @h)";
-
-            // Act
-            var results = MsSqlQueryParser.ParseToAst(test);
-
-            var result = results[0] as InsertQuery;
-            Assert.Equal(8, result.GetConstants().Count);
-            Assert.Equal(new PlaceholderConstant("@a"), result.GetConstants()[0].constant);
-            Assert.Equal(new PlaceholderConstant("@b"), result.GetConstants()[1].constant);
-            Assert.Equal(new PlaceholderConstant("@c"), result.GetConstants()[2].constant);
-            Assert.Equal(new PlaceholderConstant("@d"), result.GetConstants()[3].constant);
-            Assert.Equal(new PlaceholderConstant("@e"), result.GetConstants()[4].constant);
-            Assert.Equal(new PlaceholderConstant("@f"), result.GetConstants()[5].constant);
-            Assert.Equal(new PlaceholderConstant("@g"), result.GetConstants()[6].constant);
-            Assert.Equal(new PlaceholderConstant("@h"), result.GetConstants()[7].constant);
-
-            Assert.Equal(2, result.Values.Count);
-            Assert.Equal(4, result.Values[0].Count);
-            Assert.Equal(4, result.Values[1].Count);
-            Assert.Equal(new ConstantContainer(label: "@a"), result.Values[0][0]);
-            Assert.Equal(new ConstantContainer(label: "@b"), result.Values[0][1]);
-            Assert.Equal(new ConstantContainer(label: "@c"), result.Values[0][2]);
-            Assert.Equal(new ConstantContainer(label: "@d"), result.Values[0][3]);
-            Assert.Equal(new ConstantContainer(label: "@e"), result.Values[1][0]);
-            Assert.Equal(new ConstantContainer(label: "@f"), result.Values[1][1]);
-            Assert.Equal(new ConstantContainer(label: "@g"), result.Values[1][2]);
-            Assert.Equal(new ConstantContainer(label: "@h"), result.Values[1][3]);
         }
     }
 }

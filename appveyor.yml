@@ -1,24 +1,27 @@
----
+version: "0.3.1.{build}"
+
 dotnet_csproj:
   patch: true
-  file: '**\*.csproj'
+  file: '**\*.csproj;**\*.props;'
   version: '{version}'
-  package_version: '{version}'
-skip_tags: true
+
 branches:
   only:
     - master
+
+skip_tags: true
+
+image: "Visual Studio 2019"
+
+configuration: Release
+
+nuget:
+  disable_publish_on_pr: true
+
 build:
   publish_nuget: true
   publish_nuget_symbols: true
   verbosity: minimal
+
 before_build:
-  - nuget restore -Verbosity quiet
-configuration: Release
-image: "Visual Studio 2019"
-nuget:
-  disable_publish_on_pr: true
-environment:
-  AppVeyorAPIToken:
-    secure: GvygCCndEp8eiXvItooIyglWYnyfUvg4YNyaufw3N3A=
-version: "0.3.1.{build}"
+  - nuget restore -verbosity quiet
