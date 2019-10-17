@@ -1,0 +1,13 @@
+<Project>
+
+  <PropertyGroup>
+    <Authors>Aprismatic</Authors>
+    <Company>Aprismatic</Company>
+    <Copyright>(c) Aprismatic Pte. Ltd. All rights reserved.</Copyright>
+    <PackageIconUrl>https://i.ibb.co/bgxnv8r/aprismatic-prismadb.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/bazzilic/PrismaDB-QueryParser</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/bazzilic/PrismaDB-QueryParser.git</RepositoryUrl>
+    <Version>0.0.0.0</Version>
+  </PropertyGroup>
+
+</Project>
