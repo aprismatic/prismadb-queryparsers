@@ -235,7 +235,9 @@ namespace ParserTests
                        "PRISMADB LOAD OPETREE;" +
                        "PRISMADB LOAD SCHEMA;" +
                        "PRISMADB BYPASS SELECT * FROM tt;" +
-                       "PRISMADB REFRESH LICENSE;";
+                       "PRISMADB REFRESH LICENSE;" +
+                       "PRISMADB SET LICENSE KEY 'abc';" +
+                       "PRISMADB CHECK LICENSE STATUS;";
 
             // Act 
             var result = MySqlQueryParser.ParseToAst(test);
@@ -262,6 +264,8 @@ namespace ParserTests
             Assert.IsType<LoadSchemaCommand>(result[11]);
             Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[12]).Query).GetTables()[0]);
             Assert.IsType<RefreshLicenseCommand>(result[13]);
+            Assert.Equal("abc", ((SetLicenseKeyCommand)result[14]).LicenseKey.strvalue);
+            Assert.IsType<CheckLicenseStatusCommand>(result[15]);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

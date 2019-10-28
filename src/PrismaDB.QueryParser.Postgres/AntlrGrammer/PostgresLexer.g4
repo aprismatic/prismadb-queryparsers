@@ -144,6 +144,7 @@ SCHEMA:                              'SCHEMA';
 BYPASS:                              'BYPASS';
 LICENSE:                             'LICENSE';
 REFRESH:                             'REFRESH';
+CHECK:                               'CHECK';
 
 
 // Common function names

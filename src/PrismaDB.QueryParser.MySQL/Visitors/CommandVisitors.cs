@@ -11,7 +11,10 @@ namespace PrismaDB.QueryParser.MySQL
     {
         public override object VisitExportKeysCommand([NotNull] MySqlParser.ExportKeysCommandContext context)
         {
-            return new ExportKeysCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            var res = new ExportKeysCommand();
+            if (context.stringLiteral() != null)
+                res.FileUri = (StringConstant)Visit(context.stringLiteral());
+            return res;
         }
 
         public override object VisitUpdateKeysCommand([NotNull] MySqlParser.UpdateKeysCommandContext context)
@@ -102,6 +105,16 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitRefreshLicenseCommand([NotNull] MySqlParser.RefreshLicenseCommandContext context)
         {
             return new RefreshLicenseCommand();
+        }
+
+        public override object VisitSetLicenseKeyCommand([NotNull] MySqlParser.SetLicenseKeyCommandContext context)
+        {
+            return new SetLicenseKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+        }
+
+        public override object VisitCheckLicenseStatusCommand([NotNull] MySqlParser.CheckLicenseStatusCommandContext context)
+        {
+            return new CheckLicenseStatusCommand();
         }
     }
 }

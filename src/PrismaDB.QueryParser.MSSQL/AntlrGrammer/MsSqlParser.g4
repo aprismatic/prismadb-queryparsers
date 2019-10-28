@@ -61,6 +61,7 @@ dclStatement
     | decryptCommand | rebalanceOpetreeCommand | saveOpetreeCommand
     | loadOpetreeCommand | loadSchemaCommand | saveSettingsCommand
     | loadSettingsCommand | bypassCommand | refreshLicenseCommand
+    | setLicenseKeyCommand | checkLicenseStatusCommand
     ;
 
 utilityStatement
@@ -268,7 +269,10 @@ showColumnsStatement
 // Prisma/DB Data Control Language
 
 exportKeysCommand
-    : PRISMADB EXPORT KEYS TO stringLiteral
+    : PRISMADB EXPORT KEYS
+      (
+        TO stringLiteral
+      )?
     ;
 
 updateKeysCommand
@@ -313,11 +317,19 @@ loadSettingsCommand
 
 bypassCommand
     : PRISMADB BYPASS
-	  (ddlStatement | dmlStatement)
+      (ddlStatement | dmlStatement)
     ;
 
 refreshLicenseCommand
     : PRISMADB REFRESH LICENSE
+    ;
+
+setLicenseKeyCommand
+    : PRISMADB SET LICENSE KEY stringLiteral
+    ;
+
+checkLicenseStatusCommand
+    : PRISMADB CHECK LICENSE STATUS
     ;
 
 
