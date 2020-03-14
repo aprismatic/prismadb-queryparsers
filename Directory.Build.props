@@ -4,10 +4,13 @@
     <Authors>Aprismatic</Authors>
     <Company>Aprismatic</Company>
     <Copyright>(c) Aprismatic Pte. Ltd. All rights reserved.</Copyright>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageIconUrl>https://i.ibb.co/bgxnv8r/aprismatic-prismadb.png</PackageIconUrl>
-    <PackageProjectUrl>https://github.com/bazzilic/PrismaDB-QueryParser</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/bazzilic/PrismaDB-QueryParser.git</RepositoryUrl>
-    <Version>0.0.0.0</Version>
+    <RepositoryUrl>https://github.com/aprismatic/prismadb-queryparsers</RepositoryUrl>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
 </Project>

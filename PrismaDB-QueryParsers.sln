@@ -3,12 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
-
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D78EAE2E-060D-482B-AA18-18F33CA0B588}"
 	ProjectSection(SolutionItems) = preProject
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
 		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
 		README.md = README.md
@@ -29,6 +27,12 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserTests-MySQL", "test\ParserTests-MySQL\ParserTests-MySQL.csproj", "{EE80968A-5C53-4D00-B3E2-7ABDD8FA2C5E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ParserTests-Postgres", "test\ParserTests-Postgres\ParserTests-Postgres.csproj", "{B535EBBA-EF56-45C9-8141-60EAF5658281}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ci", "ci", "{D92D527F-4487-4665-B63B-E0EF0831FD89}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\release-dotnet-nuget.yml = .github\workflows\release-dotnet-nuget.yml
+		.github\workflows\test-dotnet-windows.yml = .github\workflows\test-dotnet-windows.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
