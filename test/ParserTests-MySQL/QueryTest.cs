@@ -222,32 +222,32 @@ namespace ParserTests
         public void Parse_Commands()
         {
             // Setup 
-            var test = "PRISMADB EXPORT KEYS TO '/home/user/settings.json';" +
+            var test = "PRISMADB KEYS EXPORT TO '/home/user/settings.json';" +
                        "PRISMADB REGISTER USER 'sherlock' PASSWORD '@22!B';" +
-                       "PRISMADB UPDATE KEYS;" +
+                       "PRISMADB KEYS UPDATE;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
                        "PRISMADB DECRYPT tt.col1 STATUS;" +
-                       "PRISMADB REBALANCE OPETREE;" +
-                       "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);" +
-                       "PRISMADB SAVE OPETREE;" +
-                       "PRISMADB LOAD OPETREE;" +
-                       "PRISMADB LOAD SCHEMA;" +
+                       "PRISMADB OPETREE REBALANCE;" +
+                       "PRISMADB OPETREE REBALANCE ;" +
+                       "PRISMADB OPETREE SAVE;" +
+                       "PRISMADB OPETREE LOAD;" +
+                       "PRISMADB SCHEMA LOAD;" +
                        "PRISMADB BYPASS SELECT * FROM tt;" +
-                       "PRISMADB REFRESH LICENSE;" +
-                       "PRISMADB SET LICENSE KEY 'abc';" +
-                       "PRISMADB CHECK LICENSE STATUS;";
+                       "PRISMADB LICENSE REFRESH;" +
+                       "PRISMADB LICENSE SET KEY 'abc';" +
+                       "PRISMADB LICENSE STATUS;";
 
             // Act 
             var result = MySqlQueryParser.ParseToAst(test);
 
             // Assert 
-            Assert.Equal("/home/user/settings.json", ((ExportKeysCommand)result[0]).FileUri.strvalue);
+            Assert.Equal("/home/user/settings.json", ((KeysExportCommand)result[0]).FileUri.strvalue);
             Assert.Equal("sherlock", ((RegisterUserCommand)result[1]).UserId.strvalue);
             Assert.Equal("@22!B", ((RegisterUserCommand)result[1]).Password.strvalue);
-            Assert.Equal(typeof(UpdateKeysCommand), result[2].GetType());
-            Assert.False(((UpdateKeysCommand)result[2]).StatusCheck);
+            Assert.Equal(typeof(KeysUpdateCommand), result[2].GetType());
+            Assert.False(((KeysUpdateCommand)result[2]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[3]).Column);
             Assert.False(((DecryptColumnCommand)result[3]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[4]).Column);
@@ -257,15 +257,15 @@ namespace ParserTests
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[5]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
             Assert.True(((DecryptColumnCommand)result[6]).StatusCheck);
-            Assert.Empty(((RebalanceOpetreeCommand)result[7]).WithValues);
-            Assert.Equal(2, ((RebalanceOpetreeCommand)result[8]).WithValues.Count);
-            Assert.IsType<SaveOpetreeCommand>(result[9]);
-            Assert.IsType<LoadOpetreeCommand>(result[10]);
-            Assert.IsType<LoadSchemaCommand>(result[11]);
+            //Assert.Empty(((OpetreeRebalanceCommand)result[7]).WithValues);
+            //Assert.Equal(2, ((OpetreeRebalanceCommand)result[8]).WithValues.Count);
+            Assert.IsType<OpetreeSaveCommand>(result[9]);
+            Assert.IsType<OpetreeLoadCommand>(result[10]);
+            Assert.IsType<SchemaLoadCommand>(result[11]);
             Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[12]).Query).GetTables()[0]);
-            Assert.IsType<RefreshLicenseCommand>(result[13]);
-            Assert.Equal("abc", ((SetLicenseKeyCommand)result[14]).LicenseKey.strvalue);
-            Assert.IsType<CheckLicenseStatusCommand>(result[15]);
+            Assert.IsType<LicenseRefreshCommand>(result[13]);
+            Assert.Equal("abc", ((LicenseSetKeyCommand)result[14]).LicenseKey.strvalue);
+            Assert.IsType<LicenseStatusCommand>(result[15]);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

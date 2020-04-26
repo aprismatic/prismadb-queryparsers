@@ -57,11 +57,11 @@ dmlStatement
     ;
 
 dclStatement
-    : exportKeysCommand | updateKeysCommand | encryptCommand
-    | decryptCommand | rebalanceOpetreeCommand | saveOpetreeCommand
-    | loadOpetreeCommand | loadSchemaCommand | saveSettingsCommand
-    | loadSettingsCommand | bypassCommand | refreshLicenseCommand
-    | setLicenseKeyCommand | checkLicenseStatusCommand
+    : keysExportCommand | keysUpdateCommand | encryptCommand
+    | decryptCommand | opetreeRebalanceCommand | opetreeSaveCommand
+    | opetreeLoadCommand | schemaLoadCommand | settingsSaveCommand
+    | settingsLoadCommand | bypassCommand | licenseRefreshCommand
+    | licenseSetKeyCommand | licenseStatusCommand
     ;
 
 utilityStatement
@@ -261,15 +261,15 @@ showColumnsStatement
 
 // Prisma/DB Data Control Language
 
-exportKeysCommand
-    : PRISMADB EXPORT KEYS
+keysExportCommand
+    : PRISMADB KEYS EXPORT
       (
         TO stringLiteral
       )?
     ;
 
-updateKeysCommand
-    : PRISMADB UPDATE KEYS STATUS?
+keysUpdateCommand
+    : PRISMADB KEYS UPDATE STATUS?
     ;
 
 encryptCommand
@@ -280,32 +280,28 @@ decryptCommand
     : PRISMADB DECRYPT fullColumnName STATUS?
     ;
 
-rebalanceOpetreeCommand
-    : PRISMADB REBALANCE OPETREE
-      (
-        WITH VALUES '(' constants ')'
-      )?
-      STATUS?
+opetreeRebalanceCommand
+    : PRISMADB OPETREE REBALANCE STATUS?
     ;
 
-saveOpetreeCommand
-    : PRISMADB SAVE OPETREE
+opetreeSaveCommand
+    : PRISMADB OPETREE SAVE
     ;
 
-loadOpetreeCommand
-    : PRISMADB LOAD OPETREE
+opetreeLoadCommand
+    : PRISMADB OPETREE LOAD
     ;
 
-loadSchemaCommand
-    : PRISMADB LOAD SCHEMA
+schemaLoadCommand
+    : PRISMADB SCHEMA LOAD
     ;
 
-saveSettingsCommand
-    : PRISMADB SAVE SETTINGS
+settingsSaveCommand
+    : PRISMADB SETTINGS SAVE
     ;
 
-loadSettingsCommand
-    : PRISMADB LOAD SETTINGS
+settingsLoadCommand
+    : PRISMADB SETTINGS LOAD
     ;
 
 bypassCommand
@@ -313,16 +309,16 @@ bypassCommand
       (ddlStatement | dmlStatement)
     ;
 
-refreshLicenseCommand
-    : PRISMADB REFRESH LICENSE
+licenseRefreshCommand
+    : PRISMADB LICENSE REFRESH
     ;
 
-setLicenseKeyCommand
-    : PRISMADB SET LICENSE KEY stringLiteral
+licenseSetKeyCommand
+    : PRISMADB LICENSE SET KEY stringLiteral
     ;
 
-checkLicenseStatusCommand
-    : PRISMADB CHECK LICENSE STATUS
+licenseStatusCommand
+    : PRISMADB LICENSE STATUS
     ;
 
 
@@ -557,7 +553,9 @@ keywordsCanBeId
     : ENCRYPTED
     | ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
-    | STATUS
+    | STATUS | REBALANCE | SAVE | OPETREE | LOAD | SCHEMA
+    | BYPASS | LICENSE | REFRESH | CHECK | STOP | AFTER
+    | ITERATIONS | HOURS | MINUTES | REBUILD
     ;
 
 

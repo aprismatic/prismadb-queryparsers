@@ -9,17 +9,17 @@ namespace PrismaDB.QueryParser.Postgres
 {
     public partial class PostgresVisitor : PostgresParserBaseVisitor<object>
     {
-        public override object VisitExportKeysCommand([NotNull] PostgresParser.ExportKeysCommandContext context)
+        public override object VisitKeysExportCommand([NotNull] PostgresParser.KeysExportCommandContext context)
         {
-            var res = new ExportKeysCommand();
+            var res = new KeysExportCommand();
             if (context.stringLiteral() != null)
                 res.FileUri = (StringConstant)Visit(context.stringLiteral());
             return res;
         }
 
-        public override object VisitUpdateKeysCommand([NotNull] PostgresParser.UpdateKeysCommandContext context)
+        public override object VisitKeysUpdateCommand([NotNull] PostgresParser.KeysUpdateCommandContext context)
         {
-            var res = new UpdateKeysCommand();
+            var res = new KeysUpdateCommand();
             if (context.STATUS() != null)
                 res.StatusCheck = true;
             return res;
@@ -46,39 +46,39 @@ namespace PrismaDB.QueryParser.Postgres
             return res;
         }
 
-        public override object VisitRebalanceOpetreeCommand([NotNull] PostgresParser.RebalanceOpetreeCommandContext context)
+        public override object VisitOpetreeRebalanceCommand([NotNull] PostgresParser.OpetreeRebalanceCommandContext context)
         {
-            var res = new RebalanceOpetreeCommand();
-            if (context.constants() != null)
-                res.WithValues = (List<ConstantContainer>)Visit(context.constants());
-            if (context.STATUS() != null)
-                res.StatusCheck = true;
+            var res = new OpetreeRebalanceCommand(false);
+            //if (context.constants() != null)
+            //    res.WithValues = (List<ConstantContainer>)Visit(context.constants());
+            //if (context.STATUS() != null)
+            //    res.StatusCheck = true;
             return res;
         }
 
-        public override object VisitSaveOpetreeCommand([NotNull] PostgresParser.SaveOpetreeCommandContext context)
+        public override object VisitOpetreeSaveCommand([NotNull] PostgresParser.OpetreeSaveCommandContext context)
         {
-            return new SaveOpetreeCommand();
+            return new OpetreeSaveCommand();
         }
 
-        public override object VisitLoadOpetreeCommand([NotNull] PostgresParser.LoadOpetreeCommandContext context)
+        public override object VisitOpetreeLoadCommand([NotNull] PostgresParser.OpetreeLoadCommandContext context)
         {
-            return new LoadOpetreeCommand();
+            return new OpetreeLoadCommand();
         }
 
-        public override object VisitLoadSchemaCommand([NotNull] PostgresParser.LoadSchemaCommandContext context)
+        public override object VisitSchemaLoadCommand([NotNull] PostgresParser.SchemaLoadCommandContext context)
         {
-            return new LoadSchemaCommand();
+            return new SchemaLoadCommand();
         }
 
-        public override object VisitSaveSettingsCommand([NotNull] PostgresParser.SaveSettingsCommandContext context)
+        public override object VisitSettingsSaveCommand([NotNull] PostgresParser.SettingsSaveCommandContext context)
         {
-            return new SaveSettingsCommand();
+            return new SettingsSaveCommand();
         }
 
-        public override object VisitLoadSettingsCommand([NotNull] PostgresParser.LoadSettingsCommandContext context)
+        public override object VisitSettingsLoadCommand([NotNull] PostgresParser.SettingsLoadCommandContext context)
         {
-            return new LoadSettingsCommand();
+            return new SettingsLoadCommand();
         }
 
         public override object VisitBypassCommand([NotNull] PostgresParser.BypassCommandContext context)
@@ -94,19 +94,19 @@ namespace PrismaDB.QueryParser.Postgres
             return res;
         }
 
-        public override object VisitRefreshLicenseCommand([NotNull] PostgresParser.RefreshLicenseCommandContext context)
+        public override object VisitLicenseRefreshCommand([NotNull] PostgresParser.LicenseRefreshCommandContext context)
         {
-            return new RefreshLicenseCommand();
+            return new LicenseRefreshCommand();
         }
 
-        public override object VisitSetLicenseKeyCommand([NotNull] PostgresParser.SetLicenseKeyCommandContext context)
+        public override object VisitLicenseSetKeyCommand([NotNull] PostgresParser.LicenseSetKeyCommandContext context)
         {
-            return new SetLicenseKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            return new LicenseSetKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
-        public override object VisitCheckLicenseStatusCommand([NotNull] PostgresParser.CheckLicenseStatusCommandContext context)
+        public override object VisitLicenseStatusCommand([NotNull] PostgresParser.LicenseStatusCommandContext context)
         {
-            return new CheckLicenseStatusCommand();
+            return new LicenseStatusCommand();
         }
     }
 }

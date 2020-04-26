@@ -9,17 +9,17 @@ namespace PrismaDB.QueryParser.MSSQL
 {
     public partial class MsSqlVisitor : MsSqlParserBaseVisitor<object>
     {
-        public override object VisitExportKeysCommand([NotNull] MsSqlParser.ExportKeysCommandContext context)
+        public override object VisitKeysExportCommand([NotNull] MsSqlParser.KeysExportCommandContext context)
         {
-            var res = new ExportKeysCommand();
+            var res = new KeysExportCommand();
             if (context.stringLiteral() != null)
                 res.FileUri = (StringConstant)Visit(context.stringLiteral());
             return res;
         }
 
-        public override object VisitUpdateKeysCommand([NotNull] MsSqlParser.UpdateKeysCommandContext context)
+        public override object VisitKeysUpdateCommand([NotNull] MsSqlParser.KeysUpdateCommandContext context)
         {
-            var res = new UpdateKeysCommand();
+            var res = new KeysUpdateCommand();
             if (context.STATUS() != null)
                 res.StatusCheck = true;
             return res;
@@ -46,39 +46,39 @@ namespace PrismaDB.QueryParser.MSSQL
             return res;
         }
 
-        public override object VisitRebalanceOpetreeCommand([NotNull] MsSqlParser.RebalanceOpetreeCommandContext context)
+        public override object VisitOpetreeRebalanceCommand([NotNull] MsSqlParser.OpetreeRebalanceCommandContext context)
         {
-            var res = new RebalanceOpetreeCommand();
-            if (context.constants() != null)
-                res.WithValues = (List<ConstantContainer>)Visit(context.constants());
-            if (context.STATUS() != null)
-                res.StatusCheck = true;
+            var res = new OpetreeRebalanceCommand(false);
+            //if (context.constants() != null)
+            //    res.WithValues = (List<ConstantContainer>)Visit(context.constants());
+            //if (context.STATUS() != null)
+            //    res.StatusCheck = true;
             return res;
         }
 
-        public override object VisitSaveOpetreeCommand([NotNull] MsSqlParser.SaveOpetreeCommandContext context)
+        public override object VisitOpetreeSaveCommand([NotNull] MsSqlParser.OpetreeSaveCommandContext context)
         {
-            return new SaveOpetreeCommand();
+            return new OpetreeSaveCommand();
         }
 
-        public override object VisitLoadOpetreeCommand([NotNull] MsSqlParser.LoadOpetreeCommandContext context)
+        public override object VisitOpetreeLoadCommand([NotNull] MsSqlParser.OpetreeLoadCommandContext context)
         {
-            return new LoadOpetreeCommand();
+            return new OpetreeLoadCommand();
         }
 
-        public override object VisitLoadSchemaCommand([NotNull] MsSqlParser.LoadSchemaCommandContext context)
+        public override object VisitSchemaLoadCommand([NotNull] MsSqlParser.SchemaLoadCommandContext context)
         {
-            return new LoadSchemaCommand();
+            return new SchemaLoadCommand();
         }
 
-        public override object VisitSaveSettingsCommand([NotNull] MsSqlParser.SaveSettingsCommandContext context)
+        public override object VisitSettingsSaveCommand([NotNull] MsSqlParser.SettingsSaveCommandContext context)
         {
-            return new SaveSettingsCommand();
+            return new SettingsSaveCommand();
         }
 
-        public override object VisitLoadSettingsCommand([NotNull] MsSqlParser.LoadSettingsCommandContext context)
+        public override object VisitSettingsLoadCommand([NotNull] MsSqlParser.SettingsLoadCommandContext context)
         {
-            return new LoadSettingsCommand();
+            return new SettingsLoadCommand();
         }
 
         public override object VisitBypassCommand([NotNull] MsSqlParser.BypassCommandContext context)
@@ -94,19 +94,19 @@ namespace PrismaDB.QueryParser.MSSQL
             return res;
         }
 
-        public override object VisitRefreshLicenseCommand([NotNull] MsSqlParser.RefreshLicenseCommandContext context)
+        public override object VisitLicenseRefreshCommand([NotNull] MsSqlParser.LicenseRefreshCommandContext context)
         {
-            return new RefreshLicenseCommand();
+            return new LicenseRefreshCommand();
         }
 
-        public override object VisitSetLicenseKeyCommand([NotNull] MsSqlParser.SetLicenseKeyCommandContext context)
+        public override object VisitLicenseSetKeyCommand([NotNull] MsSqlParser.LicenseSetKeyCommandContext context)
         {
-            return new SetLicenseKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            return new LicenseSetKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
-        public override object VisitCheckLicenseStatusCommand([NotNull] MsSqlParser.CheckLicenseStatusCommandContext context)
+        public override object VisitLicenseStatusCommand([NotNull] MsSqlParser.LicenseStatusCommandContext context)
         {
-            return new CheckLicenseStatusCommand();
+            return new LicenseStatusCommand();
         }
     }
 }

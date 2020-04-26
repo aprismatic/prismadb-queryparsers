@@ -185,29 +185,29 @@ namespace ParserTests
         public void Parse_Commands()
         {
             // Setup 
-            var test = "PRISMADB EXPORT KEYS TO '/home/user/settings.json';" +
-                       "PRISMADB UPDATE KEYS;" +
+            var test = "PRISMADB KEYS EXPORT TO '/home/user/settings.json';" +
+                       "PRISMADB KEYS UPDATE;" +
                        "PRISMADB DECRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
                        "PRISMADB DECRYPT tt.col1 STATUS;" +
-                       "PRISMADB REBALANCE OPETREE;" +
-                       "PRISMADB REBALANCE OPETREE WITH VALUES (1, 2);" +
-                       "PRISMADB SAVE OPETREE;" +
-                       "PRISMADB LOAD OPETREE;" +
-                       "PRISMADB LOAD SCHEMA;" +
+                       "PRISMADB OPETREE REBALANCE;" +
+                       "PRISMADB OPETREE REBALANCE ;" +
+                       "PRISMADB OPETREE SAVE;" +
+                       "PRISMADB OPETREE LOAD;" +
+                       "PRISMADB SCHEMA LOAD;" +
                        "PRISMADB BYPASS SELECT * FROM tt;" +
-                       "PRISMADB REFRESH LICENSE;" +
-                       "PRISMADB SET LICENSE KEY 'abc';" +
-                       "PRISMADB CHECK LICENSE STATUS;";
+                       "PRISMADB LICENSE REFRESH;" +
+                       "PRISMADB LICENSE SET KEY 'abc';" +
+                       "PRISMADB LICENSE STATUS;";
 
             // Act 
             var result = MsSqlQueryParser.ParseToAst(test);
 
             // Assert 
-            Assert.Equal("/home/user/settings.json", ((ExportKeysCommand)result[0]).FileUri.strvalue);
-            Assert.Equal(typeof(UpdateKeysCommand), result[1].GetType());
-            Assert.False(((UpdateKeysCommand)result[1]).StatusCheck);
+            Assert.Equal("/home/user/settings.json", ((KeysExportCommand)result[0]).FileUri.strvalue);
+            Assert.Equal(typeof(KeysUpdateCommand), result[1].GetType());
+            Assert.False(((KeysUpdateCommand)result[1]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((DecryptColumnCommand)result[2]).Column);
             Assert.False(((DecryptColumnCommand)result[2]).StatusCheck);
             Assert.Equal(new ColumnRef("tt", "col1"), ((EncryptColumnCommand)result[3]).Column);
@@ -217,15 +217,15 @@ namespace ParserTests
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
             Assert.True(((DecryptColumnCommand)result[5]).StatusCheck);
-            Assert.Empty(((RebalanceOpetreeCommand)result[6]).WithValues);
-            Assert.Equal(2, ((RebalanceOpetreeCommand)result[7]).WithValues.Count);
-            Assert.IsType<SaveOpetreeCommand>(result[8]);
-            Assert.IsType<LoadOpetreeCommand>(result[9]);
-            Assert.IsType<LoadSchemaCommand>(result[10]);
+            //Assert.Empty(((OpetreeRebalanceCommand)result[6]).WithValues);
+            //Assert.Equal(2, ((OpetreeRebalanceCommand)result[7]).WithValues.Count);
+            Assert.IsType<OpetreeSaveCommand>(result[8]);
+            Assert.IsType<OpetreeLoadCommand>(result[9]);
+            Assert.IsType<SchemaLoadCommand>(result[10]);
             Assert.Equal(new TableRef("tt"), ((SelectQuery)((BypassCommand)result[11]).Query).GetTables()[0]);
-            Assert.IsType<RefreshLicenseCommand>(result[12]);
-            Assert.Equal("abc", ((SetLicenseKeyCommand)result[13]).LicenseKey.strvalue);
-            Assert.IsType<CheckLicenseStatusCommand>(result[14]);
+            Assert.IsType<LicenseRefreshCommand>(result[12]);
+            Assert.Equal("abc", ((LicenseSetKeyCommand)result[13]).LicenseKey.strvalue);
+            Assert.IsType<LicenseStatusCommand>(result[14]);
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]
