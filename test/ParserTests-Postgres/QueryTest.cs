@@ -218,15 +218,19 @@ namespace ParserTests
                        "PRISMADB ENCRYPT tt.col1;" +
                        "PRISMADB ENCRYPT tt.col1 FOR (STORE, SEARCH);" +
                        "PRISMADB DECRYPT tt.col1 STATUS;" +
-                       "PRISMADB OPETREE REBALANCE;" +
-                       "PRISMADB OPETREE REBALANCE ;" +
+                       "PRISMADB OPETREE REBUILD STATUS;" +
+                       "PRISMADB OPETREE STATUS;" +
                        "PRISMADB OPETREE SAVE;" +
                        "PRISMADB OPETREE LOAD;" +
                        "PRISMADB SCHEMA LOAD;" +
                        "PRISMADB BYPASS SELECT * FROM tt;" +
                        "PRISMADB LICENSE REFRESH;" +
                        "PRISMADB LICENSE SET KEY 'abc';" +
-                       "PRISMADB LICENSE STATUS;";
+                       "PRISMADB LICENSE STATUS;" +
+                       "PRISMADB OPETREE INSERT VALUES (1,2,3,4.5);" +
+                       "PRISMADB OPETREE REBALANCE STATUS;" +
+                       "PRISMADB OPETREE REBALANCE STOP;" +
+                       "PRISMADB OPETREE REBALANCE STOP AFTER 1.5 HOURS;";
 
             // Act 
             var result = PostgresQueryParser.ParseToAst(test);
@@ -244,8 +248,8 @@ namespace ParserTests
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Addition));
             Assert.False(((EncryptColumnCommand)result[4]).EncryptionFlags.HasFlag(ColumnEncryptionFlags.Multiplication));
             Assert.True(((DecryptColumnCommand)result[5]).StatusCheck);
-            //Assert.Empty(((OpetreeRebalanceCommand)result[6]).WithValues);
-            //Assert.Equal(2, ((OpetreeRebalanceCommand)result[7]).WithValues.Count);
+            Assert.True(((OpetreeRebuildCommand)result[6]).StatusCheck);
+            Assert.IsType<OpetreeStatusCommand>(result[7]);
             Assert.IsType<OpetreeSaveCommand>(result[8]);
             Assert.IsType<OpetreeLoadCommand>(result[9]);
             Assert.IsType<SchemaLoadCommand>(result[10]);
@@ -253,6 +257,11 @@ namespace ParserTests
             Assert.IsType<LicenseRefreshCommand>(result[12]);
             Assert.Equal("abc", ((LicenseSetKeyCommand)result[13]).LicenseKey.strvalue);
             Assert.IsType<LicenseStatusCommand>(result[14]);
+            Assert.Equal(4, ((OpetreeInsertCommand)result[15]).Values.Count);
+            Assert.True(((OpetreeRebalanceCommand)result[16]).StatusCheck);
+            Assert.Equal(RebalanceStopType.IMMEDIATE, ((OpetreeRebalanceCommand)result[17]).StopType);
+            Assert.Equal(RebalanceStopType.HOURS, ((OpetreeRebalanceCommand)result[18]).StopType);
+            Assert.Equal(1.5m, ((OpetreeRebalanceCommand)result[18]).StopAfter.decimalvalue);
         }
 
         [Fact(DisplayName = "Parse SELECT w\\functions")]

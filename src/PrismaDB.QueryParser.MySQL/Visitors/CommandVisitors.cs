@@ -56,11 +56,31 @@ namespace PrismaDB.QueryParser.MySQL
 
         public override object VisitOpetreeRebalanceCommand([NotNull] MySqlParser.OpetreeRebalanceCommandContext context)
         {
-            var res = new OpetreeRebalanceCommand(false);
-            //if (context.constants() != null)
-            //    res.WithValues = (List<ConstantContainer>)Visit(context.constants());
-            //if (context.STATUS() != null)
-            //    res.StatusCheck = true;
+            var res = new OpetreeRebalanceCommand();
+            if (context.STATUS() != null)
+                res.StatusCheck = true;
+
+            if (context.STOP() == null)
+            {
+                res.StopType = RebalanceStopType.FULL;
+                return res;
+            }
+
+            if (context.AFTER() == null)
+            {
+                res.StopType = RebalanceStopType.IMMEDIATE;
+                return res;
+            }
+
+            res.StopAfter = (DecimalConstant)Visit(context.stopAfter);
+
+            if (context.ITERATIONS() != null)
+                res.StopType = RebalanceStopType.ITERATIONS;
+            if (context.HOURS() != null)
+                res.StopType = RebalanceStopType.HOURS;
+            if (context.MINUTES() != null)
+                res.StopType = RebalanceStopType.MINUTES;
+
             return res;
         }
 
@@ -72,6 +92,24 @@ namespace PrismaDB.QueryParser.MySQL
         public override object VisitOpetreeLoadCommand([NotNull] MySqlParser.OpetreeLoadCommandContext context)
         {
             return new OpetreeLoadCommand();
+        }
+
+        public override object VisitOpetreeRebuildCommand([NotNull] MySqlParser.OpetreeRebuildCommandContext context)
+        {
+            return new OpetreeRebuildCommand(context.STATUS() != null);
+        }
+
+        public override object VisitOpetreeInsertCommand([NotNull] MySqlParser.OpetreeInsertCommandContext context)
+        {
+            var res = new OpetreeInsertCommand();
+            if (context.constants() != null)
+                res.Values = (List<ConstantContainer>)Visit(context.constants());
+            return res;
+        }
+
+        public override object VisitOpetreeStatusCommand([NotNull] MySqlParser.OpetreeStatusCommandContext context)
+        {
+            return new OpetreeStatusCommand();
         }
 
         public override object VisitSchemaLoadCommand([NotNull] MySqlParser.SchemaLoadCommandContext context)

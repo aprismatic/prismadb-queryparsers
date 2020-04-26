@@ -59,6 +59,7 @@ dmlStatement
 dclStatement
     : keysExportCommand | keysUpdateCommand | encryptCommand
     | decryptCommand | opetreeRebalanceCommand | opetreeSaveCommand
+    | opetreeRebuildCommand | opetreeInsertCommand | opetreeStatusCommand
     | opetreeLoadCommand | schemaLoadCommand | settingsSaveCommand
     | settingsLoadCommand | bypassCommand | licenseRefreshCommand
     | licenseSetKeyCommand | licenseStatusCommand | registerUserCommand
@@ -293,7 +294,7 @@ opetreeRebalanceCommand
         (
           STOP
           (
-            AFTER decimalLiteral (ITERATIONS | HOURS | MINUTES)
+            AFTER stopAfter=decimalLiteral (ITERATIONS | HOURS | MINUTES)
           )?
         )
       )?
@@ -309,6 +310,18 @@ opetreeLoadCommand
 
 schemaLoadCommand
     : PRISMADB SCHEMA LOAD
+    ;
+
+opetreeRebuildCommand
+    : PRISMADB OPETREE REBUILD STATUS?
+    ;
+
+opetreeInsertCommand
+    : PRISMADB OPETREE INSERT VALUES '(' constants ')'
+    ;
+
+opetreeStatusCommand
+    : PRISMADB OPETREE STATUS
     ;
 
 settingsSaveCommand
