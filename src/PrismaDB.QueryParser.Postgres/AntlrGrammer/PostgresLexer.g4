@@ -145,6 +145,12 @@ BYPASS:                              'BYPASS';
 LICENSE:                             'LICENSE';
 REFRESH:                             'REFRESH';
 CHECK:                               'CHECK';
+STOP:                                'STOP';
+AFTER:                               'AFTER';
+ITERATIONS:                          'ITERATIONS';
+HOURS:                               'HOURS';
+MINUTES:                             'MINUTES';
+REBUILD:                             'REBUILD';
 
 
 // Common function names

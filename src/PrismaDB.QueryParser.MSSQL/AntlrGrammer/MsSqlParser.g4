@@ -57,11 +57,12 @@ dmlStatement
     ;
 
 dclStatement
-    : exportKeysCommand | updateKeysCommand | encryptCommand
-    | decryptCommand | rebalanceOpetreeCommand | saveOpetreeCommand
-    | loadOpetreeCommand | loadSchemaCommand | saveSettingsCommand
-    | loadSettingsCommand | bypassCommand | refreshLicenseCommand
-    | setLicenseKeyCommand | checkLicenseStatusCommand
+    : keysExportCommand | keysUpdateCommand | encryptCommand
+    | decryptCommand | opetreeRebalanceCommand | opetreeSaveCommand
+    | opetreeRebuildCommand | opetreeInsertCommand | opetreeStatusCommand
+    | opetreeLoadCommand | schemaLoadCommand | settingsSaveCommand
+    | settingsLoadCommand | bypassCommand | licenseRefreshCommand
+    | licenseSetKeyCommand | licenseStatusCommand
     ;
 
 utilityStatement
@@ -268,15 +269,15 @@ showColumnsStatement
 
 // Prisma/DB Data Control Language
 
-exportKeysCommand
-    : PRISMADB EXPORT KEYS
+keysExportCommand
+    : PRISMADB KEYS EXPORT
       (
         TO stringLiteral
       )?
     ;
 
-updateKeysCommand
-    : PRISMADB UPDATE KEYS STATUS?
+keysUpdateCommand
+    : PRISMADB KEYS UPDATE STATUS?
     ;
 
 encryptCommand
@@ -287,32 +288,49 @@ decryptCommand
     : PRISMADB DECRYPT fullColumnName STATUS?
     ;
 
-rebalanceOpetreeCommand
-    : PRISMADB REBALANCE OPETREE
+opetreeRebalanceCommand
+    : PRISMADB OPETREE REBALANCE
       (
-        WITH VALUES '(' constants ')'
+        STATUS |
+        (
+          STOP
+          (
+            AFTER stopAfter=decimalLiteral (ITERATIONS | HOURS | MINUTES)
+          )?
+        )
       )?
-      STATUS?
     ;
 
-saveOpetreeCommand
-    : PRISMADB SAVE OPETREE
+opetreeSaveCommand
+    : PRISMADB OPETREE SAVE
     ;
 
-loadOpetreeCommand
-    : PRISMADB LOAD OPETREE
+opetreeLoadCommand
+    : PRISMADB OPETREE LOAD
     ;
 
-loadSchemaCommand
-    : PRISMADB LOAD SCHEMA
+opetreeRebuildCommand
+    : PRISMADB OPETREE REBUILD STATUS?
     ;
 
-saveSettingsCommand
-    : PRISMADB SAVE SETTINGS
+opetreeInsertCommand
+    : PRISMADB OPETREE INSERT VALUES '(' constants ')'
     ;
 
-loadSettingsCommand
-    : PRISMADB LOAD SETTINGS
+opetreeStatusCommand
+    : PRISMADB OPETREE STATUS
+    ;
+
+schemaLoadCommand
+    : PRISMADB SCHEMA LOAD
+    ;
+
+settingsSaveCommand
+    : PRISMADB SETTINGS SAVE
+    ;
+
+settingsLoadCommand
+    : PRISMADB SETTINGS LOAD
     ;
 
 bypassCommand
@@ -320,16 +338,16 @@ bypassCommand
       (ddlStatement | dmlStatement)
     ;
 
-refreshLicenseCommand
-    : PRISMADB REFRESH LICENSE
+licenseRefreshCommand
+    : PRISMADB LICENSE REFRESH
     ;
 
-setLicenseKeyCommand
-    : PRISMADB SET LICENSE KEY stringLiteral
+licenseSetKeyCommand
+    : PRISMADB LICENSE SET KEY stringLiteral
     ;
 
-checkLicenseStatusCommand
-    : PRISMADB CHECK LICENSE STATUS
+licenseStatusCommand
+    : PRISMADB LICENSE STATUS
     ;
 
 
@@ -564,7 +582,10 @@ keywordsCanBeId
     : ENCRYPTED
     | ADDITION | SEARCH | STORE | MULTIPLICATION | WILDCARD
     | PRISMADB | EXPORT | SETTINGS | ENCRYPT | DECRYPT
-    | STATUS ;
+    | STATUS | REBALANCE | SAVE | OPETREE | LOAD | SCHEMA
+    | BYPASS | LICENSE | REFRESH | CHECK | STOP | AFTER
+    | ITERATIONS | HOURS | MINUTES | REBUILD
+    ;
 
 
 

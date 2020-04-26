@@ -9,17 +9,17 @@ namespace PrismaDB.QueryParser.MySQL
 {
     public partial class MySqlVisitor : MySqlParserBaseVisitor<object>
     {
-        public override object VisitExportKeysCommand([NotNull] MySqlParser.ExportKeysCommandContext context)
+        public override object VisitKeysExportCommand([NotNull] MySqlParser.KeysExportCommandContext context)
         {
-            var res = new ExportKeysCommand();
+            var res = new KeysExportCommand();
             if (context.stringLiteral() != null)
                 res.FileUri = (StringConstant)Visit(context.stringLiteral());
             return res;
         }
 
-        public override object VisitUpdateKeysCommand([NotNull] MySqlParser.UpdateKeysCommandContext context)
+        public override object VisitKeysUpdateCommand([NotNull] MySqlParser.KeysUpdateCommandContext context)
         {
-            var res = new UpdateKeysCommand();
+            var res = new KeysUpdateCommand();
             if (context.STATUS() != null)
                 res.StatusCheck = true;
             return res;
@@ -54,39 +54,77 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitRebalanceOpetreeCommand([NotNull] MySqlParser.RebalanceOpetreeCommandContext context)
+        public override object VisitOpetreeRebalanceCommand([NotNull] MySqlParser.OpetreeRebalanceCommandContext context)
         {
-            var res = new RebalanceOpetreeCommand();
-            if (context.constants() != null)
-                res.WithValues = (List<ConstantContainer>)Visit(context.constants());
+            var res = new OpetreeRebalanceCommand();
             if (context.STATUS() != null)
                 res.StatusCheck = true;
+
+            if (context.STOP() == null)
+            {
+                res.StopType = RebalanceStopType.FULL;
+                return res;
+            }
+
+            if (context.AFTER() == null)
+            {
+                res.StopType = RebalanceStopType.IMMEDIATE;
+                return res;
+            }
+
+            res.StopAfter = (DecimalConstant)Visit(context.stopAfter);
+
+            if (context.ITERATIONS() != null)
+                res.StopType = RebalanceStopType.ITERATIONS;
+            if (context.HOURS() != null)
+                res.StopType = RebalanceStopType.HOURS;
+            if (context.MINUTES() != null)
+                res.StopType = RebalanceStopType.MINUTES;
+
             return res;
         }
 
-        public override object VisitSaveOpetreeCommand([NotNull] MySqlParser.SaveOpetreeCommandContext context)
+        public override object VisitOpetreeSaveCommand([NotNull] MySqlParser.OpetreeSaveCommandContext context)
         {
-            return new SaveOpetreeCommand();
+            return new OpetreeSaveCommand();
         }
 
-        public override object VisitLoadOpetreeCommand([NotNull] MySqlParser.LoadOpetreeCommandContext context)
+        public override object VisitOpetreeLoadCommand([NotNull] MySqlParser.OpetreeLoadCommandContext context)
         {
-            return new LoadOpetreeCommand();
+            return new OpetreeLoadCommand();
         }
 
-        public override object VisitLoadSchemaCommand([NotNull] MySqlParser.LoadSchemaCommandContext context)
+        public override object VisitOpetreeRebuildCommand([NotNull] MySqlParser.OpetreeRebuildCommandContext context)
         {
-            return new LoadSchemaCommand();
+            return new OpetreeRebuildCommand(context.STATUS() != null);
         }
 
-        public override object VisitSaveSettingsCommand([NotNull] MySqlParser.SaveSettingsCommandContext context)
+        public override object VisitOpetreeInsertCommand([NotNull] MySqlParser.OpetreeInsertCommandContext context)
         {
-            return new SaveSettingsCommand();
+            var res = new OpetreeInsertCommand();
+            if (context.constants() != null)
+                res.Values = (List<ConstantContainer>)Visit(context.constants());
+            return res;
         }
 
-        public override object VisitLoadSettingsCommand([NotNull] MySqlParser.LoadSettingsCommandContext context)
+        public override object VisitOpetreeStatusCommand([NotNull] MySqlParser.OpetreeStatusCommandContext context)
         {
-            return new LoadSettingsCommand();
+            return new OpetreeStatusCommand();
+        }
+
+        public override object VisitSchemaLoadCommand([NotNull] MySqlParser.SchemaLoadCommandContext context)
+        {
+            return new SchemaLoadCommand();
+        }
+
+        public override object VisitSettingsSaveCommand([NotNull] MySqlParser.SettingsSaveCommandContext context)
+        {
+            return new SettingsSaveCommand();
+        }
+
+        public override object VisitSettingsLoadCommand([NotNull] MySqlParser.SettingsLoadCommandContext context)
+        {
+            return new SettingsLoadCommand();
         }
 
         public override object VisitBypassCommand([NotNull] MySqlParser.BypassCommandContext context)
@@ -102,19 +140,19 @@ namespace PrismaDB.QueryParser.MySQL
             return res;
         }
 
-        public override object VisitRefreshLicenseCommand([NotNull] MySqlParser.RefreshLicenseCommandContext context)
+        public override object VisitLicenseRefreshCommand([NotNull] MySqlParser.LicenseRefreshCommandContext context)
         {
-            return new RefreshLicenseCommand();
+            return new LicenseRefreshCommand();
         }
 
-        public override object VisitSetLicenseKeyCommand([NotNull] MySqlParser.SetLicenseKeyCommandContext context)
+        public override object VisitLicenseSetKeyCommand([NotNull] MySqlParser.LicenseSetKeyCommandContext context)
         {
-            return new SetLicenseKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
+            return new LicenseSetKeyCommand(((StringConstant)Visit(context.stringLiteral())).strvalue);
         }
 
-        public override object VisitCheckLicenseStatusCommand([NotNull] MySqlParser.CheckLicenseStatusCommandContext context)
+        public override object VisitLicenseStatusCommand([NotNull] MySqlParser.LicenseStatusCommandContext context)
         {
-            return new CheckLicenseStatusCommand();
+            return new LicenseStatusCommand();
         }
     }
 }
