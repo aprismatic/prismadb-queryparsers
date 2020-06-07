@@ -72,7 +72,7 @@ namespace PrismaDB.QueryParser.MySQL
                 return res;
             }
 
-            res.StopAfter = (DecimalConstant)Visit(context.stopAfter);
+            res.StopAfter = (IntConstant)Visit(context.stopAfter);
 
             if (context.ITERATIONS() != null)
                 res.StopType = RebalanceStopType.ITERATIONS;

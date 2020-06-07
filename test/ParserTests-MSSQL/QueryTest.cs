@@ -203,7 +203,7 @@ namespace ParserTests
                        "PRISMADB OPETREE INSERT VALUES (1,2,3,4.5);" +
                        "PRISMADB OPETREE REBALANCE STATUS;" +
                        "PRISMADB OPETREE REBALANCE STOP;" +
-                       "PRISMADB OPETREE REBALANCE STOP AFTER 1.5 HOURS;";
+                       "PRISMADB OPETREE REBALANCE STOP AFTER 2 HOURS;";
 
             // Act 
             var result = MsSqlQueryParser.ParseToAst(test);
@@ -234,7 +234,7 @@ namespace ParserTests
             Assert.True(((OpetreeRebalanceCommand)result[16]).StatusCheck);
             Assert.Equal(RebalanceStopType.IMMEDIATE, ((OpetreeRebalanceCommand)result[17]).StopType);
             Assert.Equal(RebalanceStopType.HOURS, ((OpetreeRebalanceCommand)result[18]).StopType);
-            Assert.Equal(1.5m, ((OpetreeRebalanceCommand)result[18]).StopAfter.decimalvalue);
+            Assert.Equal(2, ((OpetreeRebalanceCommand)result[18]).StopAfter.intvalue);
         }
 
         [Fact(DisplayName = "Parse functions in SELECT")]

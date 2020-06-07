@@ -288,7 +288,7 @@ opetreeRebalanceCommand
         (
           STOP
           (
-            AFTER stopAfter=decimalLiteral (ITERATIONS | HOURS | MINUTES)
+            AFTER stopAfter=intLiteral (ITERATIONS | HOURS | MINUTES)
           )?
         )
       )?
